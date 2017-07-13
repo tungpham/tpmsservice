@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 /**
  * Created by truongnguyen on 6/30/17.
  */
@@ -47,71 +45,16 @@ public class PhoneService {
         return token;
     }
 
-    @RequestMapping(value = "/call", method = RequestMethod.GET, produces = {"application/xml"})
-    public String call(@RequestParam Map<String, String> allRequestParams) {
-
-        System.out.println("MultiValueMap: " + allRequestParams.toString());
-
-        String from = allRequestParams.get("From");
-        String to = allRequestParams.get("To");
-
-//        String CALLER_ID = "+17606215500";
-//        String CLIENT_ID = "17606215500";
-
-        TwiMLResponse twiml = new TwiMLResponse();
-
-        VoiceResponse voiceResponse = new VoiceResponse.Builder()
-                .say(new Say.Builder("Invalid Value f").build())
-                .build();
-
-        if (TextUtils.isEmpty(from) && TextUtils.isEmpty(to)) {
-            try {
-                return voiceResponse.toXml();
-            } catch (com.twilio.twiml.TwiMLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        Dial dial = new Dial();
-
-
-        if (from.startsWith("client:")) {
-            System.out.println("Client - PSTN");
-            // client -> PSTN
-            dial.setCallerId(from.substring(7, from.length()));
-//            dial.setRecord(true);
-            try {
-                dial.append(new Number(to));
-            } catch (TwiMLException e) {
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("PSTN - client");
-            // PSTN -> client
-            dial.setCallerId(from);
-//            dial.setRecord(true);
-            try {
-                dial.append(new Client(to));
-            } catch (TwiMLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        try {
-            twiml.append(dial);
-        } catch (TwiMLException e) {
-            e.printStackTrace();
-        }
-        return twiml.toXML();
-    }
-
-//    @RequestMapping(value = "/call", method = RequestMethod.POST, produces={"application/xml"})
-//    public String call(@RequestParam(value = "From") String from, @RequestParam(value = "To") String to) {
+//    @RequestMapping(value = "/call", method = RequestMethod.GET, produces = {"application/xml"})
+//    public String call(@RequestParam Map<String, String> allRequestParams) {
 //
-//        String CALLER_ID = "+17606215500";
-//        String CLIENT_ID = "17606215500";
+//        System.out.println("MultiValueMap: " + allRequestParams.toString());
 //
-//        System.out.println("FROM: " + from + " || TO: " + to);
+//        String from = allRequestParams.get("From");
+//        String to = allRequestParams.get("To");
+//
+////        String CALLER_ID = "+17606215500";
+////        String CLIENT_ID = "17606215500";
 //
 //        TwiMLResponse twiml = new TwiMLResponse();
 //
@@ -130,12 +73,11 @@ public class PhoneService {
 //        Dial dial = new Dial();
 //
 //
-//
-//
 //        if (from.startsWith("client:")) {
 //            System.out.println("Client - PSTN");
 //            // client -> PSTN
 //            dial.setCallerId(from.substring(7, from.length()));
+////            dial.setRecord(true);
 //            try {
 //                dial.append(new Number(to));
 //            } catch (TwiMLException e) {
@@ -145,6 +87,7 @@ public class PhoneService {
 //            System.out.println("PSTN - client");
 //            // PSTN -> client
 //            dial.setCallerId(from);
+////            dial.setRecord(true);
 //            try {
 //                dial.append(new Client(to));
 //            } catch (TwiMLException e) {
@@ -159,6 +102,58 @@ public class PhoneService {
 //        }
 //        return twiml.toXML();
 //    }
+
+    @RequestMapping(value = "/call", method = RequestMethod.POST, produces={"application/xml"})
+    public String call(@RequestParam(value = "From") String from, @RequestParam(value = "To") String to) {
+
+        String CALLER_ID = "+17606215500";
+        String CLIENT_ID = "17606215500";
+
+        System.out.println("FROM: " + from + " || TO: " + to);
+
+        TwiMLResponse twiml = new TwiMLResponse();
+
+        VoiceResponse voiceResponse = new VoiceResponse.Builder()
+                .say(new Say.Builder("Invalid Value f").build())
+                .build();
+
+        if (TextUtils.isEmpty(from) && TextUtils.isEmpty(to)) {
+            try {
+                return voiceResponse.toXml();
+            } catch (com.twilio.twiml.TwiMLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Dial dial = new Dial();
+
+        if (from.startsWith("client:")) {
+            System.out.println("Client - PSTN");
+            // client -> PSTN
+            dial.setCallerId(from.substring(7, from.length()));
+            try {
+                dial.append(new Number(to));
+            } catch (TwiMLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("PSTN - client");
+            // PSTN -> client
+            dial.setCallerId(from);
+            try {
+                dial.append(new Client(to));
+            } catch (TwiMLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            twiml.append(dial);
+        } catch (TwiMLException e) {
+            e.printStackTrace();
+        }
+        return twiml.toXML();
+    }
 
 
 }
