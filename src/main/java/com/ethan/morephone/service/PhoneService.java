@@ -84,7 +84,7 @@ public class PhoneService {
             System.out.println("Client - PSTN");
             // client -> PSTN
             dial.setCallerId(from.substring(7, from.length()));
-//            dial.setRecord(true);
+            dial.setRecord(true);
             try {
                 dial.append(new Number(to));
             } catch (TwiMLException e) {
@@ -94,7 +94,7 @@ public class PhoneService {
             System.out.println("PSTN - client");
             // PSTN -> client
             dial.setCallerId(from);
-//            dial.setRecord(true);
+            dial.setRecord(true);
             try {
                 dial.append(new Client(to));
             } catch (TwiMLException e) {
