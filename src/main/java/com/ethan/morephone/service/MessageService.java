@@ -2,17 +2,20 @@ package com.ethan.morephone.service;
 
 import com.ethan.morephone.model.BindingRequest;
 import com.ethan.morephone.model.NotificationRequest;
+import com.ethan.morephone.model.Response;
 import com.ethan.morephone.utils.Utils;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.CaseFormat;
 import com.twilio.Twilio;
+import com.twilio.exception.TwilioException;
+import com.twilio.http.TwilioRestClient;
 import com.twilio.jwt.accesstoken.*;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.rest.api.v2010.account.MessageCreator;
 import com.twilio.rest.notify.v1.service.Binding;
 import com.twilio.rest.notify.v1.service.BindingCreator;
 import com.twilio.rest.notify.v1.service.Notification;
 import com.twilio.rest.notify.v1.service.NotificationCreator;
+import com.twilio.type.PhoneNumber;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -28,39 +31,12 @@ import java.util.Map;
 public class MessageService {
 
     private String TWILIO_ACCOUNT_SID = "ACebd7d3a78e2fdda9e51239bad6b09f97";
+    private String TWILIO_AUTH_TOKEN = "8d2af0937ed2a581dbb19f70dd1dd43b";
     private String TWILIO_API_SECRET = "Um8JRwIztNvOFED19jRxubSAZXgTmOmH";
     private String TWILIO_API_KEY = "SK028e5bbb3d0b19cb333dfe99ba10c35f";
     private String TWILIO_NOTIFICATION_SERVICE_SID = "IS22d53044e23416340337ea9d85c35f90";
     private String TWILIO_CHAT_SERVICE_SID = "";
     private String TWILIO_SYNC_SERVICE_SID = "";
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private static class Response {
-        private String message;
-        private String error;
-
-        @JsonCreator
-        public Response(@JsonProperty("message") String message, @JsonProperty("error") String error) {
-            this.message = message;
-            this.error = error;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
-        public String getError() {
-            return error;
-        }
-
-        public void setError(String error) {
-            this.error = error;
-        }
-    }
 
 
     @PostMapping(value = "/register")
@@ -85,6 +61,29 @@ public class MessageService {
             Response bindingResponse = new Response("Failed to create binding: " + ex.getMessage(), ex.getMessage());
             return bindingResponse;
         }
+    }
+
+    @RequestMapping(value = "/receive-message", method = RequestMethod.GET, produces = {"application/xml"})
+    public void receiveMessage(@RequestParam Map<String, String> allRequestParams) {
+        Utils.logMessage("Receive MultiValueMap: " + allRequestParams.toString());
+    }
+
+    @PostMapping(value = "/send-message")
+    public String sendMessage(@RequestParam(value = "from") String from,
+                              @RequestParam(value = "to") String to,
+                              @RequestParam(value = "body") String body) {
+        TwilioRestClient client = new TwilioRestClient.Builder(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN).build();
+        try {
+            Message message = new MessageCreator(
+                    new PhoneNumber(to),
+                    new PhoneNumber(from),
+                    body).create(client);
+
+            return message.getSid();
+        } catch (TwilioException e) {
+            Utils.logMessage("An exception occurred trying to send a message to {}, exception: {} " + to + " ||| " + e.getMessage());
+        }
+        return "";
     }
 
     @PostMapping(value = "/send-notification")
