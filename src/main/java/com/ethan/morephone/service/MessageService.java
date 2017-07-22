@@ -63,7 +63,7 @@ public class MessageService {
         }
     }
 
-    @RequestMapping(value = "/receive-message", method = RequestMethod.GET, produces = {"application/xml"})
+    @RequestMapping(value = "/receive-message", method = RequestMethod.POST, produces = {"application/xml"})
     public void receiveMessage(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("Receive MultiValueMap: " + allRequestParams.toString());
     }
