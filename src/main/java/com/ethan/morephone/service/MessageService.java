@@ -66,7 +66,7 @@ public class MessageService {
     public void receiveMessage(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("Receive MultiValueMap: " + allRequestParams.toString());
         List<String> identities = new ArrayList<>();
-        identities.add("To");
+        identities.add(allRequestParams.get("To"));
         sendNotification("High", allRequestParams.get("From"), allRequestParams.get("Body"), identities);
     }
 
