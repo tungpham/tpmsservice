@@ -46,10 +46,9 @@ public class MessageService {
             // Convert BindingType from Object to enum value
             Binding.BindingType bindingType = Binding.BindingType.forValue(bindingRequest.getBinding());
             // Add the notification service sid
-            String serviceSid = TWILIO_NOTIFICATION_SERVICE_SID;
 
             // Create the binding
-            BindingCreator bindingCreator = new BindingCreator(serviceSid, bindingRequest.getEndpoint(), bindingRequest.getIdentity(), bindingType, bindingRequest.getAddress());
+            BindingCreator bindingCreator = new BindingCreator(TWILIO_NOTIFICATION_SERVICE_SID, bindingRequest.getEndpoint(), bindingRequest.getIdentity(), bindingType, bindingRequest.getAddress());
             Binding binding = bindingCreator.create();
 
             // Send a JSON response indicating success
@@ -66,6 +65,9 @@ public class MessageService {
     @RequestMapping(value = "/receive-message", method = RequestMethod.POST, produces = {"application/xml"})
     public void receiveMessage(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("Receive MultiValueMap: " + allRequestParams.toString());
+        List<String> identities = new ArrayList<>();
+        identities.add("To");
+        sendNotification("High", allRequestParams.get("From"), allRequestParams.get("Body"), identities);
     }
 
     @PostMapping(value = "/send-message")
@@ -88,18 +90,21 @@ public class MessageService {
 
     @PostMapping(value = "/send-notification")
     public Response notification(@RequestBody NotificationRequest notificationRequest) {
-        // Authenticate with Twilio
+        return sendNotification(notificationRequest.getPriority(), notificationRequest.getTitle(), notificationRequest.getBody(), notificationRequest.getIdentity());
+    }
+
+    private Response sendNotification(String priorityRequest, String title, String body, List<String> identity){
         Twilio.init(TWILIO_API_KEY, TWILIO_API_SECRET, TWILIO_ACCOUNT_SID);
 
         try {
             // Convert Priority from Object to enum value
-            Notification.Priority priority = Notification.Priority.forValue(notificationRequest.getPriority());
+            Notification.Priority priority = Notification.Priority.forValue(priorityRequest);
             Utils.logMessage("priority: " + priority.name());
             NotificationCreator notificationCreator = new NotificationCreator(TWILIO_NOTIFICATION_SERVICE_SID);
-            notificationCreator.setTitle(notificationRequest.getTitle());
-            notificationCreator.setBody(notificationRequest.getBody());
+            notificationCreator.setTitle(title);
+            notificationCreator.setBody(body);
             notificationCreator.setPriority(priority);
-            notificationCreator.setIdentity(notificationRequest.getIdentity());
+            notificationCreator.setIdentity(identity);
             Notification notification = notificationCreator.create();
 
             Utils.logMessage("Notification successfully created");
@@ -116,6 +121,8 @@ public class MessageService {
             return sendNotificationResponse;
         }
     }
+
+
 
     private String generateToken(String identity) {
 
