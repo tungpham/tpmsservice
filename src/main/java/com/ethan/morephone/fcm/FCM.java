@@ -1,7 +1,7 @@
 package com.ethan.morephone.fcm;
 
-import com.oracle.javafx.jmx.json.JSONException;
-import org.json.simple.JSONObject;
+
+import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,16 +47,14 @@ public class FCM {
             conn.setRequestProperty("Content-Type", "application/json");
 
 //Create JSON Object & pass value
-            JSONObject infoJson = new JSONObject();
-            infoJson.put("title", "Here is your notification.");
-            infoJson.put("body", message);
+            Gson gson = new Gson();
+            Content content = new Content("Here is your notification.", message);
+            ContentFcm contentFcm = new ContentFcm(tokenId.trim(), content);
 
-            JSONObject json = new JSONObject();
-            json.put("to", tokenId.trim());
-            json.put("notification", infoJson);
+            String infoJson = gson.toJson(contentFcm);
 
             OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-            wr.write(json.toString());
+            wr.write(infoJson);
             wr.flush();
 
             int status = 0;
@@ -86,9 +84,6 @@ public class FCM {
         } catch (IOException mlfexception) {
 //URL problem
             System.out.println("Reading URL, Error occurred while sending push Notification!.." + mlfexception.getMessage());
-        } catch (JSONException jsonexception) {
-//Message format error
-            System.out.println("Message Format, Error occurred while sending push Notification!.." + jsonexception.getMessage());
         } catch (Exception exception) {
 //General Error or exception.
             System.out.println("Error occurred while sending push Notification!.." + exception.getMessage());
