@@ -1,6 +1,6 @@
 package com.ethan.morephone.service;
 
-import com.ethan.morephone.model.BindingRequest;
+import com.ethan.morephone.Constants;
 import com.ethan.morephone.model.NotificationRequest;
 import com.ethan.morephone.model.Response;
 import com.ethan.morephone.utils.Utils;
@@ -11,8 +11,6 @@ import com.twilio.http.TwilioRestClient;
 import com.twilio.jwt.accesstoken.*;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.api.v2010.account.MessageCreator;
-import com.twilio.rest.notify.v1.service.Binding;
-import com.twilio.rest.notify.v1.service.BindingCreator;
 import com.twilio.rest.notify.v1.service.Notification;
 import com.twilio.rest.notify.v1.service.NotificationCreator;
 import com.twilio.type.PhoneNumber;
@@ -27,40 +25,10 @@ import java.util.Map;
  * Created by truongnguyen on 7/20/17.
  */
 @RestController
-@RequestMapping(value = "/notification")
+@RequestMapping(value = "/message")
 public class MessageService {
 
-    private String TWILIO_ACCOUNT_SID = "ACebd7d3a78e2fdda9e51239bad6b09f97";
-    private String TWILIO_AUTH_TOKEN = "8d2af0937ed2a581dbb19f70dd1dd43b";
-    private String TWILIO_API_SECRET = "Um8JRwIztNvOFED19jRxubSAZXgTmOmH";
-    private String TWILIO_API_KEY = "SK028e5bbb3d0b19cb333dfe99ba10c35f";
-    private String TWILIO_NOTIFICATION_SERVICE_SID = "IS22d53044e23416340337ea9d85c35f90";
-    private String TWILIO_CHAT_SERVICE_SID = "";
-    private String TWILIO_SYNC_SERVICE_SID = "";
 
-
-    @PostMapping(value = "/register")
-    public Response register(@RequestBody BindingRequest bindingRequest) {
-        Twilio.init(TWILIO_API_KEY, TWILIO_API_SECRET, TWILIO_ACCOUNT_SID);
-        try {
-            // Convert BindingType from Object to enum value
-            Binding.BindingType bindingType = Binding.BindingType.forValue(bindingRequest.getBinding());
-            // Add the notification service sid
-
-            // Create the binding
-            BindingCreator bindingCreator = new BindingCreator(TWILIO_NOTIFICATION_SERVICE_SID, bindingRequest.getEndpoint(), bindingRequest.getIdentity(), bindingType, bindingRequest.getAddress());
-            Binding binding = bindingCreator.create();
-
-            // Send a JSON response indicating success
-            Response bindingResponse = new Response("Binding Created", "");
-            return bindingResponse;
-
-        } catch (Exception ex) {
-            // Send a JSON response indicating an error
-            Response bindingResponse = new Response("Failed to create binding: " + ex.getMessage(), ex.getMessage());
-            return bindingResponse;
-        }
-    }
 
     @RequestMapping(value = "/receive-message", method = RequestMethod.POST, produces = {"application/xml"})
     public void receiveMessage(@RequestParam Map<String, String> allRequestParams) {
@@ -74,7 +42,7 @@ public class MessageService {
     public String sendMessage(@RequestParam(value = "from") String from,
                               @RequestParam(value = "to") String to,
                               @RequestParam(value = "body") String body) {
-        TwilioRestClient client = new TwilioRestClient.Builder(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN).build();
+        TwilioRestClient client = new TwilioRestClient.Builder(Constants.TWILIO_ACCOUNT_SID, Constants.TWILIO_AUTH_TOKEN).build();
         try {
             Message message = new MessageCreator(
                     new PhoneNumber(to),
@@ -94,13 +62,13 @@ public class MessageService {
     }
 
     private Response sendNotification(String priorityRequest, String title, String body, List<String> identity){
-        Twilio.init(TWILIO_API_KEY, TWILIO_API_SECRET, TWILIO_ACCOUNT_SID);
+        Twilio.init(Constants.TWILIO_API_KEY, Constants.TWILIO_API_SECRET, Constants.TWILIO_ACCOUNT_SID);
 
         try {
             // Convert Priority from Object to enum value
             Notification.Priority priority = Notification.Priority.forValue(priorityRequest);
             Utils.logMessage("priority: " + priority.name());
-            NotificationCreator notificationCreator = new NotificationCreator(TWILIO_NOTIFICATION_SERVICE_SID);
+            NotificationCreator notificationCreator = new NotificationCreator(Constants.TWILIO_NOTIFICATION_SERVICE_SID);
             notificationCreator.setTitle(title);
             notificationCreator.setBody(body);
             notificationCreator.setPriority(priority);
@@ -128,21 +96,21 @@ public class MessageService {
 
         // Create access token builder
         AccessToken.Builder builder = new AccessToken.Builder(
-                TWILIO_ACCOUNT_SID,
-                TWILIO_API_KEY,
-                TWILIO_API_SECRET
+                Constants.TWILIO_ACCOUNT_SID,
+                Constants.TWILIO_API_KEY,
+                Constants.TWILIO_API_SECRET
         ).identity(identity);
 
         List<Grant> grants = new ArrayList<>();
 
         // Add Sync grant if configured
         SyncGrant grant = new SyncGrant();
-        grant.setServiceSid(TWILIO_SYNC_SERVICE_SID);
+        grant.setServiceSid(Constants.TWILIO_SYNC_SERVICE_SID);
         grants.add(grant);
 
         // Add Chat grant if configured
         IpMessagingGrant grantChat = new IpMessagingGrant();
-        grantChat.setServiceSid(TWILIO_CHAT_SERVICE_SID);
+        grantChat.setServiceSid(Constants.TWILIO_CHAT_SERVICE_SID);
         grants.add(grantChat);
 
         // Add Video grant
