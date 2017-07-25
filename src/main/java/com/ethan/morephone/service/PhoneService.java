@@ -40,7 +40,7 @@ public class PhoneService {
             Binding binding = bindingCreator.create();
 
             // Send a JSON response indicating success
-            Response bindingResponse = new Response("Binding Created", "");
+            Response bindingResponse = new Response("Binding Created", "" + registerPhoneNumberRequest.getIdentity());
             return bindingResponse;
 
         } catch (Exception ex) {
