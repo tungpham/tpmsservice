@@ -53,7 +53,7 @@ public class CallService {
         return token;
     }
 
-    @RequestMapping(value = "/call", method = RequestMethod.GET, produces = {"application/xml"})
+    @RequestMapping(value = "/call", method = RequestMethod.POST, produces = {"application/xml"})
     public String call(@RequestParam Map<String, String> allRequestParams) {
 
         System.out.println("MultiValueMap: " + allRequestParams.toString());
