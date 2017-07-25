@@ -72,7 +72,6 @@ public class MessageService {
             notificationCreator.setBody(body);
             notificationCreator.setPriority(priority);
             notificationCreator.setIdentity(identity);
-            notificationCreator.setFcm("fcm");
             Notification notification = notificationCreator.create();
 
             Utils.logMessage("Notification successfully created");
