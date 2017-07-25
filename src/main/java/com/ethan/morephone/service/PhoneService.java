@@ -4,7 +4,7 @@ import com.ethan.morephone.Constants;
 import com.ethan.morephone.data.entity.application.Applications;
 import com.ethan.morephone.data.entity.phonenumbers.IncomingPhoneNumber;
 import com.ethan.morephone.data.network.ApiManager;
-import com.ethan.morephone.model.BindingRequest;
+import com.ethan.morephone.model.RegisterPhoneNumberRequest;
 import com.ethan.morephone.model.Response;
 import com.twilio.Twilio;
 import com.twilio.rest.notify.v1.service.Binding;
@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class PhoneService {
 
     @PostMapping(value = "/register")
-    public Response register(@RequestBody BindingRequest bindingRequest) {
+    public Response register(@RequestBody RegisterPhoneNumberRequest registerPhoneNumberRequest) {
 
-        if(!registerApplication(bindingRequest.getIncomingPhoneNumberSid())){
+        if(!registerApplication(registerPhoneNumberRequest.getIncomingPhoneNumberSid())){
             Response bindingResponse = new Response("Failed to register application: ", "400");
             return bindingResponse;
         }
@@ -32,11 +32,11 @@ public class PhoneService {
         Twilio.init(Constants.TWILIO_API_KEY, Constants.TWILIO_API_SECRET, Constants.TWILIO_ACCOUNT_SID);
         try {
             // Convert BindingType from Object to enum value
-            Binding.BindingType bindingType = Binding.BindingType.forValue(bindingRequest.getBinding());
+            Binding.BindingType bindingType = Binding.BindingType.forValue(registerPhoneNumberRequest.getBinding());
             // Add the notification service sid
 
             // Create the binding
-            BindingCreator bindingCreator = new BindingCreator(Constants.TWILIO_NOTIFICATION_SERVICE_SID, bindingRequest.getEndpoint(), bindingRequest.getIdentity(), bindingType, bindingRequest.getAddress());
+            BindingCreator bindingCreator = new BindingCreator(Constants.TWILIO_NOTIFICATION_SERVICE_SID, registerPhoneNumberRequest.getEndpoint(), registerPhoneNumberRequest.getIdentity(), bindingType, registerPhoneNumberRequest.getAddress());
             Binding binding = bindingCreator.create();
 
             // Send a JSON response indicating success

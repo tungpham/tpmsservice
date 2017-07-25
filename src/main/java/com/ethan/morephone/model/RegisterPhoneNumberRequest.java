@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Created by truongnguyen on 7/21/17.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BindingRequest {
+public class RegisterPhoneNumberRequest {
 
     private String identity;
     private String endpoint;
@@ -17,11 +17,11 @@ public class BindingRequest {
     private String incomingPhoneNumberSid;
 
     @JsonCreator
-    public BindingRequest(@JsonProperty("identity") String identity,
-                          @JsonProperty("endpoint") String endpoint,
-                          @JsonProperty("address") String address,
-                          @JsonProperty("binding") String binding,
-                          @JsonProperty("incoming_phone_number_sid") String incomingPhoneNumberSid) {
+    public RegisterPhoneNumberRequest(@JsonProperty("identity") String identity,
+                                      @JsonProperty("endpoint") String endpoint,
+                                      @JsonProperty("address") String address,
+                                      @JsonProperty("binding") String binding,
+                                      @JsonProperty("incoming_phone_number_sid") String incomingPhoneNumberSid) {
 
         this.identity = identity;
         this.endpoint = endpoint;
