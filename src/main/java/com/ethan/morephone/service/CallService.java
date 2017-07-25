@@ -22,25 +22,25 @@ import java.util.Map;
 @RequestMapping(value = "/call")
 public class CallService {
 
-    @RequestMapping(value = "/create/token", method = RequestMethod.GET)
+    @RequestMapping(value = "/token", method = RequestMethod.GET)
     public String createToken(@RequestParam(value = "client") String client) {
 
 //        Ethan
 //        String TWILIO_ACCOUNT_SID = "ACebd7d3a78e2fdda9e51239bad6b09f97";
 //        String TWILIO_AUTH_TOKEN = "8d2af0937ed2a581dbb19f70dd1dd43b";
-//        String TWILIO_APP_SID = "AP5d46bf675557ec0f73b1d08afcfcdc75";
+//        String TWILIO_APPLICATION_SID = "AP5d46bf675557ec0f73b1d08afcfcdc75";
 
 //        More Phone
 
 //        String TWILIO_ACCOUNT_SID = "ACdd510b09cfb9af9f1c2dd9d45e9ce1e5";
 //        String TWILIO_AUTH_TOKEN = "18b65f8d69b4982f6a34a59704df83f4";
-//        String TWILIO_APP_SID = "AC4e52b443ac512d71421b5fb901732d17";
+//        String TWILIO_APPLICATION_SID = "AC4e52b443ac512d71421b5fb901732d17";
 
         // Create an access token using our Twilio credentials
         // Generate a random username for the connecting client
 
         TwilioCapability capability = new TwilioCapability(Constants.TWILIO_ACCOUNT_SID, Constants.TWILIO_AUTH_TOKEN);
-        capability.allowClientOutgoing(Constants.TWILIO_APP_SID);
+        capability.allowClientOutgoing(Constants.TWILIO_APPLICATION_SID);
         capability.allowClientIncoming(client);
 
         String token = "";

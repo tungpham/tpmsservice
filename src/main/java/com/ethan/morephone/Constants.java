@@ -12,6 +12,6 @@ public class Constants {
     public static final String TWILIO_NOTIFICATION_SERVICE_SID = "IS22d53044e23416340337ea9d85c35f90";
     public static final String TWILIO_CHAT_SERVICE_SID = "";
     public static final String TWILIO_SYNC_SERVICE_SID = "";
-    public static final String TWILIO_APP_SID = "AP5d46bf675557ec0f73b1d08afcfcdc75";
+    public static final String TWILIO_APPLICATION_SID = "AP5d46bf675557ec0f73b1d08afcfcdc75";
 
 }

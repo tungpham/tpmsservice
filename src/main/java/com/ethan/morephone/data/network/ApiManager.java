@@ -1,6 +1,7 @@
 package com.ethan.morephone.data.network;
 
 import com.ethan.morephone.Constants;
+import com.ethan.morephone.data.entity.application.Application;
 import com.ethan.morephone.data.entity.application.Applications;
 import com.ethan.morephone.data.entity.phonenumbers.IncomingPhoneNumber;
 import okhttp3.*;
@@ -88,6 +89,21 @@ public class ApiManager {
         try {
             Applications applications = call.execute().body();
             return applications;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Application modifyApplication(String applicationSid,
+                                                String voiceUrl,
+                                                String voiceMethod,
+                                                String smsUrl,
+                                                String smsMethod) {
+        Call<Application> call = getApiPath().modifyApplication(Constants.TWILIO_ACCOUNT_SID, applicationSid, voiceUrl, voiceMethod, smsUrl, smsMethod);
+        try {
+            Application application = call.execute().body();
+            return application;
         } catch (IOException e) {
             e.printStackTrace();
         }

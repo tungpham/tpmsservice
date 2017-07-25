@@ -52,8 +52,8 @@ public class PhoneService {
 
     //  With new phone number must register application for voice and message
     private boolean registerApplication(String incomingPhoneNumberSid) {
-        String applicationSid = getApplicationSid();
-        IncomingPhoneNumber incomingPhoneNumber = ApiManager.registerApplicationSms(incomingPhoneNumberSid, applicationSid);
+//        String applicationSid = getApplicationSid();
+        IncomingPhoneNumber incomingPhoneNumber = ApiManager.registerApplicationSms(incomingPhoneNumberSid, Constants.TWILIO_APPLICATION_SID);
         return incomingPhoneNumber == null ? false : true;
     }
 
