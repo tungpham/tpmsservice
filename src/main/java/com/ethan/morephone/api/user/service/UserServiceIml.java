@@ -148,6 +148,7 @@ public class UserServiceIml implements UserService {
         dto.setCountry(model.getCountry());
         dto.setFirstName(model.getFirstName());
         dto.setLastName(model.getLastName());
+        dto.setToken(model.getToken());
         dto.setCreatedAt(model.getCreatedAt());
         dto.setUpdatedAt(model.getUpdatedAt());
         dto.setPlatform(model.getPlatform());
