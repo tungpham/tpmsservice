@@ -85,6 +85,21 @@ final class UserController {
         return updated;
     }
 
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    Response<Object> updateToken(@PathVariable("id") String id,
+                                 @RequestParam(value = "token") String token) {
+        LOGGER.info("Updating user entry with token:", token);
+
+        UserDTO updated = service.updateToken(id, token);
+        LOGGER.info("Updated user entry with information: {}", updated);
+
+        if (updated == null) {
+            return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+        }else{
+            return new Response<>(updated, HTTPStatus.OK);
+        }
+    }
+
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)

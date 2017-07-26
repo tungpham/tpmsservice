@@ -32,7 +32,10 @@ public interface ApiPath {
     /*-----------------------------------------INCOMING PHONE NUMBERS-----------------------------------------*/
     @FormUrlEncoded
     @POST("Accounts/{accountsid}/IncomingPhoneNumbers/{incomingPhoneNumberSid}.json")
-    Call<IncomingPhoneNumber> registerApplicationSms(@Path("accountsid") String accountsid,
-                                                     @Path("incomingPhoneNumberSid") String incomingPhoneNumberSid,
-                                                     @Field("SmsApplicationSid") String smsApplicationSid);
+    Call<IncomingPhoneNumber> modifyIncomingPhoneNumber(@Path("accountsid") String accountsid,
+                                                        @Path("incomingPhoneNumberSid") String incomingPhoneNumberSid,
+                                                        @Field("SmsApplicationSid") String smsApplicationSid,
+                                                        @Field("SmsMethod") String smsMethod,
+                                                        @Field("VoiceApplicationSid") String voiceApplicationSid,
+                                                        @Field("VoiceMethod") String voiceMethod);
 }

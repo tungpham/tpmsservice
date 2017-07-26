@@ -1,8 +1,11 @@
 package com.ethan.morephone.api.phonenumber.controller;
 
+import com.ethan.morephone.Constants;
 import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
 import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
 import com.ethan.morephone.api.user.UserNotFoundException;
+import com.ethan.morephone.data.entity.phonenumbers.IncomingPhoneNumber;
+import com.ethan.morephone.data.network.ApiManager;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.http.Response;
 import org.slf4j.Logger;
@@ -34,11 +37,23 @@ final class PhoneNumberController {
     Response<Object> create(@RequestBody @Valid PhoneNumberDTO todoEntry) {
         LOGGER.info("Creating a new user entry with information: {}", todoEntry);
 
-        PhoneNumberDTO userDTO = service.findBySid(todoEntry.getSid());
-        if (userDTO == null) {
+        PhoneNumberDTO phoneNumberDTO = service.findBySid(todoEntry.getSid());
+        if (phoneNumberDTO == null) {
             PhoneNumberDTO created = service.create(todoEntry);
             LOGGER.info("Created a new user entry with information: {}", created);
-            return new Response<>(created, HTTPStatus.CREATED);
+//            Register sms Application
+            IncomingPhoneNumber incomingPhoneNumber = ApiManager.modifyIncomingPhoneNumber(created.getSid(),
+                    Constants.TWILIO_APPLICATION_SID,
+                    "POST",
+                    Constants.TWILIO_APPLICATION_SID,
+                    "POST"
+            );
+
+            if (incomingPhoneNumber != null) {
+                return new Response<>(created, HTTPStatus.CREATED);
+            } else {
+                return new Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
+            }
         } else {
             return new Response<>(HTTPStatus.SEE_OTHER.getReasonPhrase(), HTTPStatus.SEE_OTHER);
         }

@@ -106,6 +106,14 @@ public class UserServiceIml implements UserService {
         }
     }
 
+    @Override
+    public UserDTO updateToken(String id, String token) {
+        User updated = findTodoById(id);
+        updated.update(token);
+        updated = repository.save(updated);
+        return convertToDTO(updated);
+    }
+
     private User findTodoById(String id) {
         Optional<User> result = repository.findOne(id);
         return result.orElseThrow(() -> new UserNotFoundException(id));

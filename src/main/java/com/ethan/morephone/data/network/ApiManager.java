@@ -113,9 +113,12 @@ public class ApiManager {
 
     /*-----------------------------------------INCOMING PHONE NUMBERS-----------------------------------------*/
 
-    public static IncomingPhoneNumber registerApplicationSms(String incomingPhoneNumberSid,
-                                                             String applicationSid) {
-        Call<IncomingPhoneNumber> call = getApiPath().registerApplicationSms(Constants.TWILIO_ACCOUNT_SID, incomingPhoneNumberSid, applicationSid);
+    public static IncomingPhoneNumber modifyIncomingPhoneNumber(String incomingPhoneNumberSid,
+                                                             String smsApplicationSid,
+                                                             String smsMethod,
+                                                             String voiceApplicationSid,
+                                                             String voiceMethod) {
+        Call<IncomingPhoneNumber> call = getApiPath().modifyIncomingPhoneNumber(Constants.TWILIO_ACCOUNT_SID, incomingPhoneNumberSid, smsApplicationSid, smsMethod, voiceApplicationSid, voiceMethod);
         try {
             IncomingPhoneNumber incomingPhoneNumber = call.execute().body();
             return incomingPhoneNumber;

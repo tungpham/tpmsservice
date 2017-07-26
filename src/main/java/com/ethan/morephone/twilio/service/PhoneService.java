@@ -2,7 +2,6 @@ package com.ethan.morephone.twilio.service;
 
 import com.ethan.morephone.Constants;
 import com.ethan.morephone.data.entity.application.Applications;
-import com.ethan.morephone.data.entity.phonenumbers.IncomingPhoneNumber;
 import com.ethan.morephone.data.network.ApiManager;
 import com.ethan.morephone.twilio.model.BindingRequest;
 import com.ethan.morephone.twilio.model.Response;
@@ -20,14 +19,15 @@ public class PhoneService {
 
     @PostMapping(value = "/register-application")
     public Response registerApplications(@RequestParam(value = "incoming_phone_number_sid") String incomingPhoneNumberSid){
-        IncomingPhoneNumber incomingPhoneNumber = ApiManager.registerApplicationSms(incomingPhoneNumberSid, Constants.TWILIO_APPLICATION_SID);
-        if(incomingPhoneNumber == null){
-            Response bindingResponse = new Response("Failed to register application: ", "400");
-            return bindingResponse;
-        }else{
-            Response bindingResponse = new Response("REGISTER SUCCESS ", incomingPhoneNumberSid);
-            return bindingResponse;
-        }
+//        IncomingPhoneNumber incomingPhoneNumber = ApiManager.registerApplicationSms(incomingPhoneNumberSid, Constants.TWILIO_APPLICATION_SID);
+//        if(incomingPhoneNumber == null){
+//            Response bindingResponse = new Response("Failed to register application: ", "400");
+//            return bindingResponse;
+//        }else{
+//            Response bindingResponse = new Response("REGISTER SUCCESS ", incomingPhoneNumberSid);
+//            return bindingResponse;
+//        }
+        return null;
     }
 
     @PostMapping(value = "/binding")
