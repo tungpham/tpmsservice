@@ -41,7 +41,7 @@ final class UserController {
 
             return new Response<>(created, HTTPStatus.CREATED);
         } else {
-            return new Response<>(HTTPStatus.SEE_OTHER.getReasonPhrase(), HTTPStatus.SEE_OTHER);
+            return new Response<>(userDTO, HTTPStatus.SEE_OTHER);
         }
     }
 
