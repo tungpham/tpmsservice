@@ -30,6 +30,7 @@ public final class User {
         this.lastName = builder.lastName;
         this.country = builder.country;
         this.languageCode = builder.languageCode;
+        this.token = builder.token;
         this.device = builder.device;
         this.platform = builder.platform;
     }
