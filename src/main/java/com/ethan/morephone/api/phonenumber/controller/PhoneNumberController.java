@@ -8,6 +8,7 @@ import com.ethan.morephone.data.entity.phonenumbers.IncomingPhoneNumber;
 import com.ethan.morephone.data.network.ApiManager;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.http.Response;
+import com.ethan.morephone.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +37,9 @@ final class PhoneNumberController {
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     Response<Object> create(@RequestBody @Valid PhoneNumberDTO todoEntry) {
         LOGGER.info("Creating a new user entry with information: {}", todoEntry);
-
+        Utils.logMessage(todoEntry.getSid());
         PhoneNumberDTO phoneNumberDTO = service.findBySid(todoEntry.getSid());
+
         if (phoneNumberDTO == null) {
             PhoneNumberDTO created = service.create(todoEntry);
             LOGGER.info("Created a new user entry with information: {}", created);

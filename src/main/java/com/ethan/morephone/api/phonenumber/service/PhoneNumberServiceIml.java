@@ -94,7 +94,7 @@ public class PhoneNumberServiceIml implements PhoneNumberService {
 
     @Override
     public PhoneNumberDTO findBySid(String sid) {
-        PhoneNumber found = findPhoneNumberById(sid);
+        PhoneNumber found = findPhoneNumberBySid(sid);
         if (found != null) {
             return convertToDTO(found);
         } else {
