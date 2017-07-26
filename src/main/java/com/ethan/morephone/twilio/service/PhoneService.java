@@ -1,11 +1,11 @@
-package com.ethan.morephone.service;
+package com.ethan.morephone.twilio.service;
 
 import com.ethan.morephone.Constants;
 import com.ethan.morephone.data.entity.application.Applications;
 import com.ethan.morephone.data.entity.phonenumbers.IncomingPhoneNumber;
 import com.ethan.morephone.data.network.ApiManager;
-import com.ethan.morephone.model.BindingRequest;
-import com.ethan.morephone.model.Response;
+import com.ethan.morephone.twilio.model.BindingRequest;
+import com.ethan.morephone.twilio.model.Response;
 import com.twilio.Twilio;
 import com.twilio.rest.notify.v1.service.Binding;
 import com.twilio.rest.notify.v1.service.BindingCreator;

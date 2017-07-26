@@ -1,9 +1,9 @@
-package com.ethan.morephone.service;
+package com.ethan.morephone.twilio.service;
 
 import com.ethan.morephone.Constants;
-import com.ethan.morephone.fcm.FCM;
-import com.ethan.morephone.model.NotificationRequest;
-import com.ethan.morephone.model.Response;
+import com.ethan.morephone.twilio.fcm.FCM;
+import com.ethan.morephone.twilio.model.NotificationRequest;
+import com.ethan.morephone.twilio.model.Response;
 import com.ethan.morephone.utils.Utils;
 import com.google.common.base.CaseFormat;
 import com.twilio.Twilio;
@@ -33,10 +33,10 @@ public class MessageService {
     @RequestMapping(value = "/receive-message", method = RequestMethod.POST, produces = {"application/xml"})
     public void receiveMessage(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("Receive MultiValueMap: " + allRequestParams.toString());
-        List<String> identities = new ArrayList<>();
-        identities.add(allRequestParams.get("To"));
-        sendNotification("High", allRequestParams.get("From"), allRequestParams.get("Body"), identities);
-        sendNotification(allRequestParams.get("Body"));
+//        List<String> identities = new ArrayList<>();
+//        identities.add(allRequestParams.get("To"));
+//        sendNotification("High", allRequestParams.get("From"), allRequestParams.get("Body"), identities);
+        sendNotification(allRequestParams.get("From"), allRequestParams.get("Body"));
     }
 
     @PostMapping(value = "/send-message")
@@ -62,14 +62,14 @@ public class MessageService {
         return sendNotification(notificationRequest.getPriority(), notificationRequest.getTitle(), notificationRequest.getBody(), notificationRequest.getIdentity());
     }
 
-    private static void sendNotification(String body) {
+    private static void sendNotification(String title, String body) {
         //Just I am passed dummy information
         String tokenId = "fQQszTMptqc:APA91bHqlbj3XQP-Y9krSquJ4jo6Qo4_Ct3790e4VsEeyt_9swOIzXyk06A5A1ZwhM1o8a4Z5Gu0R2IEPdiYMw1PAo9Z37_-496cDEFojA13piOmJaNy8Wpps8rhb6ib02X_HdVF49qg";
 
         String server_key = "AAAANaqlCmY:APA91bGdQKmQNlZhqLTq31yXx36auQvc9I2xA0RB-VIgGhnN4haVdXllvWgFiRkzwJ8B_qVZ8eaJbqCTr-pqlKxbq0O4hWAcUpVga655rByPKOVSB0YnoA5t08DpiNG6uj-iAArs2bCv";
 
 //Method to send Push Notification
-        FCM.send_FCM_Notification(tokenId, server_key, body);
+        FCM.send_FCM_Notification(tokenId, server_key, title, body);
     }
 
     private Response sendNotification(String priorityRequest, String title, String body, List<String> identity){

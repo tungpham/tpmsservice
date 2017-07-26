@@ -1,4 +1,4 @@
-package com.ethan.morephone.fcm;
+package com.ethan.morephone.twilio.fcm;
 
 
 import com.google.gson.Gson;
@@ -26,7 +26,7 @@ public class FCM {
      * @param message    which contains actual information.
      */
 
-    public static void send_FCM_Notification(String tokenId, String server_key, String message) {
+    public static void send_FCM_Notification(String tokenId, String server_key, String title, String message) {
         try {
 
 // Create URL instance.
@@ -48,7 +48,7 @@ public class FCM {
 
 //Create JSON Object & pass value
             Gson gson = new Gson();
-            Content content = new Content("Here is your notification.", message);
+            Content content = new Content(title, message);
             ContentFcm contentFcm = new ContentFcm(tokenId.trim(), content);
 
             String infoJson = gson.toJson(contentFcm);

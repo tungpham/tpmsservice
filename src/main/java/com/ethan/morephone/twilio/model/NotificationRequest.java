@@ -1,4 +1,4 @@
-package com.ethan.morephone.model;
+package com.ethan.morephone.twilio.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
