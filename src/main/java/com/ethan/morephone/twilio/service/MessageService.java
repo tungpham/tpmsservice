@@ -1,6 +1,10 @@
 package com.ethan.morephone.twilio.service;
 
 import com.ethan.morephone.Constants;
+import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
+import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
+import com.ethan.morephone.api.user.domain.UserDTO;
+import com.ethan.morephone.api.user.service.UserService;
 import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.twilio.model.NotificationRequest;
 import com.ethan.morephone.twilio.model.Response;
@@ -15,6 +19,7 @@ import com.twilio.rest.api.v2010.account.MessageCreator;
 import com.twilio.rest.notify.v1.service.Notification;
 import com.twilio.rest.notify.v1.service.NotificationCreator;
 import com.twilio.type.PhoneNumber;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -29,14 +34,32 @@ import java.util.Map;
 @RequestMapping(value = "/message")
 public class MessageService {
 
+    private final UserService mUserService;
+    private final PhoneNumberService mPhoneNumberService;
+
+    @Autowired
+    MessageService(UserService userService, PhoneNumberService phoneNumberService) {
+        this.mUserService = userService;
+        this.mPhoneNumberService = phoneNumberService;
+    }
+
 
     @RequestMapping(value = "/receive-message", method = RequestMethod.POST, produces = {"application/xml"})
     public void receiveMessage(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("Receive MultiValueMap: " + allRequestParams.toString());
+        PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(allRequestParams.get("To"));
+        if(phoneNumberDTO != null){
+            String userId = phoneNumberDTO.getUserId();
+            UserDTO user = mUserService.findById(userId);
+            if(user != null){
+                String token = user.getToken();
+                sendNotification(token, allRequestParams.get("From"), allRequestParams.get("Body"));
+            }
+        }
 //        List<String> identities = new ArrayList<>();
 //        identities.add(allRequestParams.get("To"));
 //        sendNotification("High", allRequestParams.get("From"), allRequestParams.get("Body"), identities);
-        sendNotification(allRequestParams.get("From"), allRequestParams.get("Body"));
+
     }
 
     @PostMapping(value = "/send-message")
@@ -62,9 +85,8 @@ public class MessageService {
         return sendNotification(notificationRequest.getPriority(), notificationRequest.getTitle(), notificationRequest.getBody(), notificationRequest.getIdentity());
     }
 
-    private static void sendNotification(String title, String body) {
+    private static void sendNotification(String tokenId, String title, String body) {
         //Just I am passed dummy information
-        String tokenId = "fQQszTMptqc:APA91bHqlbj3XQP-Y9krSquJ4jo6Qo4_Ct3790e4VsEeyt_9swOIzXyk06A5A1ZwhM1o8a4Z5Gu0R2IEPdiYMw1PAo9Z37_-496cDEFojA13piOmJaNy8Wpps8rhb6ib02X_HdVF49qg";
 
         String server_key = "AAAANaqlCmY:APA91bGdQKmQNlZhqLTq31yXx36auQvc9I2xA0RB-VIgGhnN4haVdXllvWgFiRkzwJ8B_qVZ8eaJbqCTr-pqlKxbq0O4hWAcUpVga655rByPKOVSB0YnoA5t08DpiNG6uj-iAArs2bCv";
 

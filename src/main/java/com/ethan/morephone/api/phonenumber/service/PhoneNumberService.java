@@ -49,4 +49,6 @@ public interface PhoneNumberService {
     PhoneNumberDTO update(PhoneNumberDTO user);
 
     PhoneNumberDTO findBySid(String sid);
+
+    PhoneNumberDTO findByPhoneNumber(String phoneNumber);
 }

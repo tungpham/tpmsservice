@@ -43,4 +43,6 @@ public interface PhoneNumberRepository extends Repository<PhoneNumber, String> {
     PhoneNumber save(PhoneNumber saved);
 
     List<PhoneNumber> findBySid(String sid);
+
+    List<PhoneNumber> findByPhoneNumber(String phoneNumber);
 }

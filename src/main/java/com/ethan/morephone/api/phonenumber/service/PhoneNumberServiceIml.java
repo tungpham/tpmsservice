@@ -102,10 +102,29 @@ public class PhoneNumberServiceIml implements PhoneNumberService {
         }
     }
 
+    @Override
+    public PhoneNumberDTO findByPhoneNumber(String phoneNumber) {
+        PhoneNumber found = findPhoneNumberByPhoneNumber(phoneNumber);
+        if (found != null) {
+            return convertToDTO(found);
+        } else {
+            return null;
+        }
+    }
+
     private PhoneNumber findPhoneNumberById(String id) {
         Optional<PhoneNumber> result = repository.findOne(id);
         return result.orElseThrow(() -> new PhoneNumberNotFoundException(id));
 
+    }
+
+    private PhoneNumber findPhoneNumberByPhoneNumber(String phoneNumber) {
+        List<PhoneNumber> result = repository.findByPhoneNumber(phoneNumber);
+        if (result != null && !result.isEmpty()) {
+            return result.get(0);
+        } else {
+            return null;
+        }
     }
 
     private PhoneNumber findPhoneNumberBySid(String sid) {
