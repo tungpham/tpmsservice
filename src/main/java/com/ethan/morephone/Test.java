@@ -42,7 +42,7 @@ public class Test {
         String server_key = "AAAANaqlCmY:APA91bGdQKmQNlZhqLTq31yXx36auQvc9I2xA0RB-VIgGhnN4haVdXllvWgFiRkzwJ8B_qVZ8eaJbqCTr-pqlKxbq0O4hWAcUpVga655rByPKOVSB0YnoA5t08DpiNG6uj-iAArs2bCv";
 
 //Method to send Push Notification
-        FCM.send_FCM_Notification(tokenId, server_key, title, body);
+        FCM.send_FCM_Notification(tokenId, title, body);
     }
 
 }
