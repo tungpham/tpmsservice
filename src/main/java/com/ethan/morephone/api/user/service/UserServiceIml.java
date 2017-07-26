@@ -4,6 +4,7 @@ import com.ethan.morephone.api.user.UserNotFoundException;
 import com.ethan.morephone.api.user.domain.User;
 import com.ethan.morephone.api.user.domain.UserDTO;
 import com.ethan.morephone.api.user.repository.UserRepository;
+import com.ethan.morephone.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,11 +76,12 @@ public class UserServiceIml implements UserService {
 
     @Override
     public UserDTO findById(String id) {
-        LOGGER.info("Finding user entry with id: {}", id);
+
+        Utils.logMessage("Finding user entry with id: " + id);
 
         User found = findTodoById(id);
 
-        LOGGER.info("Found user entry: {}", found);
+        Utils.logMessage("Found user entry with id: " + found.toString());
 
         return convertToDTO(found);
     }
