@@ -127,10 +127,10 @@ public final class User {
     @Override
     public String toString() {
         return String.format(
-                "User[id=%s, email=%s, Country=%s]",
+                "User[id=%s, email=%s, token=%s]",
                 this.id,
                 this.email,
-                this.country
+                this.token
         );
     }
 

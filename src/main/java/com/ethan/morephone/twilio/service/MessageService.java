@@ -55,6 +55,7 @@ public class MessageService {
             UserDTO user = mUserService.findById(userId);
             if(user != null){
                 String token = user.getToken();
+                Utils.logMessage("TOKEN: " + token);
                 sendNotification(token, allRequestParams.get("From"), allRequestParams.get("Body"));
             }
         }
