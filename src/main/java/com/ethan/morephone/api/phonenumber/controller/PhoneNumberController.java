@@ -21,7 +21,7 @@ import java.util.List;
  * Created by truongnguyen on 7/14/17.
  */
 @RestController
-@RequestMapping("/api/phone-number")
+@RequestMapping("/api/v1/phone-number")
 final class PhoneNumberController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PhoneNumberController.class);

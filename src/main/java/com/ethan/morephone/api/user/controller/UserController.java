@@ -18,7 +18,7 @@ import java.util.List;
  * Created by truongnguyen on 7/14/17.
  */
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/v1/user")
 final class UserController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
@@ -85,7 +85,7 @@ final class UserController {
         return updated;
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{id}/token", method = RequestMethod.PUT)
     Response<Object> updateToken(@PathVariable("id") String id,
                                  @RequestParam(value = "token") String token) {
         LOGGER.info("Updating user entry with token:", token);
