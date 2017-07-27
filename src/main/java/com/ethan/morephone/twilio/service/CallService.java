@@ -1,6 +1,11 @@
 package com.ethan.morephone.twilio.service;
 
 import com.ethan.morephone.Constants;
+import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
+import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
+import com.ethan.morephone.api.user.domain.UserDTO;
+import com.ethan.morephone.api.user.service.UserService;
+import com.ethan.morephone.utils.Utils;
 import com.twilio.sdk.CapabilityToken;
 import com.twilio.sdk.client.TwilioCapability;
 import com.twilio.sdk.verbs.*;
@@ -8,6 +13,7 @@ import com.twilio.sdk.verbs.Number;
 import com.twilio.twiml.Say;
 import com.twilio.twiml.VoiceResponse;
 import org.apache.http.util.TextUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,6 +27,15 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/call")
 public class CallService {
+
+    private final UserService mUserService;
+    private final PhoneNumberService mPhoneNumberService;
+
+    @Autowired
+    CallService(UserService userService, PhoneNumberService phoneNumberService) {
+        this.mUserService = userService;
+        this.mPhoneNumberService = phoneNumberService;
+    }
 
     @RequestMapping(value = "/token", method = RequestMethod.GET)
     public String createToken(@RequestParam(value = "client") String client) {
@@ -96,10 +111,29 @@ public class CallService {
             // PSTN -> client
             dial.setCallerId(from);
             dial.setRecord(true);
-            try {
-                dial.append(new Client(to));
-            } catch (TwiMLException e) {
-                e.printStackTrace();
+
+            PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(allRequestParams.get("To"));
+            if (phoneNumberDTO != null) {
+                String userId = phoneNumberDTO.getUserId();
+
+                Utils.logMessage("USER ID: " + userId);
+                UserDTO user = mUserService.findById(userId);
+
+                if (user != null) {
+                    try {
+                        dial.append(new Client(user.getEmail()));
+                    } catch (TwiMLException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            } else {
+                Utils.logMessage("CALL NORMAL");
+                try {
+                    dial.append(new Client(to));
+                } catch (TwiMLException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
