@@ -64,7 +64,6 @@ public class CallService {
                 .grant(voiceGrant)
                 .build();
         return accessToken.toJwt();
-
     }
 
 //    @RequestMapping(value = "/call", method = RequestMethod.POST, produces = {"application/xml"})
@@ -186,7 +185,6 @@ public class CallService {
             System.out.println("PSTN - client");
             // PSTN -> client
 
-
             PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(to);
             if (phoneNumberDTO != null) {
                 String userId = phoneNumberDTO.getUserId();
@@ -207,6 +205,8 @@ public class CallService {
                             .callerId(from)
                             .client(new Client.Builder(user.getEmail()).build())
                             .build();
+
+                    com.twilio.type.Client client;
                 }
 //
             } else {
