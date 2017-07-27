@@ -59,7 +59,7 @@ public class MessageService {
                 List<String> identities = new ArrayList<>();
                 identities.add(user.getEmail());
                 sendNotification("High", allRequestParams.get("From"), allRequestParams.get("Body"), identities);
-                sendNotification(token, allRequestParams.get("From") +" FCM ", allRequestParams.get("Body"));
+//                sendNotification(token, allRequestParams.get("From") +" FCM ", allRequestParams.get("Body"));
             }
         }
 //        List<String> identities = new ArrayList<>();
