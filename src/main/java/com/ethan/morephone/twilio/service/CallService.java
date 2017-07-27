@@ -121,9 +121,11 @@ public class CallService {
 
                 if (user != null) {
                     try {
+                        Utils.logMessage("EMAIL: " + user.getEmail());
                         dial.append(new Client(user.getEmail()));
                     } catch (TwiMLException e) {
                         e.printStackTrace();
+                        Utils.logMessage("ERROR APPEND: " + e.getMessage());
                     }
                 }
 
@@ -141,6 +143,7 @@ public class CallService {
             twiml.append(dial);
         } catch (TwiMLException e) {
             e.printStackTrace();
+            Utils.logMessage("ERROR CALL: " + e.getMessage());
         }
         return twiml.toXML();
     }
