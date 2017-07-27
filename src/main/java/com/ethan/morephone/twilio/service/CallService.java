@@ -54,7 +54,7 @@ public class CallService {
     }
 
     @RequestMapping(value = "/voice/token", method = RequestMethod.GET)
-    public String token(@RequestParam(value = "identity") String identity){
+    public String token(@RequestParam(value = "identity") String identity) {
         VoiceGrant voiceGrant = new VoiceGrant();
         voiceGrant.setPushCredentialSid(Constants.TWILIO_PUSH_CREDENTIALS);
         voiceGrant.setOutgoingApplicationSid(Constants.TWILIO_APPLICATION_SID);
@@ -64,6 +64,41 @@ public class CallService {
                 .grant(voiceGrant)
                 .build();
         return accessToken.toJwt();
+    }
+
+    String IDENTITY = "voice_test";
+    String CALLER_ID = "quick_start";
+
+    @RequestMapping(value = "/python/token", method = RequestMethod.GET)
+    public String tokenPython() {
+        VoiceGrant voiceGrant = new VoiceGrant();
+        voiceGrant.setPushCredentialSid(Constants.TWILIO_PUSH_CREDENTIALS);
+        voiceGrant.setOutgoingApplicationSid(Constants.TWILIO_APPLICATION_SID);
+
+        AccessToken accessToken = new AccessToken.Builder(Constants.TWILIO_ACCOUNT_SID, Constants.TWILIO_API_KEY, Constants.TWILIO_API_SECRET)
+                .identity(IDENTITY)
+                .grant(voiceGrant)
+                .build();
+        return accessToken.toJwt();
+    }
+
+    @RequestMapping(value = "/place", method = RequestMethod.GET, produces = {"application/xml"})
+    public String placeCall() {
+        VoiceResponse twiml;
+
+        Dial dial = new Dial.Builder()
+                .callerId(CALLER_ID)
+                .client(new Client.Builder(IDENTITY).build())
+                .build();
+        twiml = new VoiceResponse.Builder().dial(dial).build();
+
+        try {
+            return twiml.toXml();
+        } catch (TwiMLException e) {
+            e.printStackTrace();
+            Utils.logMessage("ERROR CALL: " + e.getMessage());
+        }
+        return "";
     }
 
 //    @RequestMapping(value = "/call", method = RequestMethod.POST, produces = {"application/xml"})
