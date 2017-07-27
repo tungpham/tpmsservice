@@ -56,7 +56,10 @@ public class MessageService {
             if(user != null){
                 String token = user.getToken();
                 Utils.logMessage("TOKEN: " + token);
-                sendNotification(token, allRequestParams.get("From"), allRequestParams.get("Body"));
+                List<String> identities = new ArrayList<>();
+                identities.add(user.getEmail());
+                sendNotification("High", allRequestParams.get("From"), allRequestParams.get("Body"), identities);
+                sendNotification(token, allRequestParams.get("From") +" FCM ", allRequestParams.get("Body"));
             }
         }
 //        List<String> identities = new ArrayList<>();
@@ -92,7 +95,7 @@ public class MessageService {
         //Just I am passed dummy information
 
 //Method to send Push Notification
-        FCM.send_FCM_Notification(tokenId, title, body);
+        FCM.send_FCM_Notification(tokenId, Constants.FCM_SERVER_KEY, title, body);
     }
 
     private Response sendNotification(String priorityRequest, String title, String body, List<String> identity){

@@ -1,10 +1,15 @@
 package com.ethan.morephone.api.user.controller;
 
+import com.ethan.morephone.Constants;
 import com.ethan.morephone.api.user.UserNotFoundException;
 import com.ethan.morephone.api.user.domain.UserDTO;
 import com.ethan.morephone.api.user.service.UserService;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.http.Response;
+import com.ethan.morephone.utils.Utils;
+import com.twilio.Twilio;
+import com.twilio.rest.notify.v1.service.Binding;
+import com.twilio.rest.notify.v1.service.BindingCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +28,8 @@ final class UserController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
+    private static final String FCM_BINDING_TYPE = "fcm";
+
     private final UserService service;
 
     @Autowired
@@ -37,6 +44,8 @@ final class UserController {
         UserDTO userDTO = service.findByEmail(todoEntry.getEmail());
         if (userDTO == null) {
             UserDTO created = service.create(todoEntry);
+            bindingUser(created.getEmail(), created.getToken());
+
             LOGGER.info("Created a new user entry with information: {}", created);
 
             return new Response<>(created, HTTPStatus.CREATED);
@@ -105,6 +114,30 @@ final class UserController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public void handleTodoNotFound(UserNotFoundException ex) {
         LOGGER.error("Handling error with message: {}", ex.getMessage());
+    }
+
+
+    public void bindingUser(String identity, String address) {
+        Twilio.init(Constants.TWILIO_API_KEY, Constants.TWILIO_API_SECRET, Constants.TWILIO_ACCOUNT_SID);
+        try {
+            // Convert BindingType from Object to enum value
+            Binding.BindingType bindingType = Binding.BindingType.forValue(FCM_BINDING_TYPE);
+            // Add the notification service sid
+
+            Utils.logMessage("SERVICE: " + Constants.TWILIO_NOTIFICATION_SERVICE_SID);
+            Utils.logMessage("bindingType: " + bindingType);
+            Utils.logMessage("identity: " + identity);
+            Utils.logMessage("ADDRESS: " + address);
+            // Create the binding
+            BindingCreator bindingCreator = new BindingCreator(Constants.TWILIO_NOTIFICATION_SERVICE_SID, "", identity, bindingType, address);
+            Binding binding = bindingCreator.create();
+
+            // Send a JSON response indicating success
+            Utils.logMessage("BINDING SUCCESS: "+ identity);
+        } catch (Exception ex) {
+            // Send a JSON response indicating an error
+            Utils.logMessage("BINDING ERROR: "+ ex.getMessage());
+        }
     }
 
 }

@@ -1,7 +1,6 @@
 package com.ethan.morephone.twilio.fcm;
 
 
-import com.ethan.morephone.Constants;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
@@ -27,7 +26,7 @@ public class FCM {
      * @param message    which contains actual information.
      */
 
-    public static void send_FCM_Notification(String tokenId, String title, String message) {
+    public static void send_FCM_Notification(String tokenId, String server_key, String title, String message) {
         try {
 
 // Create URL instance.
@@ -42,7 +41,7 @@ public class FCM {
             conn.setRequestMethod("POST");
 
 //pass FCM server key
-            conn.setRequestProperty("Authorization", "key=" + Constants.FCM_SERVER_KEY);
+            conn.setRequestProperty("Authorization", "key=" + server_key);
 
 //Specify Message Format
             conn.setRequestProperty("Content-Type", "application/json");

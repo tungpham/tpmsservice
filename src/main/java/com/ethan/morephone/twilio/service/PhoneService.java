@@ -5,6 +5,7 @@ import com.ethan.morephone.data.entity.application.Applications;
 import com.ethan.morephone.data.network.ApiManager;
 import com.ethan.morephone.twilio.model.BindingRequest;
 import com.ethan.morephone.twilio.model.Response;
+import com.ethan.morephone.utils.Utils;
 import com.twilio.Twilio;
 import com.twilio.rest.notify.v1.service.Binding;
 import com.twilio.rest.notify.v1.service.BindingCreator;
@@ -38,6 +39,11 @@ public class PhoneService {
             Binding.BindingType bindingType = Binding.BindingType.forValue(bindingRequest.getBinding());
             // Add the notification service sid
 
+            Utils.logMessage("SERVICE: " + Constants.TWILIO_NOTIFICATION_SERVICE_SID);
+            Utils.logMessage("ENDPOINT: " + bindingRequest.getEndpoint());
+            Utils.logMessage("bindingType: " + bindingType);
+            Utils.logMessage("identity: " + bindingRequest.getIdentity());
+            Utils.logMessage("ADDRESS: " + bindingRequest.getAddress());
             // Create the binding
             BindingCreator bindingCreator = new BindingCreator(Constants.TWILIO_NOTIFICATION_SERVICE_SID, bindingRequest.getEndpoint(), bindingRequest.getIdentity(), bindingType, bindingRequest.getAddress());
             Binding binding = bindingCreator.create();
