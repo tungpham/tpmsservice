@@ -1,7 +1,9 @@
 package com.ethan.morephone.twilio.service;
 
 import com.ethan.morephone.Constants;
+import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
 import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
+import com.ethan.morephone.api.user.domain.UserDTO;
 import com.ethan.morephone.api.user.service.UserService;
 import com.ethan.morephone.utils.Utils;
 import com.twilio.jwt.accesstoken.AccessToken;
@@ -169,7 +171,7 @@ public class CallService {
             }
         }
 
-        Dial dial;
+        Dial dial = null;
 
 
         if (from.startsWith("client:")) {
@@ -183,19 +185,16 @@ public class CallService {
         } else {
             System.out.println("PSTN - client");
             // PSTN -> client
-            dial = new Dial.Builder()
-                    .callerId(from)
-                    .client(new Client.Builder(to).build())
-                    .build();
 
-//            PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(allRequestParams.get("To"));
-//            if (phoneNumberDTO != null) {
-//                String userId = phoneNumberDTO.getUserId();
-//
-//                Utils.logMessage("USER ID: " + userId);
-//                UserDTO user = mUserService.findById(userId);
-//
-//                if (user != null) {
+
+            PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(to);
+            if (phoneNumberDTO != null) {
+                String userId = phoneNumberDTO.getUserId();
+
+                Utils.logMessage("USER ID: " + userId);
+                UserDTO user = mUserService.findById(userId);
+
+                if (user != null) {
 //                    try {
 //                        Utils.logMessage("EMAIL: " + user.getEmail());
 //                        dial.append(new Client(user.getEmail()));
@@ -203,16 +202,19 @@ public class CallService {
 //                        e.printStackTrace();
 //                        Utils.logMessage("ERROR APPEND: " + e.getMessage());
 //                    }
-//                }
+
+                    dial = new Dial.Builder()
+                            .callerId(from)
+                            .client(new Client.Builder(user.getEmail()).build())
+                            .build();
+                }
 //
-//            } else {
-//                Utils.logMessage("CALL NORMAL");
-//                try {
-//                    dial.append(new Client(to));
-//                } catch (TwiMLException e) {
-//                    e.printStackTrace();
-//                }
-//            }
+            } else {
+                dial = new Dial.Builder()
+                        .callerId(from)
+                        .client(new Client.Builder(to).build())
+                        .build();
+            }
         }
 
         twiml = new VoiceResponse.Builder().dial(dial).build();
