@@ -58,7 +58,7 @@ public class MessageService {
                 Utils.logMessage("TOKEN: " + token);
                 List<String> identities = new ArrayList<>();
                 identities.add(user.getEmail());
-                sendNotification("High", allRequestParams.get("From"), allRequestParams.get("Body"), identities);
+                sendNotification("High", allRequestParams.get("To"), allRequestParams.get("From"), allRequestParams.get("Body"), identities);
 //                sendNotification(token, allRequestParams.get("From") +" FCM ", allRequestParams.get("Body"));
             }
         }
@@ -88,7 +88,7 @@ public class MessageService {
 
     @PostMapping(value = "/send-notification")
     public Response notification(@RequestBody NotificationRequest notificationRequest) {
-        return sendNotification(notificationRequest.getPriority(), notificationRequest.getTitle(), notificationRequest.getBody(), notificationRequest.getIdentity());
+        return sendNotification(notificationRequest.getPriority(), "PHone Number",notificationRequest.getTitle(), notificationRequest.getBody(), notificationRequest.getIdentity());
     }
 
     private static void sendNotification(String tokenId, String title, String body) {
@@ -98,7 +98,7 @@ public class MessageService {
         FCM.send_FCM_Notification(tokenId, Constants.FCM_SERVER_KEY, title, body);
     }
 
-    private Response sendNotification(String priorityRequest, String title, String body, List<String> identity){
+    private Response sendNotification(String priorityRequest, String phoneNumber, String title, String body, List<String> identity){
         Twilio.init(Constants.TWILIO_API_KEY, Constants.TWILIO_API_SECRET, Constants.TWILIO_ACCOUNT_SID);
 
         try {
@@ -110,6 +110,7 @@ public class MessageService {
             notificationCreator.setBody(body);
             notificationCreator.setPriority(priority);
             notificationCreator.setIdentity(identity);
+            notificationCreator.setData(phoneNumber);
             Notification notification = notificationCreator.create();
 
             Utils.logMessage("Notification successfully created");
