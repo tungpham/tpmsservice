@@ -106,11 +106,10 @@ public class MessageService {
             Notification.Priority priority = Notification.Priority.forValue(priorityRequest);
             Utils.logMessage("priority: " + priority.name());
             NotificationCreator notificationCreator = new NotificationCreator(Constants.TWILIO_NOTIFICATION_SERVICE_SID);
-            notificationCreator.setTitle(title);
+            notificationCreator.setTitle(title+"-"+phoneNumber);
             notificationCreator.setBody(body);
             notificationCreator.setPriority(priority);
             notificationCreator.setIdentity(identity);
-            notificationCreator.setData(phoneNumber);
             Notification notification = notificationCreator.create();
 
             Utils.logMessage("Notification successfully created");
