@@ -5,6 +5,7 @@ import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
 import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
 import com.ethan.morephone.api.user.domain.UserDTO;
 import com.ethan.morephone.api.user.service.UserService;
+import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.twilio.model.NotificationRequest;
 import com.ethan.morephone.twilio.model.Response;
@@ -48,12 +49,12 @@ public class MessageService {
     public void receiveMessage(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("Receive MultiValueMap: " + allRequestParams.toString());
         PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(allRequestParams.get("To"));
-        if(phoneNumberDTO != null){
+        if (phoneNumberDTO != null) {
             String userId = phoneNumberDTO.getUserId();
 
             Utils.logMessage("USER ID: " + userId);
             UserDTO user = mUserService.findById(userId);
-            if(user != null){
+            if (user != null) {
                 String token = user.getToken();
                 Utils.logMessage("TOKEN: " + token);
                 List<String> identities = new ArrayList<>();
@@ -69,9 +70,10 @@ public class MessageService {
     }
 
     @PostMapping(value = "/send-message")
-    public String sendMessage(@RequestParam(value = "from") String from,
-                              @RequestParam(value = "to") String to,
-                              @RequestParam(value = "body") String body) {
+    com.ethan.morephone.http.Response<Object> sendMessage(@RequestParam(value = "userId") String userId,
+                                                          @RequestParam(value = "from") String from,
+                                                          @RequestParam(value = "to") String to,
+                                                          @RequestParam(value = "body") String body) {
         TwilioRestClient client = new TwilioRestClient.Builder(Constants.TWILIO_ACCOUNT_SID, Constants.TWILIO_AUTH_TOKEN).build();
         try {
             Message message = new MessageCreator(
@@ -79,16 +81,16 @@ public class MessageService {
                     new PhoneNumber(from),
                     body).create(client);
 
-            return message.getSid();
+            return new com.ethan.morephone.http.Response<>(message, HTTPStatus.CREATED);
         } catch (TwilioException e) {
             Utils.logMessage("An exception occurred trying to send a message to {}, exception: {} " + to + " ||| " + e.getMessage());
         }
-        return "";
+        return new com.ethan.morephone.http.Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
     }
 
     @PostMapping(value = "/send-notification")
     public Response notification(@RequestBody NotificationRequest notificationRequest) {
-        return sendNotification(notificationRequest.getPriority(), "PHone Number",notificationRequest.getTitle(), notificationRequest.getBody(), notificationRequest.getIdentity());
+        return sendNotification(notificationRequest.getPriority(), "PHone Number", notificationRequest.getTitle(), notificationRequest.getBody(), notificationRequest.getIdentity());
     }
 
     private static void sendNotification(String tokenId, String title, String body) {
@@ -98,7 +100,7 @@ public class MessageService {
         FCM.send_FCM_Notification(tokenId, Constants.FCM_SERVER_KEY, title, body);
     }
 
-    private Response sendNotification(String priorityRequest, String phoneNumber, String title, String body, List<String> identity){
+    private Response sendNotification(String priorityRequest, String phoneNumber, String title, String body, List<String> identity) {
         Twilio.init(Constants.TWILIO_API_KEY, Constants.TWILIO_API_SECRET, Constants.TWILIO_ACCOUNT_SID);
 
         try {
@@ -106,7 +108,7 @@ public class MessageService {
             Notification.Priority priority = Notification.Priority.forValue(priorityRequest);
             Utils.logMessage("priority: " + priority.name());
             NotificationCreator notificationCreator = new NotificationCreator(Constants.TWILIO_NOTIFICATION_SERVICE_SID);
-            notificationCreator.setTitle(title+"-"+phoneNumber);
+            notificationCreator.setTitle(title + "-" + phoneNumber);
             notificationCreator.setBody(body);
             notificationCreator.setPriority(priority);
             notificationCreator.setIdentity(identity);
@@ -126,7 +128,6 @@ public class MessageService {
             return sendNotificationResponse;
         }
     }
-
 
 
     private String generateToken(String identity) {
