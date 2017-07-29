@@ -5,6 +5,7 @@ import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
 import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
 import com.ethan.morephone.api.user.domain.UserDTO;
 import com.ethan.morephone.api.user.service.UserService;
+import com.ethan.morephone.data.entity.message.MessageItem;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.twilio.model.NotificationRequest;
@@ -81,7 +82,29 @@ public class MessageService {
                     new PhoneNumber(from),
                     body).create(client);
 
-            return new com.ethan.morephone.http.Response<>(message, HTTPStatus.CREATED);
+
+            MessageItem messageItem = new MessageItem(message.getSid(),
+                    message.getDateCreated().toString(),
+                    message.getDateUpdated().toString(),
+                    message.getDateSent().toString(),
+                    message.getAccountSid(),
+                    message.getTo(),
+                    message.getFrom().toString(),
+                    message.getMessagingServiceSid(),
+                    message.getBody(),
+                    message.getStatus().name(),
+                    message.getNumSegments(),
+                    message.getNumMedia(),
+                    message.getDirection().toString(),
+                    message.getApiVersion(),
+                    message.getPrice().toString(),
+                    message.getPriceUnit().toString(),
+                    String.valueOf(message.getErrorCode()),
+                    message.getErrorMessage(),
+                    message.getUri(),
+                    null
+            );
+            return new com.ethan.morephone.http.Response<>(messageItem, HTTPStatus.CREATED);
         } catch (TwilioException e) {
             Utils.logMessage("An exception occurred trying to send a message to {}, exception: {} " + to + " ||| " + e.getMessage());
         }
