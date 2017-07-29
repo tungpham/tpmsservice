@@ -1,7 +1,9 @@
 package com.ethan.morephone.api.purchase.controller;
 
+import com.ethan.morephone.Constants;
 import com.ethan.morephone.api.purchase.domain.PurchaseDTO;
 import com.ethan.morephone.api.purchase.service.PurchaseService;
+import com.ethan.morephone.api.usage.service.UsageService;
 import com.ethan.morephone.api.user.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +23,12 @@ final class PurchaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(PurchaseController.class);
 
     private final PurchaseService service;
+    private final UsageService mUsageService;
 
     @Autowired
-    PurchaseController(PurchaseService service) {
+    PurchaseController(PurchaseService service, UsageService usageService) {
         this.service = service;
+        this.mUsageService = usageService;
     }
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
@@ -33,6 +37,9 @@ final class PurchaseController {
         LOGGER.info("Creating a new purchase entry with information: {}", todoEntry);
 
         PurchaseDTO created = service.create(todoEntry);
+        if (created.getProductId().equals("")) {
+            mUsageService.updateBalance(created.getUserId(), Constants.PRODUCT_PRICE);
+        }
         LOGGER.info("Created a new purchase entry with information: {}", created);
 
         return created;

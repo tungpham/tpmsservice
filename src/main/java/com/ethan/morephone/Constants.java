@@ -5,6 +5,14 @@ package com.ethan.morephone;
  */
 public class Constants {
 
+    public static final double PRICE_BUY_PHONE_NUMBER = 3;
+    public static final double PRICE_MESSAGE_INCOMING = 0.01;
+    public static final double PRICE_MESSAGE_OUTGOING = 0.01;
+    public static final double PRICE_CALL_INCOMING = 0.01;
+    public static final double PRICE_CALL_OUTGOING = 0.01;
+
+    public static final double PRODUCT_PRICE = 0.1;
+
 //    Ethan
 
     public static final String TWILIO_ACCOUNT_SID = "ACebd7d3a78e2fdda9e51239bad6b09f97";

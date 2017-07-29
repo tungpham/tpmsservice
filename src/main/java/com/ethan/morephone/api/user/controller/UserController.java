@@ -1,6 +1,8 @@
 package com.ethan.morephone.api.user.controller;
 
 import com.ethan.morephone.Constants;
+import com.ethan.morephone.api.usage.domain.UsageDTO;
+import com.ethan.morephone.api.usage.service.UsageService;
 import com.ethan.morephone.api.user.UserNotFoundException;
 import com.ethan.morephone.api.user.domain.UserDTO;
 import com.ethan.morephone.api.user.service.UserService;
@@ -31,10 +33,12 @@ final class UserController {
     private static final String FCM_BINDING_TYPE = "fcm";
 
     private final UserService service;
+    private final UsageService mUsageService;
 
     @Autowired
-    UserController(UserService service) {
+    UserController(UserService service, UsageService usageService) {
         this.service = service;
+        this.mUsageService = usageService;
     }
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
@@ -47,6 +51,9 @@ final class UserController {
             bindingUser(created.getEmail(), created.getToken());
 
             LOGGER.info("Created a new user entry with information: {}", created);
+
+            UsageDTO usageDTO = new UsageDTO(created.getId(), 0, 0 ,0 ,0, 0);
+            mUsageService.create(usageDTO);
 
             return new Response<>(created, HTTPStatus.CREATED);
         } else {

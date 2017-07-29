@@ -10,7 +10,7 @@ public class Purchase {
 
     @Id
     private String id;
-    private String email;
+    private String userId;
     private String packageName;
     private String token;
     private int purchaseState;
@@ -25,7 +25,7 @@ public class Purchase {
     }
 
     private Purchase(Purchase.Builder builder) {
-        this.email = builder.email;
+        this.userId = builder.userId;
         this.packageName = builder.packageName;
         this.token = builder.token;
         this.purchaseState = builder.purchaseState;
@@ -47,12 +47,12 @@ public class Purchase {
         this.id = id;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUserId(String email) {
+        this.userId = email;
     }
 
     public String getPackageName() {
@@ -122,16 +122,16 @@ public class Purchase {
     @Override
     public String toString() {
         return String.format(
-                "User[id=%s, email=%s, orderId=%s]",
+                "User[id=%s, userId=%s, orderId=%s]",
                 this.id,
-                this.email,
+                this.userId,
                 this.orderId
         );
     }
 
 
     public static class Builder {
-        private String email;
+        private String userId;
         private String packageName;
         private String token;
         private int purchaseState;
@@ -143,8 +143,8 @@ public class Purchase {
         }
 
 
-        public Builder email(String email) {
-            this.email = email;
+        public Builder userId(String userId) {
+            this.userId = userId;
             return this;
         }
 
@@ -183,13 +183,13 @@ public class Purchase {
 
             Purchase build = new Purchase(this);
 
-            build.checkEmail(build.getEmail());
+            build.checkUserId(build.getUserId());
 
             return build;
         }
     }
 
-    private void checkEmail(String email) {
+    private void checkUserId(String email) {
         Utils.notNull(email, "Email cannot be null");
         Utils.notEmpty(email, "Email cannot be empty");
     }

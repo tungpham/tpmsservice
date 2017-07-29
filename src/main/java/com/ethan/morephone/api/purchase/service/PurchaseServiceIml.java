@@ -34,7 +34,7 @@ public class PurchaseServiceIml implements PurchaseService {
         LOGGER.info("Creating a new user entry with information: {}", user);
 
         Purchase persisted = Purchase.getBuilder()
-                .email(user.getEmail())
+                .userId(user.getUserId())
                 .packageName(user.getPackageName())
                 .orderId(user.getOrderId())
                 .purchaseState(user.getPurchaseState())
@@ -113,7 +113,7 @@ public class PurchaseServiceIml implements PurchaseService {
         PurchaseDTO dto = new PurchaseDTO();
 
         dto.setId(model.getId());
-        dto.setEmail(model.getEmail());
+        dto.setUserId(model.getUserId());
         dto.setPackageName(model.getPackageName());
         dto.setToken(model.getToken());
         dto.setPurchaseState(model.getPurchaseState());

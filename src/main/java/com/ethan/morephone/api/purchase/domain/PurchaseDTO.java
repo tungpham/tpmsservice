@@ -6,7 +6,7 @@ package com.ethan.morephone.api.purchase.domain;
 public final class PurchaseDTO {
 
     private String id;
-    private String email;
+    private String userId;
     private String packageName;
     private String token;
     private int purchaseState;
@@ -28,12 +28,12 @@ public final class PurchaseDTO {
         this.id = id;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getPackageName() {
@@ -103,9 +103,9 @@ public final class PurchaseDTO {
     @Override
     public String toString() {
         return String.format(
-                "UserDTO[id=%s, email=%s, orderId=%s]",
+                "UserDTO[id=%s, userId=%s, orderId=%s]",
                 this.id,
-                this.email,
+                this.userId,
                 this.orderId
         );
     }
