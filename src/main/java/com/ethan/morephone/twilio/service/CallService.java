@@ -23,7 +23,7 @@ import java.util.Map;
  * Created by truongnguyen on 6/30/17.
  */
 @RestController
-@RequestMapping(value = "/call")
+@RequestMapping(value = "/api/v1/call")
 public class CallService {
 
     private final UserService mUserService;
@@ -179,7 +179,7 @@ public class CallService {
 //        return twiml.toXML();
 //    }
 
-    @RequestMapping(value = "/call", method = RequestMethod.POST, produces = {"application/xml"})
+    @RequestMapping(value = "/dial", method = RequestMethod.POST, produces = {"application/xml"})
     public String callPhone(@RequestParam Map<String, String> allRequestParams) {
 
         System.out.println("MultiValueMap: " + allRequestParams.toString());

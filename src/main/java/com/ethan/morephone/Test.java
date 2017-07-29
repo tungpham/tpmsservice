@@ -19,11 +19,11 @@ import retrofit2.Callback;
 public class Test {
 
     public static void main(String[] args) {
-//        modifyApplication();
+        modifyApplication();
 //        sendNotification("", "WHY");
 //        getApplication();
 //        token();
-        binding();
+//        binding();
     }
 
     private static void getApplication() {
@@ -41,9 +41,9 @@ public class Test {
 
     private static void modifyApplication() {
         ApiManager.modifyApplication(Constants.TWILIO_APPLICATION_SID,
-                "https://immense-temple-84969.herokuapp.com/call/call",
+                "https://immense-temple-84969.herokuapp.com/api/v1/call/dial",
                 "POST",
-                "https://immense-temple-84969.herokuapp.com/message/receive-message",
+                "https://immense-temple-84969.herokuapp.com/api/v1/message/receive-message",
                 "POST");
     }
 

@@ -31,7 +31,7 @@ import java.util.Map;
  * Created by truongnguyen on 7/20/17.
  */
 @RestController
-@RequestMapping(value = "/message")
+@RequestMapping(value = "/api/v1/message")
 public class MessageService {
 
     private final UserService mUserService;

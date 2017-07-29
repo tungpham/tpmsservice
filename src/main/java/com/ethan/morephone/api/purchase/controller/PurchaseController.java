@@ -15,7 +15,7 @@ import javax.validation.Valid;
  * Created by truongnguyen on 7/14/17.
  */
 @RestController
-@RequestMapping("/api/purchase")
+@RequestMapping("/api/v1/purchase")
 final class PurchaseController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PurchaseController.class);

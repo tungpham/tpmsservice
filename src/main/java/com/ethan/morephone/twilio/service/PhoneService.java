@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
  * Created by truongnguyen on 7/25/17.
  */
 @RestController
-@RequestMapping(value = "/phone")
+@RequestMapping(value = "/api/v1/phone")
 public class PhoneService {
 
     @PostMapping(value = "/register-application")
