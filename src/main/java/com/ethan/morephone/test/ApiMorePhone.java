@@ -63,7 +63,7 @@ public class ApiMorePhone {
                             .addInterceptor(logging)
                             .build();
                     mRetrofit = new Retrofit.Builder()
-                            .baseUrl("https://immense-temple-84969.herokuapp.com/")
+                            .baseUrl("https://immense-temple-84969.herokuapp.com/api/v1/")
                             .addConverterFactory(GsonConverterFactory.create())
                             .client(okHttpClient).build();
                 }

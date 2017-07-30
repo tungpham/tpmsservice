@@ -19,11 +19,11 @@ import retrofit2.Callback;
 public class Test {
 
     public static void main(String[] args) {
-        modifyApplication();
+//        modifyApplication();
 //        sendNotification("", "WHY");
 //        getApplication();
 //        token();
-//        binding();
+        binding();
     }
 
     private static void getApplication() {
