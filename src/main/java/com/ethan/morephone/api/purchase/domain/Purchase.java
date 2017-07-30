@@ -3,6 +3,8 @@ package com.ethan.morephone.api.purchase.domain;
 import com.ethan.morephone.utils.Utils;
 import org.springframework.data.annotation.Id;
 
+import java.util.Date;
+
 /**
  * Created by truongnguyen on 7/20/17.
  */
@@ -32,6 +34,10 @@ public class Purchase {
         this.orderId = builder.orderId;
         this.purchaseTime = builder.purchaseTime;
         this.productId = builder.productId;
+
+        Date date = new Date();
+        createdAt = date.getTime();
+        updatedAt = date.getTime();
 
     }
 

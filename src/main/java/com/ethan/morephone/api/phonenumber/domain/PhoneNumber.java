@@ -3,6 +3,8 @@ package com.ethan.morephone.api.phonenumber.domain;
 import com.ethan.morephone.utils.Utils;
 import org.springframework.data.annotation.Id;
 
+import java.util.Date;
+
 /**
  * Created by truongnguyen on 7/14/17.
  */
@@ -25,6 +27,9 @@ public final class PhoneNumber {
         this.phoneNumber = builder.phoneNumber;
         this.friendlyName = builder.friendlyName;
         this.userId = builder.userId;
+        Date date = new Date();
+        createdAt = date.getTime();
+        updatedAt = date.getTime();
     }
 
     public static Builder getBuilder() {

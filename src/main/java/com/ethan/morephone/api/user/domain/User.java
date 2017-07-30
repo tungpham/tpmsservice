@@ -3,6 +3,8 @@ package com.ethan.morephone.api.user.domain;
 import com.ethan.morephone.utils.Utils;
 import org.springframework.data.annotation.Id;
 
+import java.util.Date;
+
 /**
  * Created by truongnguyen on 7/14/17.
  */
@@ -33,6 +35,9 @@ public final class User {
         this.token = builder.token;
         this.device = builder.device;
         this.platform = builder.platform;
+        Date date = new Date();
+        createdAt = date.getTime();
+        updatedAt = date.getTime();
     }
 
     public static Builder getBuilder() {
@@ -118,10 +123,14 @@ public final class User {
     public void update(String country, String languageCode) {
         this.country = country;
         this.languageCode = languageCode;
+        Date date = new Date();
+        updatedAt = date.getTime();
     }
 
     public void update(String token) {
         this.token = token;
+        Date date = new Date();
+        updatedAt = date.getTime();
     }
 
     @Override
