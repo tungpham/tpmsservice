@@ -14,6 +14,8 @@ public final class UserDTO {
     private String device;
     private String token;
     private String platform;
+    private String accountSid;
+    private String applicationSid;
     private long createdAt;
     private long updatedAt;
 
@@ -106,6 +108,22 @@ public final class UserDTO {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getAccountSid() {
+        return accountSid;
+    }
+
+    public void setAccountSid(String accountSid) {
+        this.accountSid = accountSid;
+    }
+
+    public String getApplicationSid() {
+        return applicationSid;
+    }
+
+    public void setApplicationSid(String applicationSid) {
+        this.applicationSid = applicationSid;
     }
 
     @Override

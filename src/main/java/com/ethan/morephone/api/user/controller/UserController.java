@@ -6,6 +6,8 @@ import com.ethan.morephone.api.usage.service.UsageService;
 import com.ethan.morephone.api.user.UserNotFoundException;
 import com.ethan.morephone.api.user.domain.UserDTO;
 import com.ethan.morephone.api.user.service.UserService;
+import com.ethan.morephone.data.entity.application.Application;
+import com.ethan.morephone.data.network.ApiManager;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.http.Response;
 import com.ethan.morephone.utils.Utils;
@@ -48,11 +50,24 @@ final class UserController {
         UserDTO userDTO = service.findByEmail(todoEntry.getEmail());
         if (userDTO == null) {
             UserDTO created = service.create(todoEntry);
-            bindingUser(created.getEmail(), created.getToken());
+//            bindingUser(created.getEmail(), created.getToken());
+
+            Application application = ApiManager.createApplication(
+                    userDTO.getAccountSid(),
+                    userDTO.getEmail(),
+                    "https://tpmsservice.herokuapp.com/api/v1/call/dial",
+                    "POST",
+                    "https://tpmsservice.herokuapp.com/api/v1/message/receive-message",
+                    "POST");
+
+            if (application != null) {
+                Utils.logMessage("CREATE APPLICATION SUCCESS");
+                created.setApplicationSid(application.sid);
+            }
 
             LOGGER.info("Created a new user entry with information: {}", created);
 
-            UsageDTO usageDTO = new UsageDTO(created.getId(), 0, 0 ,0 ,0, 0);
+            UsageDTO usageDTO = new UsageDTO(created.getId(), 0, 0, 0, 0, 0);
             mUsageService.create(usageDTO);
 
             return new Response<>(created, HTTPStatus.CREATED);
@@ -111,7 +126,7 @@ final class UserController {
 
         if (updated == null) {
             return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
-        }else{
+        } else {
             return new Response<>(updated, HTTPStatus.OK);
         }
     }
@@ -140,10 +155,10 @@ final class UserController {
             Binding binding = bindingCreator.create();
 
             // Send a JSON response indicating success
-            Utils.logMessage("BINDING SUCCESS: "+ identity);
+            Utils.logMessage("BINDING SUCCESS: " + identity);
         } catch (Exception ex) {
             // Send a JSON response indicating an error
-            Utils.logMessage("BINDING ERROR: "+ ex.getMessage());
+            Utils.logMessage("BINDING ERROR: " + ex.getMessage());
         }
     }
 

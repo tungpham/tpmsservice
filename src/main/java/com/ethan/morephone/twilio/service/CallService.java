@@ -36,9 +36,12 @@ public class CallService {
     }
 
     @RequestMapping(value = "/token", method = RequestMethod.GET)
-    public String createToken(@RequestParam(value = "client") String client) {
-        TwilioCapability capability = new TwilioCapability(Constants.TWILIO_ACCOUNT_SID, Constants.TWILIO_AUTH_TOKEN);
-        capability.allowClientOutgoing(Constants.TWILIO_APPLICATION_SID);
+    public String createToken(@RequestParam(value = "client") String client,
+                              @RequestParam(value = "account_sid") String accountSid,
+                              @RequestParam(value = "auth_token") String authToken,
+                              @RequestParam(value = "application_sid") String applicationSid) {
+        TwilioCapability capability = new TwilioCapability(accountSid, authToken);
+        capability.allowClientOutgoing(applicationSid);
         capability.allowClientIncoming(client);
 
         String token = "";

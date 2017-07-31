@@ -21,9 +21,18 @@ public class Test {
     public static void main(String[] args) {
 //        modifyApplication();
 //        sendNotification("", "WHY");
-//        getApplication();
+        getApplication();
 //        token();
-        binding();
+//        binding();
+    }
+
+    private static void createApplication(){
+        ApiManager.createApplication("",
+                "",
+                "https://tpmsservice.herokuapp.com/api/v1/call/dial",
+                "POST",
+                "https://tpmsservice.herokuapp.com/api/v1/message/receive-message",
+                "POST");
     }
 
     private static void getApplication() {
@@ -41,9 +50,9 @@ public class Test {
 
     private static void modifyApplication() {
         ApiManager.modifyApplication(Constants.TWILIO_APPLICATION_SID,
-                "https://immense-temple-84969.herokuapp.com/api/v1/call/dial",
+                "https://tpmsservice.herokuapp.com/api/v1/call/dial",
                 "POST",
-                "https://immense-temple-84969.herokuapp.com/api/v1/message/receive-message",
+                "https://tpmsservice.herokuapp.com/api/v1/message/receive-message",
                 "POST");
     }
 

@@ -110,6 +110,22 @@ public class ApiManager {
         return null;
     }
 
+    public static Application createApplication(String accountSid,
+                                                String friendlyName,
+                                                String voiceUrl,
+                                                String voiceMethod,
+                                                String smsUrl,
+                                                String smsMethod) {
+        Call<Application> call = getApiPath().createApplication(accountSid, friendlyName, voiceUrl, voiceMethod, smsUrl, smsMethod);
+        try {
+            Application application = call.execute().body();
+            return application;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     /*-----------------------------------------INCOMING PHONE NUMBERS-----------------------------------------*/
 

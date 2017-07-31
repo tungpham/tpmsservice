@@ -45,7 +45,6 @@ public class MessageService {
         this.mPhoneNumberService = phoneNumberService;
     }
 
-
     @RequestMapping(value = "/receive-message", method = RequestMethod.POST, produces = {"application/xml"})
     public void receiveMessage(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("Receive MultiValueMap: " + allRequestParams.toString());
@@ -60,10 +59,11 @@ public class MessageService {
                 Utils.logMessage("TOKEN: " + token);
                 List<String> identities = new ArrayList<>();
                 identities.add(user.getEmail());
-                sendNotification("High", allRequestParams.get("To"), allRequestParams.get("From"), allRequestParams.get("Body"), identities);
-//                sendNotification(token, allRequestParams.get("From") +" FCM ", allRequestParams.get("Body"));
+//                sendNotification("High", allRequestParams.get("To"), allRequestParams.get("From"), allRequestParams.get("Body"), identities);
+                sendNotification(token, allRequestParams.get("From") + "-" + allRequestParams.get("To"), allRequestParams.get("Body"));
             }
         }
+
 //        List<String> identities = new ArrayList<>();
 //        identities.add(allRequestParams.get("To"));
 //        sendNotification("High", allRequestParams.get("From"), allRequestParams.get("Body"), identities);
@@ -71,17 +71,19 @@ public class MessageService {
     }
 
     @PostMapping(value = "/send-message")
-    com.ethan.morephone.http.Response<Object> sendMessage(@RequestParam(value = "userId") String userId,
+    com.ethan.morephone.http.Response<Object> sendMessage(@RequestParam(value = "account_sid") String accountSid,
+                                                          @RequestParam(value = "auth_token") String authToken,
+                                                          @RequestParam(value = "userId") String userId,
                                                           @RequestParam(value = "from") String from,
                                                           @RequestParam(value = "to") String to,
                                                           @RequestParam(value = "body") String body) {
-        TwilioRestClient client = new TwilioRestClient.Builder(Constants.TWILIO_ACCOUNT_SID, Constants.TWILIO_AUTH_TOKEN).build();
+
+        TwilioRestClient client = new TwilioRestClient.Builder(accountSid, authToken).build();
         try {
             Message message = new MessageCreator(
                     new PhoneNumber(to),
                     new PhoneNumber(from),
                     body).create(client);
-
 
             MessageItem messageItem = new MessageItem(message.getSid(),
                     message.getDateCreated() == null ? "" : message.getDateCreated().toString(),

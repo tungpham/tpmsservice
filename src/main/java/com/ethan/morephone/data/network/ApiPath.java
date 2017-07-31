@@ -28,6 +28,15 @@ public interface ApiPath {
                                         @Field("SmsUrl") String smsUrl,
                                         @Field("SmsMethod") String smsMethod);
 
+    @FormUrlEncoded
+    @POST("Accounts/{accountsid}/Applications}.json")
+    Call<Application> createApplication(@Path("accountsid") String accountsid,
+                                        @Field("FriendlyName") String friendlyName,
+                                        @Field("VoiceUrl") String voiceUrl,
+                                        @Field("VoiceMethod") String voiceMethod,
+                                        @Field("SmsUrl") String smsUrl,
+                                        @Field("SmsMethod") String smsMethod);
+
 
     /*-----------------------------------------INCOMING PHONE NUMBERS-----------------------------------------*/
     @FormUrlEncoded
