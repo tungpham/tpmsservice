@@ -51,10 +51,10 @@ final class UserController {
         if (userDTO == null) {
             UserDTO created = service.create(todoEntry);
 //            bindingUser(created.getEmail(), created.getToken());
-
+            Utils.logMessage("ACCOUNTSID: " + todoEntry.getAccountSid());
             Application application = ApiManager.createApplication(
-                    userDTO.getAccountSid(),
-                    userDTO.getEmail(),
+                    todoEntry.getAccountSid(),
+                    todoEntry.getEmail(),
                     "https://tpmsservice.herokuapp.com/api/v1/call/dial",
                     "POST",
                     "https://tpmsservice.herokuapp.com/api/v1/message/receive-message",
