@@ -3,6 +3,8 @@ package com.ethan.morephone.twilio.service;
 import com.ethan.morephone.Constants;
 import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
 import com.ethan.morephone.api.user.service.UserService;
+import com.ethan.morephone.http.HTTPStatus;
+import com.ethan.morephone.http.Response;
 import com.ethan.morephone.utils.Utils;
 import com.twilio.jwt.accesstoken.AccessToken;
 import com.twilio.jwt.accesstoken.VoiceGrant;
@@ -12,10 +14,7 @@ import com.twilio.twiml.*;
 import com.twilio.twiml.Number;
 import org.apache.http.util.TextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -35,11 +34,11 @@ public class CallService {
         this.mPhoneNumberService = phoneNumberService;
     }
 
-    @RequestMapping(value = "/token", method = RequestMethod.GET)
-    public String createToken(@RequestParam(value = "client") String client,
-                              @RequestParam(value = "account_sid") String accountSid,
-                              @RequestParam(value = "auth_token") String authToken,
-                              @RequestParam(value = "application_sid") String applicationSid) {
+    @PostMapping(value = "/token")
+    public Response<Object> createToken(@RequestParam(value = "client") String client,
+                                        @RequestParam(value = "account_sid") String accountSid,
+                                        @RequestParam(value = "auth_token") String authToken,
+                                        @RequestParam(value = "application_sid") String applicationSid) {
         Utils.logMessage("CLIENT: " + client);
         Utils.logMessage("account_sid: " + accountSid);
         Utils.logMessage("auth_token: " + authToken);
@@ -48,14 +47,14 @@ public class CallService {
         capability.allowClientOutgoing(applicationSid);
         capability.allowClientIncoming(client);
 
-        String token = "";
         try {
-            token = capability.generateToken();
+            String token = capability.generateToken();
+            return new Response<>(token, HTTPStatus.CREATED);
         } catch (CapabilityToken.DomainException e) {
             e.printStackTrace();
         }
 
-        return token;
+        return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
     }
 
     @RequestMapping(value = "/voice/token", method = RequestMethod.GET)
