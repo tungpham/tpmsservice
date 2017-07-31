@@ -31,22 +31,8 @@ public class Constants {
 //    More Phone
 
 
-//    public static final String TWILIO_ACCOUNT_SID = "ACdd510b09cfb9af9f1c2dd9d45e9ce1e5";
-//    public static final String TWILIO_AUTH_TOKEN = "18b65f8d69b4982f6a34a59704df83f4";
-//    public static final String TWILIO_API_SECRET = "xKrnAAtme6j1XCHBOzRyLvVMH6FGHrdl";
-//    public static final String TWILIO_API_KEY = "SKa648705e20d56efd0335e4ae5ab05cca";
-//    public static final String TWILIO_NOTIFICATION_SERVICE_SID = "IS1a9c5787170d806460a778a5d0c728ec";
-//    public static final String TWILIO_CHAT_SERVICE_SID = "";
-//    public static final String TWILIO_SYNC_SERVICE_SID = "";
-//    public static final String TWILIO_APPLICATION_SID = "AP3bf3e6a6b0753048d02604ad2f1a6639";
-//
-//    public static final String TWILIO_PUSH_CREDENTIALS = "CRfc356aaa217d5adee9c20510538469";
-//
-//    public static final String FCM_SERVER_KEY = "AAAANaqlCmY:APA91bGdQKmQNlZhqLTq31yXx36auQvc9I2xA0RB-VIgGhnN4haVdXllvWgFiRkzwJ8B_qVZ8eaJbqCTr-pqlKxbq0O4hWAcUpVga655rByPKOVSB0YnoA5t08DpiNG6uj-iAArs2bCv";
-
-
-    public static final String TWILIO_ACCOUNT_SID = "AC4e52b443ac512d71421b5fb901732d17";
-    public static final String TWILIO_AUTH_TOKEN = "50fd25e2bbfed99671ee498b3fdfe2fe";
+    public static final String TWILIO_ACCOUNT_SID = "ACdd510b09cfb9af9f1c2dd9d45e9ce1e5";
+    public static final String TWILIO_AUTH_TOKEN = "18b65f8d69b4982f6a34a59704df83f4";
     public static final String TWILIO_API_SECRET = "xKrnAAtme6j1XCHBOzRyLvVMH6FGHrdl";
     public static final String TWILIO_API_KEY = "SKa648705e20d56efd0335e4ae5ab05cca";
     public static final String TWILIO_NOTIFICATION_SERVICE_SID = "IS1a9c5787170d806460a778a5d0c728ec";
@@ -57,6 +43,20 @@ public class Constants {
     public static final String TWILIO_PUSH_CREDENTIALS = "CRfc356aaa217d5adee9c20510538469";
 
     public static final String FCM_SERVER_KEY = "AAAANaqlCmY:APA91bGdQKmQNlZhqLTq31yXx36auQvc9I2xA0RB-VIgGhnN4haVdXllvWgFiRkzwJ8B_qVZ8eaJbqCTr-pqlKxbq0O4hWAcUpVga655rByPKOVSB0YnoA5t08DpiNG6uj-iAArs2bCv";
+
+
+//    public static final String TWILIO_ACCOUNT_SID = "AC4e52b443ac512d71421b5fb901732d17";
+//    public static final String TWILIO_AUTH_TOKEN = "50fd25e2bbfed99671ee498b3fdfe2fe";
+//    public static final String TWILIO_API_SECRET = "xKrnAAtme6j1XCHBOzRyLvVMH6FGHrdl";
+//    public static final String TWILIO_API_KEY = "SKa648705e20d56efd0335e4ae5ab05cca";
+//    public static final String TWILIO_NOTIFICATION_SERVICE_SID = "IS1a9c5787170d806460a778a5d0c728ec";
+//    public static final String TWILIO_CHAT_SERVICE_SID = "";
+//    public static final String TWILIO_SYNC_SERVICE_SID = "";
+//    public static final String TWILIO_APPLICATION_SID = "AP3bf3e6a6b0753048d02604ad2f1a6639";
+//
+//    public static final String TWILIO_PUSH_CREDENTIALS = "CRfc356aaa217d5adee9c20510538469";
+
+//    public static final String FCM_SERVER_KEY = "AAAANaqlCmY:APA91bGdQKmQNlZhqLTq31yXx36auQvc9I2xA0RB-VIgGhnN4haVdXllvWgFiRkzwJ8B_qVZ8eaJbqCTr-pqlKxbq0O4hWAcUpVga655rByPKOVSB0YnoA5t08DpiNG6uj-iAArs2bCv";
 
 
 }
