@@ -52,6 +52,7 @@ final class UserController {
             UserDTO created = service.create(todoEntry);
 //            bindingUser(created.getEmail(), created.getToken());
             Utils.logMessage("ACCOUNTSID: " + todoEntry.getAccountSid());
+            Utils.logMessage("AUTH CODE : " + todoEntry.getAuthToken());
             Application application = ApiManager.createApplication(
                     todoEntry.getAccountSid(),
                     todoEntry.getAuthToken(),

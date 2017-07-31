@@ -29,7 +29,7 @@ public interface ApiPath {
                                         @Field("SmsMethod") String smsMethod);
 
     @FormUrlEncoded
-    @POST("Accounts/{accountsid}/Applications}.json")
+    @POST("Accounts/{accountsid}/Applications.json")
     Call<Application> createApplication(@Path("accountsid") String accountsid,
                                         @Field("FriendlyName") String friendlyName,
                                         @Field("VoiceUrl") String voiceUrl,

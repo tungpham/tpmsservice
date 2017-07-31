@@ -21,18 +21,22 @@ public class Test {
     public static void main(String[] args) {
 //        modifyApplication();
 //        sendNotification("", "WHY");
-        getApplication();
+//        getApplication();
 //        token();
 //        binding();
+        createApplication();
     }
 
     private static void createApplication(){
-//        ApiManager.createApplication("",
-//                "",
-//                "https://tpmsservice.herokuapp.com/api/v1/call/dial",
-//                "POST",
-//                "https://tpmsservice.herokuapp.com/api/v1/message/receive-message",
-//                "POST");
+        Application application = ApiManager.createApplication(
+                "ACdd510b09cfb9af9f1c2dd9d45e9ce1e5",
+                "18b65f8d69b4982f6a34a59704df83f4",
+                "test1@haha.com",
+                "https://tpmsservice.herokuapp.com/api/v1/call/dial",
+                "POST",
+                "https://tpmsservice.herokuapp.com/api/v1/message/receive-message",
+                "POST");
+
     }
 
     private static void getApplication() {
