@@ -129,18 +129,20 @@ public class ApiManager {
 
     /*-----------------------------------------INCOMING PHONE NUMBERS-----------------------------------------*/
 
-    public static IncomingPhoneNumber modifyIncomingPhoneNumber(String incomingPhoneNumberSid,
-                                                             String smsApplicationSid,
-                                                             String smsMethod,
-                                                             String voiceApplicationSid,
-                                                             String voiceMethod) {
-//        Call<IncomingPhoneNumber> call = getApiPath().modifyIncomingPhoneNumber(Constants.TWILIO_ACCOUNT_SID, incomingPhoneNumberSid, smsApplicationSid, smsMethod, voiceApplicationSid, voiceMethod);
-//        try {
-//            IncomingPhoneNumber incomingPhoneNumber = call.execute().body();
-//            return incomingPhoneNumber;
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+    public static IncomingPhoneNumber modifyIncomingPhoneNumber(String accountSid,
+                                                                String authToken,
+                                                                String incomingPhoneNumberSid,
+                                                                String smsApplicationSid,
+                                                                String smsMethod,
+                                                                String voiceApplicationSid,
+                                                                String voiceMethod) {
+        Call<IncomingPhoneNumber> call = getApiPath(accountSid, authToken).modifyIncomingPhoneNumber(accountSid, incomingPhoneNumberSid, smsApplicationSid, smsMethod, voiceApplicationSid, voiceMethod);
+        try {
+            IncomingPhoneNumber incomingPhoneNumber = call.execute().body();
+            return incomingPhoneNumber;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 }

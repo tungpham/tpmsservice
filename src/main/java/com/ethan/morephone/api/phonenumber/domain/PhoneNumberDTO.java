@@ -10,6 +10,9 @@ public final class PhoneNumberDTO {
     private String phoneNumber;
     private String friendlyName;
     private String userId;
+    private String accountSid;
+    private String authToken;
+    private String applicationSid;
     private long createdAt;
     private long updatedAt;
 
@@ -71,6 +74,30 @@ public final class PhoneNumberDTO {
 
     public void setUpdatedAt(long updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getAccountSid() {
+        return accountSid;
+    }
+
+    public void setAccountSid(String accountSid) {
+        this.accountSid = accountSid;
+    }
+
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
+    }
+
+    public String getApplicationSid() {
+        return applicationSid;
+    }
+
+    public void setApplicationSid(String applicationSid) {
+        this.applicationSid = applicationSid;
     }
 
     @Override

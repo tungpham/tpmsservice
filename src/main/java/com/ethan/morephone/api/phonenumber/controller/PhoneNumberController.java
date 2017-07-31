@@ -1,6 +1,5 @@
 package com.ethan.morephone.api.phonenumber.controller;
 
-import com.ethan.morephone.Constants;
 import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
 import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
 import com.ethan.morephone.api.user.UserNotFoundException;
@@ -44,10 +43,13 @@ final class PhoneNumberController {
             PhoneNumberDTO created = service.create(todoEntry);
             LOGGER.info("Created a new user entry with information: {}", created);
 //            Register sms Application
-            IncomingPhoneNumber incomingPhoneNumber = ApiManager.modifyIncomingPhoneNumber(created.getSid(),
-                    Constants.TWILIO_APPLICATION_SID,
+            IncomingPhoneNumber incomingPhoneNumber = ApiManager.modifyIncomingPhoneNumber(
+                    todoEntry.getAccountSid(),
+                    todoEntry.getAuthToken(),
+                    created.getSid(),
+                    todoEntry.getApplicationSid(),
                     "POST",
-                    Constants.TWILIO_APPLICATION_SID,
+                    todoEntry.getApplicationSid(),
                     "POST"
             );
 
@@ -57,6 +59,7 @@ final class PhoneNumberController {
                 return new Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
             }
         } else {
+
             return new Response<>(HTTPStatus.SEE_OTHER.getReasonPhrase(), HTTPStatus.SEE_OTHER);
         }
     }
