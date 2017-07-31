@@ -15,6 +15,7 @@ public final class UserDTO {
     private String token;
     private String platform;
     private String accountSid;
+    private String authToken;
     private String applicationSid;
     private long createdAt;
     private long updatedAt;
@@ -124,6 +125,14 @@ public final class UserDTO {
 
     public void setApplicationSid(String applicationSid) {
         this.applicationSid = applicationSid;
+    }
+
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
     }
 
     @Override

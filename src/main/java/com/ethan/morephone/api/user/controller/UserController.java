@@ -54,6 +54,7 @@ final class UserController {
             Utils.logMessage("ACCOUNTSID: " + todoEntry.getAccountSid());
             Application application = ApiManager.createApplication(
                     todoEntry.getAccountSid(),
+                    todoEntry.getAuthToken(),
                     todoEntry.getEmail(),
                     "https://tpmsservice.herokuapp.com/api/v1/call/dial",
                     "POST",

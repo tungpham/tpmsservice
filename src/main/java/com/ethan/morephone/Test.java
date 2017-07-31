@@ -27,12 +27,12 @@ public class Test {
     }
 
     private static void createApplication(){
-        ApiManager.createApplication("",
-                "",
-                "https://tpmsservice.herokuapp.com/api/v1/call/dial",
-                "POST",
-                "https://tpmsservice.herokuapp.com/api/v1/message/receive-message",
-                "POST");
+//        ApiManager.createApplication("",
+//                "",
+//                "https://tpmsservice.herokuapp.com/api/v1/call/dial",
+//                "POST",
+//                "https://tpmsservice.herokuapp.com/api/v1/message/receive-message",
+//                "POST");
     }
 
     private static void getApplication() {
