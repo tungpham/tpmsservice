@@ -40,6 +40,10 @@ public class CallService {
                               @RequestParam(value = "account_sid") String accountSid,
                               @RequestParam(value = "auth_token") String authToken,
                               @RequestParam(value = "application_sid") String applicationSid) {
+        Utils.logMessage("CLIENT: " + client);
+        Utils.logMessage("account_sid: " + accountSid);
+        Utils.logMessage("auth_token: " + authToken);
+        Utils.logMessage("application_sid: " + applicationSid);
         TwilioCapability capability = new TwilioCapability(accountSid, authToken);
         capability.allowClientOutgoing(applicationSid);
         capability.allowClientIncoming(client);
