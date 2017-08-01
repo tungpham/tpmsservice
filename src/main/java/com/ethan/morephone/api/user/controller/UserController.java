@@ -50,18 +50,11 @@ final class UserController {
         UserDTO userDTO = service.findByEmail(todoEntry.getEmail());
         if (userDTO == null) {
             UserDTO created = service.create(todoEntry);
-//            bindingUser(created.getEmail(), created.getToken());
+
             Utils.logMessage("ACCOUNTSID: " + todoEntry.getAccountSid());
             Utils.logMessage("AUTH CODE : " + todoEntry.getAuthToken());
-//            Application application = ApiManager.createApplication(
-//                    todoEntry.getAccountSid(),
-//                    todoEntry.getAuthToken(),
-//                    todoEntry.getEmail(),
-//                    Constants.VOICE_URL,
-//                    Constants.VOICE_METHOD,
-//                    Constants.MESSAGE_URL,
-//                    Constants.MESSAGE_METHOD);
             Twilio.init(todoEntry.getAccountSid(), todoEntry.getAuthToken());
+
             com.twilio.rest.api.v2010.account.Application applicationCreator = new ApplicationCreator(todoEntry.getEmail()).setVoiceUrl(Constants.VOICE_URL).setVoiceMethod(HttpMethod.POST)
                     .setSmsUrl(Constants.MESSAGE_URL).setSmsMethod(HttpMethod.POST).create();
 

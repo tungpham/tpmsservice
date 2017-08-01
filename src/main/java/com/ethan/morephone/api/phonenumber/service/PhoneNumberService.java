@@ -19,11 +19,11 @@ public interface PhoneNumberService {
 
     /**
      * Deletes a user entry.
-     * @param id    The id of the deleted user entry.
+     * @param sid    The id of the deleted user entry.
      * @return      The information of the deleted user entry.
      * @throws      com.ethan.morephone.api.phonenumber.PhoneNumberNotFoundException if no user entry is found.
      */
-    PhoneNumberDTO delete(String id);
+    PhoneNumberDTO delete(String sid);
 
     /**
      * Finds all user entries.

@@ -47,10 +47,10 @@ public class PhoneNumberServiceIml implements PhoneNumberService {
     }
 
     @Override
-    public PhoneNumberDTO delete(String id) {
-        LOGGER.info("Deleting a user entry with id: {}", id);
+    public PhoneNumberDTO delete(String sid) {
+        LOGGER.info("Deleting a user entry with id: {}", sid);
 
-        PhoneNumber deleted = findPhoneNumberById(id);
+        PhoneNumber deleted = findPhoneNumberBySid(sid);
         repository.delete(deleted);
 
         LOGGER.info("Deleted user entry with information: {}", deleted);

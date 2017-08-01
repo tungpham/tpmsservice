@@ -1,5 +1,6 @@
 package com.ethan.morephone.test;
 
+import com.ethan.morephone.api.phonenumber.domain.PhoneNumber;
 import com.ethan.morephone.twilio.model.BindingRequest;
 import com.ethan.morephone.twilio.model.Response;
 import okhttp3.OkHttpClient;
@@ -91,6 +92,13 @@ public class ApiMorePhone {
                                BindingRequest bindingRequest,
                                Callback<Response> callback) {
         Call<Response> call = getApiPath().binding(bindingRequest);
+        call.enqueue(callback);
+    }
+
+    public static void deletePhoneNumber(
+                                         String id,
+                                         Callback<com.ethan.morephone.http.Response<PhoneNumber>> callback) {
+        Call<com.ethan.morephone.http.Response<PhoneNumber>> call = getApiPath().deletePhoneNumber(id);
         call.enqueue(callback);
     }
 }
