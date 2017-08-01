@@ -3,6 +3,7 @@ package com.ethan.morephone.test;
 import com.ethan.morephone.api.phonenumber.domain.PhoneNumber;
 import com.ethan.morephone.twilio.model.BindingRequest;
 import com.ethan.morephone.twilio.model.Response;
+import org.springframework.web.bind.annotation.RequestParam;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -18,5 +19,7 @@ public interface ApiMorePhonePath {
     Call<Response> binding(@Body BindingRequest bindingRequest);
 
     @DELETE("phone-number/{id}")
-    Call<com.ethan.morephone.http.Response<PhoneNumber>> deletePhoneNumber(@Path("id") String id);
+    Call<com.ethan.morephone.http.Response<PhoneNumber>> deletePhoneNumber(@Path("id") String id,
+                                                                           @RequestParam("") String accountSid,
+                                                                           @RequestParam("authToken") String authToken);
 }
