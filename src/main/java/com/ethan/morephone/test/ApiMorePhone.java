@@ -95,10 +95,11 @@ public class ApiMorePhone {
         call.enqueue(callback);
     }
 
-    public static void deletePhoneNumber(
-                                         String id,
+    public static void deletePhoneNumber(String id,
+                                         String accountToken,
+                                         String authToken,
                                          Callback<com.ethan.morephone.http.Response<PhoneNumber>> callback) {
-        Call<com.ethan.morephone.http.Response<PhoneNumber>> call = getApiPath().deletePhoneNumber(id);
+        Call<com.ethan.morephone.http.Response<PhoneNumber>> call = getApiPath().deletePhoneNumber(id, accountToken, authToken);
         call.enqueue(callback);
     }
 }

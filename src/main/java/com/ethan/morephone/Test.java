@@ -1,6 +1,5 @@
 package com.ethan.morephone;
 
-import com.ethan.morephone.api.phonenumber.domain.PhoneNumber;
 import com.ethan.morephone.data.entity.application.Application;
 import com.ethan.morephone.data.entity.application.Applications;
 import com.ethan.morephone.data.network.ApiManager;
@@ -102,17 +101,17 @@ public class Test {
 
 
     private static void deletePhoneNumber(){
-        ApiMorePhone.deletePhoneNumber("PNf5698cf919b6865e28caba3d510d1157", new Callback<com.ethan.morephone.http.Response<PhoneNumber>>() {
-            @Override
-            public void onResponse(Call<com.ethan.morephone.http.Response<PhoneNumber>> call, retrofit2.Response<com.ethan.morephone.http.Response<PhoneNumber>> response) {
-
-            }
-
-            @Override
-            public void onFailure(Call<com.ethan.morephone.http.Response<PhoneNumber>> call, Throwable throwable) {
-
-            }
-        });
+//        ApiMorePhone.deletePhoneNumber("PNf5698cf919b6865e28caba3d510d1157", new Callback<com.ethan.morephone.http.Response<PhoneNumber>>() {
+//            @Override
+//            public void onResponse(Call<com.ethan.morephone.http.Response<PhoneNumber>> call, retrofit2.Response<com.ethan.morephone.http.Response<PhoneNumber>> response) {
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<com.ethan.morephone.http.Response<PhoneNumber>> call, Throwable throwable) {
+//
+//            }
+//        });
     }
 
 }
