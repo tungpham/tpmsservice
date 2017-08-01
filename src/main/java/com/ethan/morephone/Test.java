@@ -1,6 +1,5 @@
 package com.ethan.morephone;
 
-import com.ethan.morephone.api.phonenumber.domain.PhoneNumber;
 import com.ethan.morephone.data.entity.application.Application;
 import com.ethan.morephone.data.entity.application.Applications;
 import com.ethan.morephone.data.network.ApiManager;
@@ -9,8 +8,10 @@ import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.twilio.model.BindingRequest;
 import com.ethan.morephone.twilio.model.Response;
 import com.ethan.morephone.utils.Utils;
+import com.twilio.Twilio;
 import com.twilio.jwt.accesstoken.AccessToken;
 import com.twilio.jwt.accesstoken.VoiceGrant;
+import com.twilio.rest.api.v2010.account.IncomingPhoneNumberDeleter;
 import retrofit2.Call;
 import retrofit2.Callback;
 
@@ -102,17 +103,30 @@ public class Test {
 
 
     private static void deletePhoneNumber() {
-        ApiMorePhone.deletePhoneNumber("PNf5698cf919b6865e28caba3d510d1157", "ACb340c638a276bb4d4346c8f85f7739c7", "b0f40b0e70aa72733929f3547fd82dcf", new Callback<com.ethan.morephone.http.Response<PhoneNumber>>() {
-            @Override
-            public void onResponse(Call<com.ethan.morephone.http.Response<PhoneNumber>> call, retrofit2.Response<com.ethan.morephone.http.Response<PhoneNumber>> response) {
 
+        Twilio.init("ACb340c638a276bb4d4346c8f85f7739c7", "b0f40b0e70aa72733929f3547fd82dcf");
+        IncomingPhoneNumberDeleter deleter = new IncomingPhoneNumberDeleter("PN375db5d7e7744caec9ea70e775e5ee72");
+        try {
+            if (deleter.delete()) {
+                Utils.logMessage("DELETE PHONE NUMBER SUCCESS ");
+            } else {
+                Utils.logMessage("DELETE PHONE NUMBER ERROR ");
             }
+        }catch (Exception e){
+            
+        }
 
-            @Override
-            public void onFailure(Call<com.ethan.morephone.http.Response<PhoneNumber>> call, Throwable throwable) {
-
-            }
-        });
+//        ApiMorePhone.deletePhoneNumber("PNf5698cf919b6865e28caba3d510d1157", "ACb340c638a276bb4d4346c8f85f7739c7", "b0f40b0e70aa72733929f3547fd82dcf", new Callback<com.ethan.morephone.http.Response<PhoneNumber>>() {
+//            @Override
+//            public void onResponse(Call<com.ethan.morephone.http.Response<PhoneNumber>> call, retrofit2.Response<com.ethan.morephone.http.Response<PhoneNumber>> response) {
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<com.ethan.morephone.http.Response<PhoneNumber>> call, Throwable throwable) {
+//
+//            }
+//        });
     }
 
 }

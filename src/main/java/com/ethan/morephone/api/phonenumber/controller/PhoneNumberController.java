@@ -69,15 +69,20 @@ final class PhoneNumberController {
         PhoneNumberDTO deleted = service.delete(id);
         Utils.logMessage("accountSid: " + accountSid);
         Utils.logMessage("authToken: " + authToken);
-        Twilio.init(accountSid, authToken);
-        IncomingPhoneNumberDeleter deleter = new IncomingPhoneNumberDeleter(id);
-        if (deleter.delete()) {
-            Utils.logMessage("DELETE PHONE NUMBER SUCCESS " + id);
-        } else {
-            Utils.logMessage("DELETE PHONE NUMBER ERROR ");
-        }
         if (deleted != null) {
-            return new Response<>(deleted, HTTPStatus.OK);
+            Twilio.init(accountSid, authToken);
+            IncomingPhoneNumberDeleter deleter = new IncomingPhoneNumberDeleter(id);
+            try {
+                if (deleter.delete()) {
+                    Utils.logMessage("DELETE PHONE NUMBER SUCCESS ");
+                    return new Response<>(deleted, HTTPStatus.OK);
+                } else {
+                    Utils.logMessage("DELETE PHONE NUMBER ERROR ");
+                    return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+                }
+            } catch (Exception e) {
+                return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+            }
         } else {
             return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
         }
