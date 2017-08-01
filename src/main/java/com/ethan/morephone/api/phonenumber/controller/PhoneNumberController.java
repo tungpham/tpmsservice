@@ -67,6 +67,8 @@ final class PhoneNumberController {
                             @RequestParam("account_sid") String accountSid,
                             @RequestParam("auth_token") String authToken) {
         PhoneNumberDTO deleted = service.delete(id);
+        Utils.logMessage("accountSid: " + accountSid);
+        Utils.logMessage("authToken: " + authToken);
         Twilio.init(accountSid, authToken);
         IncomingPhoneNumberDeleter deleter = new IncomingPhoneNumberDeleter(id);
         if (deleter.delete()) {
