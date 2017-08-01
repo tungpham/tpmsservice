@@ -8,7 +8,6 @@ import com.ethan.morephone.data.network.ApiManager;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.http.Response;
 import com.ethan.morephone.utils.Utils;
-import com.twilio.rest.api.v2010.account.IncomingPhoneNumberDeleter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -64,12 +63,12 @@ final class PhoneNumberController {
     @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
     Response<Object> delete(@PathVariable("id") String id) {
         PhoneNumberDTO deleted = service.delete(id);
-        IncomingPhoneNumberDeleter deleter = new IncomingPhoneNumberDeleter(id);
-        if (deleter.delete()) {
-            Utils.logMessage("DELETE PHONE NUMBER SUCCESS " + id);
-        } else {
-            Utils.logMessage("DELETE PHONE NUMBER ERROR ");
-        }
+//        IncomingPhoneNumberDeleter deleter = new IncomingPhoneNumberDeleter(id);
+//        if (deleter.delete()) {
+//            Utils.logMessage("DELETE PHONE NUMBER SUCCESS " + id);
+//        } else {
+//            Utils.logMessage("DELETE PHONE NUMBER ERROR ");
+//        }
         if (deleted != null) {
             return new Response<>(deleted, HTTPStatus.OK);
         } else {

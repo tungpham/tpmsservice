@@ -25,7 +25,8 @@ public class Test {
 //        getApplication();
 //        token();
 //        binding();
-        createApplication();
+//        createApplication();
+        deletePhoneNumber();
     }
 
     private static void createApplication(){
@@ -100,8 +101,8 @@ public class Test {
     }
 
 
-    private static void deletePhoneNnmber(){
-        ApiMorePhone.deletePhoneNumber("", new Callback<com.ethan.morephone.http.Response<PhoneNumber>>() {
+    private static void deletePhoneNumber(){
+        ApiMorePhone.deletePhoneNumber("PNf5698cf919b6865e28caba3d510d1157", new Callback<com.ethan.morephone.http.Response<PhoneNumber>>() {
             @Override
             public void onResponse(Call<com.ethan.morephone.http.Response<PhoneNumber>> call, retrofit2.Response<com.ethan.morephone.http.Response<PhoneNumber>> response) {
 
