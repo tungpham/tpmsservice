@@ -48,14 +48,14 @@ public class PhoneNumberServiceIml implements PhoneNumberService {
 
     @Override
     public PhoneNumberDTO delete(String sid) {
-        LOGGER.info("Deleting a user entry with id: {}", sid);
 
         PhoneNumber deleted = findPhoneNumberBySid(sid);
-        repository.delete(deleted);
-
-        LOGGER.info("Deleted user entry with information: {}", deleted);
-
-        return convertToDTO(deleted);
+        if (deleted != null) {
+            repository.delete(deleted);
+            return convertToDTO(deleted);
+        } else {
+            return null;
+        }
     }
 
     @Override
