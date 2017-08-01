@@ -13,6 +13,10 @@ public class Constants {
 
     public static final double PRODUCT_PRICE = 0.1;
 
+    public static final String VOICE_URL = "https://tpmsservice.herokuapp.com/api/v1/call/dial";
+    public static final String VOICE_METHOD = "POST";
+    public static final String MESSAGE_URL = "https://tpmsservice.herokuapp.com/api/v1/message/receive-message";
+    public static final String MESSAGE_METHOD = "POST";
 //    Ethan
 
 //    public static final String TWILIO_ACCOUNT_SID = "ACebd7d3a78e2fdda9e51239bad6b09f97";

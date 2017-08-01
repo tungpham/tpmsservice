@@ -6,12 +6,12 @@ import com.ethan.morephone.api.usage.service.UsageService;
 import com.ethan.morephone.api.user.UserNotFoundException;
 import com.ethan.morephone.api.user.domain.UserDTO;
 import com.ethan.morephone.api.user.service.UserService;
-import com.ethan.morephone.data.entity.application.Application;
-import com.ethan.morephone.data.network.ApiManager;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.http.Response;
 import com.ethan.morephone.utils.Utils;
 import com.twilio.Twilio;
+import com.twilio.http.HttpMethod;
+import com.twilio.rest.api.v2010.account.ApplicationCreator;
 import com.twilio.rest.notify.v1.service.Binding;
 import com.twilio.rest.notify.v1.service.BindingCreator;
 import org.slf4j.Logger;
@@ -53,18 +53,21 @@ final class UserController {
 //            bindingUser(created.getEmail(), created.getToken());
             Utils.logMessage("ACCOUNTSID: " + todoEntry.getAccountSid());
             Utils.logMessage("AUTH CODE : " + todoEntry.getAuthToken());
-            Application application = ApiManager.createApplication(
-                    todoEntry.getAccountSid(),
-                    todoEntry.getAuthToken(),
-                    todoEntry.getEmail(),
-                    "https://tpmsservice.herokuapp.com/api/v1/call/dial",
-                    "POST",
-                    "https://tpmsservice.herokuapp.com/api/v1/message/receive-message",
-                    "POST");
+//            Application application = ApiManager.createApplication(
+//                    todoEntry.getAccountSid(),
+//                    todoEntry.getAuthToken(),
+//                    todoEntry.getEmail(),
+//                    Constants.VOICE_URL,
+//                    Constants.VOICE_METHOD,
+//                    Constants.MESSAGE_URL,
+//                    Constants.MESSAGE_METHOD);
+            Twilio.init(todoEntry.getAccountSid(), todoEntry.getAuthToken());
+            com.twilio.rest.api.v2010.account.Application applicationCreator = new ApplicationCreator(todoEntry.getEmail()).setVoiceUrl(Constants.VOICE_URL).setVoiceMethod(HttpMethod.POST)
+                    .setSmsUrl(Constants.MESSAGE_URL).setSmsMethod(HttpMethod.POST).create();
 
-            if (application != null) {
+            if (applicationCreator != null) {
                 Utils.logMessage("CREATE APPLICATION SUCCESS");
-                created.setApplicationSid(application.sid);
+                created.setApplicationSid(applicationCreator.getSid());
             }
 
             LOGGER.info("Created a new user entry with information: {}", created);

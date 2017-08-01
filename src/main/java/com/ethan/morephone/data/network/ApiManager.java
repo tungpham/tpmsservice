@@ -30,39 +30,37 @@ public class ApiManager {
     //Singleton for Retrofit
     private static Retrofit getRetrofit(String accountSid, String authToken) {
         if (mRetrofit == null) {
-            synchronized (ApiManager.class) {
-                if (mRetrofit == null) {
 
-                    //Create cache
+            //Create cache
 //                    File file = new File(context.getCacheDir(), "response");
 
-                    //Set log
-                    HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-                    boolean isLog = true;
-                    logging.setLevel(isLog ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
+            //Set log
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+            boolean isLog = true;
+            logging.setLevel(isLog ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
 
 
-                    //Add log and set time out
-                    final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                            .authenticator(new Authenticator() {
-                                @Override
-                                public Request authenticate(Route route, Response response) throws IOException {
-                                    String credential = Credentials.basic(accountSid, authToken);
-                                    return response.request().newBuilder()
-                                            .header("Authorization", credential)
-                                            .build();
-                                }
-                            })
-                            .readTimeout(60, TimeUnit.SECONDS)
-                            .connectTimeout(60, TimeUnit.SECONDS)
-                            .addInterceptor(logging)
-                            .build();
-                    mRetrofit = new Retrofit.Builder()
-                            .baseUrl(BASE_URL)
-                            .addConverterFactory(GsonConverterFactory.create())
-                            .client(okHttpClient).build();
-                }
-            }
+            //Add log and set time out
+            final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .authenticator(new Authenticator() {
+                        @Override
+                        public Request authenticate(Route route, Response response) throws IOException {
+                            String credential = Credentials.basic(accountSid, authToken);
+                            return response.request().newBuilder()
+                                    .header("Authorization", credential)
+                                    .build();
+                        }
+                    })
+                    .readTimeout(60, TimeUnit.SECONDS)
+                    .connectTimeout(60, TimeUnit.SECONDS)
+                    .addInterceptor(logging)
+                    .build();
+            mRetrofit = new Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .client(okHttpClient).build();
+
+
         }
         return mRetrofit;
     }
