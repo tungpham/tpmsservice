@@ -3,12 +3,12 @@ package com.ethan.morephone.api.phonenumber.controller;
 import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
 import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
 import com.ethan.morephone.api.user.UserNotFoundException;
-import com.ethan.morephone.data.entity.phonenumbers.IncomingPhoneNumber;
-import com.ethan.morephone.data.network.ApiManager;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.http.Response;
 import com.ethan.morephone.utils.Utils;
 import com.twilio.Twilio;
+import com.twilio.http.HttpMethod;
+import com.twilio.rest.api.v2010.account.IncomingPhoneNumberCreator;
 import com.twilio.rest.api.v2010.account.IncomingPhoneNumberDeleter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,32 +34,37 @@ final class PhoneNumberController {
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     Response<Object> create(@RequestBody @Valid PhoneNumberDTO todoEntry) {
-        Utils.logMessage(todoEntry.getSid());
-        PhoneNumberDTO phoneNumberDTO = service.findBySid(todoEntry.getSid());
 
-        if (phoneNumberDTO == null) {
-            PhoneNumberDTO created = service.create(todoEntry);
-            Utils.logMessage("CREATE NEW PHONE NUMBER: " + created);
-//            Register sms Application
-            IncomingPhoneNumber incomingPhoneNumber = ApiManager.modifyIncomingPhoneNumber(
-                    todoEntry.getAccountSid(),
-                    todoEntry.getAuthToken(),
-                    created.getSid(),
-                    todoEntry.getApplicationSid(),
-                    "POST",
-                    todoEntry.getApplicationSid(),
-                    "POST"
-            );
+        try {
+            Twilio.init(todoEntry.getAccountSid(), todoEntry.getAuthToken());
+            com.twilio.rest.api.v2010.account.IncomingPhoneNumber incomingPhoneNumber =
+                    new IncomingPhoneNumberCreator(todoEntry.getPhoneNumber())
+                            .setVoiceApplicationSid(todoEntry.getApplicationSid())
+                            .setVoiceMethod(HttpMethod.POST)
+                            .setSmsApplicationSid(todoEntry.getApplicationSid())
+                            .setSmsMethod(HttpMethod.POST)
+                            .create();
 
             if (incomingPhoneNumber != null) {
-                return new Response<>(created, HTTPStatus.CREATED);
+                todoEntry.setSid(incomingPhoneNumber.getSid());
+                todoEntry.setFriendlyName(incomingPhoneNumber.getFriendlyName());
+                PhoneNumberDTO phoneNumberDTO = service.findBySid(todoEntry.getSid());
+                if (phoneNumberDTO == null) {
+                    PhoneNumberDTO created = service.create(todoEntry);
+                    Utils.logMessage("CREATE NEW PHONE NUMBER: " + created);
+                    return new Response<>(created, HTTPStatus.CREATED);
+                } else {
+                    return new Response<>(HTTPStatus.SEE_OTHER.getReasonPhrase(), HTTPStatus.SEE_OTHER);
+                }
+
             } else {
                 return new Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
             }
-        } else {
 
-            return new Response<>(HTTPStatus.SEE_OTHER.getReasonPhrase(), HTTPStatus.SEE_OTHER);
+        } catch (Exception e) {
+            return new Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
         }
+
     }
 
     @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
