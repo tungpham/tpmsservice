@@ -36,8 +36,11 @@ final class PhoneNumberController {
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     Response<Object> create(@RequestBody @Valid PhoneNumberDTO todoEntry) {
 
+        Utils.logMessage("APP SID: " + todoEntry.getApplicationSid());
+
         try {
             Twilio.init(todoEntry.getAccountSid(), todoEntry.getAuthToken());
+
             com.twilio.rest.api.v2010.account.IncomingPhoneNumber incomingPhoneNumber =
                     new IncomingPhoneNumberCreator(new PhoneNumber(todoEntry.getPhoneNumber()))
                             .setVoiceApplicationSid(todoEntry.getApplicationSid())
