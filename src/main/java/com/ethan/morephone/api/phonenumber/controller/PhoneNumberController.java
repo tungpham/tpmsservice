@@ -38,12 +38,15 @@ final class PhoneNumberController {
         try {
             Twilio.init(todoEntry.getAccountSid(), todoEntry.getAuthToken());
             com.twilio.rest.api.v2010.account.IncomingPhoneNumber incomingPhoneNumber =
+
                     new IncomingPhoneNumberCreator(todoEntry.getPhoneNumber())
                             .setVoiceApplicationSid(todoEntry.getApplicationSid())
                             .setVoiceMethod(HttpMethod.POST)
                             .setSmsApplicationSid(todoEntry.getApplicationSid())
                             .setSmsMethod(HttpMethod.POST)
                             .create();
+
+            Utils.logMessage("CREATE: " + todoEntry.getPhoneNumber());
 
             if (incomingPhoneNumber != null) {
                 todoEntry.setSid(incomingPhoneNumber.getSid());
@@ -58,10 +61,12 @@ final class PhoneNumberController {
                 }
 
             } else {
+                Utils.logMessage("CANNOT CREATE");
                 return new Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
             }
 
         } catch (Exception e) {
+            Utils.logMessage("EROR CREATE");
             return new Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
         }
 
