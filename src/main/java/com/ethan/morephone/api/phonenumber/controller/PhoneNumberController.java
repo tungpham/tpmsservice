@@ -10,6 +10,7 @@ import com.twilio.Twilio;
 import com.twilio.http.HttpMethod;
 import com.twilio.rest.api.v2010.account.IncomingPhoneNumberCreator;
 import com.twilio.rest.api.v2010.account.IncomingPhoneNumberDeleter;
+import com.twilio.type.PhoneNumber;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -38,8 +39,7 @@ final class PhoneNumberController {
         try {
             Twilio.init(todoEntry.getAccountSid(), todoEntry.getAuthToken());
             com.twilio.rest.api.v2010.account.IncomingPhoneNumber incomingPhoneNumber =
-
-                    new IncomingPhoneNumberCreator(todoEntry.getPhoneNumber())
+                    new IncomingPhoneNumberCreator(new PhoneNumber(todoEntry.getPhoneNumber()))
                             .setVoiceApplicationSid(todoEntry.getApplicationSid())
                             .setVoiceMethod(HttpMethod.POST)
                             .setSmsApplicationSid(todoEntry.getApplicationSid())
