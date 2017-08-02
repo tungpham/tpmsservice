@@ -45,14 +45,14 @@ public class MessageService {
         this.mPhoneNumberService = phoneNumberService;
     }
 
-    @RequestMapping(value = "/receive-message", method = RequestMethod.POST, produces = {"application/xml"})
+    @RequestMapping(value = "/receive-message", method = RequestMethod.POST)
     public void receiveMessage(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("Receive MultiValueMap: " + allRequestParams.toString());
         PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(allRequestParams.get("To"));
         if (phoneNumberDTO != null) {
             String userId = phoneNumberDTO.getUserId();
 
-            Utils.logMessage("USER ID: " + userId);
+            Utils.logMessage("RECEIVE SMS USER ID: " + userId);
             UserDTO user = mUserService.findById(userId);
             if (user != null) {
                 String token = user.getToken();
