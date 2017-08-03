@@ -5,9 +5,8 @@ import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
 import com.ethan.morephone.api.user.service.UserService;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.http.Response;
+import com.ethan.morephone.twilio.call.CallStatus;
 import com.ethan.morephone.utils.Utils;
-import com.twilio.jwt.accesstoken.AccessToken;
-import com.twilio.jwt.accesstoken.VoiceGrant;
 import com.twilio.sdk.CapabilityToken;
 import com.twilio.sdk.client.TwilioCapability;
 import com.twilio.twiml.*;
@@ -56,54 +55,6 @@ public class CallService {
         }
 
         return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
-    }
-
-    @RequestMapping(value = "/voice/token", method = RequestMethod.GET)
-    public String token(@RequestParam(value = "identity") String identity) {
-        VoiceGrant voiceGrant = new VoiceGrant();
-        voiceGrant.setPushCredentialSid(Constants.TWILIO_PUSH_CREDENTIALS);
-        voiceGrant.setOutgoingApplicationSid(Constants.TWILIO_APPLICATION_SID);
-
-        AccessToken accessToken = new AccessToken.Builder(Constants.TWILIO_ACCOUNT_SID, Constants.TWILIO_API_KEY, Constants.TWILIO_API_SECRET)
-                .identity(identity)
-                .grant(voiceGrant)
-                .build();
-        return accessToken.toJwt();
-    }
-
-    String IDENTITY = "voice_test";
-    String CALLER_ID = "quick_start";
-
-    @RequestMapping(value = "/python/token", method = RequestMethod.GET)
-    public String tokenPython() {
-        VoiceGrant voiceGrant = new VoiceGrant();
-        voiceGrant.setPushCredentialSid(Constants.TWILIO_PUSH_CREDENTIALS);
-        voiceGrant.setOutgoingApplicationSid(Constants.TWILIO_APPLICATION_SID);
-
-        AccessToken accessToken = new AccessToken.Builder(Constants.TWILIO_ACCOUNT_SID, Constants.TWILIO_API_KEY, Constants.TWILIO_API_SECRET)
-                .identity(IDENTITY)
-                .grant(voiceGrant)
-                .build();
-        return accessToken.toJwt();
-    }
-
-    @RequestMapping(value = "/place", method = RequestMethod.GET, produces = {"application/xml"})
-    public String placeCall() {
-        VoiceResponse twiml;
-
-        Dial dial = new Dial.Builder()
-                .callerId(CALLER_ID)
-                .client(new Client.Builder(IDENTITY).build())
-                .build();
-        twiml = new VoiceResponse.Builder().dial(dial).build();
-
-        try {
-            return twiml.toXml();
-        } catch (TwiMLException e) {
-            e.printStackTrace();
-            Utils.logMessage("ERROR CALL: " + e.getMessage());
-        }
-        return "";
     }
 
 //    @RequestMapping(value = "/call", method = RequestMethod.POST, produces = {"application/xml"})
@@ -189,6 +140,23 @@ public class CallService {
     @RequestMapping(value = "/events", method = RequestMethod.POST, produces = {"application/xml"})
     public void callEvent(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("MultiValueMap: " + allRequestParams.toString());
+
+        CallStatus callStatus = CallStatus.getCallStatus(allRequestParams.get("CallStatus"));
+        String callDuration = allRequestParams.get("CallDuration");
+        String parentCallSid = allRequestParams.get("ParentCallSid");
+        String direction = allRequestParams.get("Direction");
+        String from = allRequestParams.get("From");
+        String to = allRequestParams.get("To");
+
+        long duration = 0;
+        if(!TextUtils.isEmpty(callDuration)){
+            duration = Long.parseLong(callDuration);
+        }
+
+        Utils.logMessage("CALL STATUS: "+ callStatus.callStatus());
+
+        Utils.logMessage("CALL STATUS: "+ callStatus.callStatus());
+
     }
 
     @RequestMapping(value = "/dial", method = RequestMethod.POST, produces = {"application/xml"})
@@ -224,6 +192,7 @@ public class CallService {
                             .statusCallbackMethod(Method.POST)
                             .statusCallbackEvents(Arrays.asList(Event.INITIATED, Event.RINGING, Event.ANSWERED, Event.COMPLETED))
                             .build())
+                    .timeLimit(7)
                     .build();
 
         } else {
