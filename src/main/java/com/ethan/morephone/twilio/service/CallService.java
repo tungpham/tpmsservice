@@ -16,6 +16,7 @@ import org.apache.http.util.TextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -185,16 +186,18 @@ public class CallService {
 //        return twiml.toXML();
 //    }
 
+    @RequestMapping(value = "/events", method = RequestMethod.POST, produces = {"application/xml"})
+    public void callEvent(@RequestParam Map<String, String> allRequestParams) {
+        Utils.logMessage("MultiValueMap: " + allRequestParams.toString());
+    }
+
     @RequestMapping(value = "/dial", method = RequestMethod.POST, produces = {"application/xml"})
     public String callPhone(@RequestParam Map<String, String> allRequestParams) {
 
-        System.out.println("MultiValueMap: " + allRequestParams.toString());
+        Utils.logMessage("MultiValueMap: " + allRequestParams.toString());
 
         String from = allRequestParams.get("From");
         String to = allRequestParams.get("To");
-
-//        String CALLER_ID = "+17606215500";
-//        String CLIENT_ID = "17606215500";
 
         VoiceResponse twiml;
 
@@ -211,53 +214,29 @@ public class CallService {
 
         Dial dial = null;
 
-
         if (from.startsWith("client:")) {
             System.out.println("Client - PSTN");
             // client -> PSTN
             dial = new Dial.Builder()
                     .callerId(from.substring(7, from.length()))
-                    .number(new Number.Builder(to).build())
+                    .number(new Number.Builder(to)
+                            .statusCallback(Constants.EVENT_URL)
+                            .statusCallbackMethod(Method.POST)
+                            .statusCallbackEvents(Arrays.asList(Event.INITIATED, Event.RINGING, Event.ANSWERED, Event.COMPLETED))
+                            .build())
                     .build();
 
         } else {
             System.out.println("PSTN - client");
             // PSTN -> client
 
-//            PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(to);
-//            if (phoneNumberDTO != null) {
-//                String userId = phoneNumberDTO.getUserId();
-//
-//                Utils.logMessage("USER ID: " + userId);
-//                UserDTO user = mUserService.findById(userId);
-//
-//                if (user != null) {
-////                    try {
-////                        Utils.logMessage("EMAIL: " + user.getEmail());
-////                        dial.append(new Client(user.getEmail()));
-////                    } catch (TwiMLException e) {
-////                        e.printStackTrace();
-////                        Utils.logMessage("ERROR APPEND: " + e.getMessage());
-////                    }
-//
-//                    dial = new Dial.Builder()
-//                            .callerId(from)
-//                            .client(new Client.Builder(user.getEmail()).build())
-//                            .build();
-//
-//                    com.twilio.type.Client client;
-//                }
-////
-//            } else {
-//                dial = new Dial.Builder()
-//                        .callerId(from)
-//                        .client(new Client.Builder(to).build())
-//                        .build();
-//            }
-
             dial = new Dial.Builder()
                     .callerId(from)
-                    .client(new Client.Builder(to).build())
+                    .client(new Client.Builder(to)
+                            .statusCallback(Constants.EVENT_URL)
+                            .statusCallbackMethod(Method.POST)
+                            .statusCallbackEvents(Arrays.asList(Event.INITIATED, Event.RINGING, Event.ANSWERED, Event.COMPLETED))
+                            .build())
                     .build();
         }
 

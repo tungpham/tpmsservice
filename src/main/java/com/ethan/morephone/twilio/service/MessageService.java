@@ -3,6 +3,8 @@ package com.ethan.morephone.twilio.service;
 import com.ethan.morephone.Constants;
 import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
 import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
+import com.ethan.morephone.api.usage.domain.UsageDTO;
+import com.ethan.morephone.api.usage.service.UsageService;
 import com.ethan.morephone.api.user.domain.UserDTO;
 import com.ethan.morephone.api.user.service.UserService;
 import com.ethan.morephone.data.entity.message.MessageItem;
@@ -10,12 +12,11 @@ import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.twilio.model.NotificationRequest;
 import com.ethan.morephone.twilio.model.Response;
+import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
-import com.google.common.base.CaseFormat;
 import com.twilio.Twilio;
 import com.twilio.exception.TwilioException;
 import com.twilio.http.TwilioRestClient;
-import com.twilio.jwt.accesstoken.*;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.api.v2010.account.MessageCreator;
 import com.twilio.rest.notify.v1.service.Notification;
@@ -25,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,12 +37,14 @@ import java.util.Map;
 public class MessageService {
 
     private final UserService mUserService;
+    private final UsageService mUsageService;
     private final PhoneNumberService mPhoneNumberService;
 
     @Autowired
-    MessageService(UserService userService, PhoneNumberService phoneNumberService) {
+    MessageService(UserService userService, PhoneNumberService phoneNumberService, UsageService usageService) {
         this.mUserService = userService;
         this.mPhoneNumberService = phoneNumberService;
+        this.mUsageService = usageService;
     }
 
     @RequestMapping(value = "/receive-message", method = RequestMethod.POST)
@@ -64,10 +66,6 @@ public class MessageService {
             }
         }
 
-//        List<String> identities = new ArrayList<>();
-//        identities.add(allRequestParams.get("To"));
-//        sendNotification("High", allRequestParams.get("From"), allRequestParams.get("Body"), identities);
-
     }
 
     @PostMapping(value = "/send-message")
@@ -78,37 +76,58 @@ public class MessageService {
                                                           @RequestParam(value = "to") String to,
                                                           @RequestParam(value = "body") String body) {
 
-        TwilioRestClient client = new TwilioRestClient.Builder(accountSid, authToken).build();
-        try {
-            Message message = new MessageCreator(
-                    new PhoneNumber(to),
-                    new PhoneNumber(from),
-                    body).create(client);
+        if (TextUtils.isEmpty(userId)
+                || TextUtils.isEmpty(accountSid)
+                || TextUtils.isEmpty(authToken)) {
+            return new com.ethan.morephone.http.Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
+        }
 
-            MessageItem messageItem = new MessageItem(message.getSid(),
-                    message.getDateCreated() == null ? "" : message.getDateCreated().toString(),
-                    message.getDateUpdated() == null ? "" : message.getDateUpdated().toString(),
-                    message.getDateSent() == null ? "" : message.getDateSent().toString(),
-                    message.getAccountSid(),
-                    message.getTo(),
-                    message.getFrom() == null ? "" : message.getFrom().toString(),
-                    message.getMessagingServiceSid(),
-                    message.getBody(),
-                    message.getStatus() == null ? "" : message.getStatus().name(),
-                    message.getNumSegments(),
-                    message.getNumMedia(),
-                    message.getDirection() == null ? "" : message.getDirection().toString(),
-                    message.getApiVersion(),
-                    message.getPrice() == null ? "" : message.getPrice().toString(),
-                    message.getPriceUnit() == null ? "" : message.getPriceUnit().toString(),
-                    String.valueOf(message.getErrorCode()),
-                    message.getErrorMessage(),
-                    message.getUri(),
-                    null
-            );
-            return new com.ethan.morephone.http.Response<>(messageItem, HTTPStatus.CREATED);
-        } catch (TwilioException e) {
-            Utils.logMessage("An exception occurred trying to send a message to {}, exception: {} " + to + " ||| " + e.getMessage());
+        UsageDTO usageDTO = mUsageService.findByUserId(userId);
+
+        if (usageDTO == null) {
+            return new com.ethan.morephone.http.Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
+        }
+
+        if (usageDTO.getBalance() > Constants.PRICE_MESSAGE_OUTGOING) {
+
+            TwilioRestClient client = new TwilioRestClient.Builder(accountSid, authToken).build();
+            try {
+                Message message = new MessageCreator(
+                        new PhoneNumber(to),
+                        new PhoneNumber(from),
+                        body).create(client);
+
+                MessageItem messageItem = new MessageItem(message.getSid(),
+                        message.getDateCreated() == null ? "" : message.getDateCreated().toString(),
+                        message.getDateUpdated() == null ? "" : message.getDateUpdated().toString(),
+                        message.getDateSent() == null ? "" : message.getDateSent().toString(),
+                        message.getAccountSid(),
+                        message.getTo(),
+                        message.getFrom() == null ? "" : message.getFrom().toString(),
+                        message.getMessagingServiceSid(),
+                        message.getBody(),
+                        message.getStatus() == null ? "" : message.getStatus().name(),
+                        message.getNumSegments(),
+                        message.getNumMedia(),
+                        message.getDirection() == null ? "" : message.getDirection().toString(),
+                        message.getApiVersion(),
+                        message.getPrice() == null ? "" : message.getPrice().toString(),
+                        message.getPriceUnit() == null ? "" : message.getPriceUnit().toString(),
+                        String.valueOf(message.getErrorCode()),
+                        message.getErrorMessage(),
+                        message.getUri(),
+                        null
+                );
+
+                mUsageService.updateMessageOutgoing(userId);
+
+                return new com.ethan.morephone.http.Response<>(messageItem, HTTPStatus.CREATED);
+            } catch (TwilioException e) {
+                Utils.logMessage("An exception occurred trying to send a message to {}, exception: {} " + to + " ||| " + e.getMessage());
+            }
+        } else {
+            Utils.logMessage("MONEY: " + usageDTO.getBalance());
+            return new com.ethan.morephone.http.Response<>(HTTPStatus.MONEY.getReasonPhrase(), HTTPStatus.MONEY);
         }
         return new com.ethan.morephone.http.Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
     }
@@ -152,49 +171,6 @@ public class MessageService {
             Response sendNotificationResponse = new Response("Failed to create notification: " + ex.getMessage(), ex.getMessage());
             return sendNotificationResponse;
         }
-    }
-
-
-    private String generateToken(String identity) {
-
-        // Create access token builder
-        AccessToken.Builder builder = new AccessToken.Builder(
-                Constants.TWILIO_ACCOUNT_SID,
-                Constants.TWILIO_API_KEY,
-                Constants.TWILIO_API_SECRET
-        ).identity(identity);
-
-        List<Grant> grants = new ArrayList<>();
-
-        // Add Sync grant if configured
-        SyncGrant grant = new SyncGrant();
-        grant.setServiceSid(Constants.TWILIO_SYNC_SERVICE_SID);
-        grants.add(grant);
-
-        // Add Chat grant if configured
-        IpMessagingGrant grantChat = new IpMessagingGrant();
-        grantChat.setServiceSid(Constants.TWILIO_CHAT_SERVICE_SID);
-        grants.add(grantChat);
-
-        // Add Video grant
-        VideoGrant grantVideo = new VideoGrant();
-        grants.add(grantVideo);
-
-        builder.grants(grants);
-
-        AccessToken token = builder.build();
-
-        return token.toJwt();
-    }
-
-    // Convert keys to camelCase to conform with the twilio-java api definition contract
-    private static Map<String, Object> camelCaseKeys(Map<String, Object> map) {
-        Map<String, Object> newMap = new HashMap<>();
-        map.forEach((k, v) -> {
-            String newKey = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL, k);
-            newMap.put(newKey, v);
-        });
-        return newMap;
     }
 
 }
