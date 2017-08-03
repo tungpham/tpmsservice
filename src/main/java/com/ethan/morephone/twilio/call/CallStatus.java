@@ -25,15 +25,10 @@ public enum CallStatus {
         return status;
     }
 
-    public static CallStatus getCallStatus(String name) {
-        return getEnumFromString(CallStatus.class, name);
-    }
-
-    public static <T extends Enum<T>> T getEnumFromString(Class<T> c, String string) {
-        if( c != null && string != null ) {
-            try {
-                return Enum.valueOf(c, string.trim().toUpperCase());
-            } catch(IllegalArgumentException ex) {
+    public static CallStatus getCallStatus(String status) {
+        for (CallStatus callStatus : CallStatus.values()) {
+            if (callStatus.status.equalsIgnoreCase(status)) {
+                return callStatus;
             }
         }
         return null;

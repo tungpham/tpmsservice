@@ -149,13 +149,13 @@ public class CallService {
         String to = allRequestParams.get("To");
 
         long duration = 0;
-        if(!TextUtils.isEmpty(callDuration)){
+        if (!TextUtils.isEmpty(callDuration)) {
             duration = Long.parseLong(callDuration);
         }
 
-        Utils.logMessage("CALL STATUS: "+ callStatus.callStatus());
-
-        Utils.logMessage("CALL STATUS: "+ callStatus.callStatus());
+        if (callStatus != null) {
+            Utils.logMessage("CALL STATUS: " + callStatus.callStatus());
+        }
 
     }
 
