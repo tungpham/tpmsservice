@@ -264,6 +264,7 @@ public class CallService {
         twiml = new VoiceResponse.Builder().dial(dial).build();
 
         try {
+            Utils.logMessage("RESULT: " + twiml.toXml());
             return twiml.toXml();
         } catch (TwiMLException e) {
             e.printStackTrace();
