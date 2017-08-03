@@ -5,6 +5,7 @@ import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
 import com.ethan.morephone.api.user.UserNotFoundException;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.http.Response;
+import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
 import com.twilio.Twilio;
 import com.twilio.http.HttpMethod;
@@ -37,6 +38,13 @@ final class PhoneNumberController {
     Response<Object> create(@RequestBody @Valid PhoneNumberDTO todoEntry) {
 
         Utils.logMessage("APP SID: " + todoEntry.getApplicationSid());
+
+        if (TextUtils.isEmpty(todoEntry.getApplicationSid())
+                || TextUtils.isEmpty(todoEntry.getPhoneNumber())
+                || TextUtils.isEmpty(todoEntry.getAccountSid())
+                || TextUtils.isEmpty(todoEntry.getAuthToken())) {
+            return new Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
+        }
 
         try {
             Twilio.init(todoEntry.getAccountSid(), todoEntry.getAuthToken());

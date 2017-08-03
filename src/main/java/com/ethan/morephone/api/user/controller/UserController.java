@@ -49,7 +49,7 @@ final class UserController {
 
         UserDTO userDTO = service.findByEmail(todoEntry.getEmail());
         if (userDTO == null) {
-            UserDTO created = service.create(todoEntry);
+
 
             Utils.logMessage("ACCOUNTSID: " + todoEntry.getAccountSid());
             Utils.logMessage("AUTH CODE : " + todoEntry.getAuthToken());
@@ -60,15 +60,19 @@ final class UserController {
 
             if (applicationCreator != null) {
                 Utils.logMessage("CREATE APPLICATION SUCCESS");
+                UserDTO created = service.create(todoEntry);
                 created.setApplicationSid(applicationCreator.getSid());
+
+                Utils.logMessage("Created a new user entry with information: {}" + created);
+
+                UsageDTO usageDTO = new UsageDTO(created.getId(), 0, 0, 0, 0, 0);
+                mUsageService.create(usageDTO);
+
+                return new Response<>(created, HTTPStatus.CREATED);
+            } else {
+                return new Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
             }
 
-            LOGGER.info("Created a new user entry with information: {}", created);
-
-            UsageDTO usageDTO = new UsageDTO(created.getId(), 0, 0, 0, 0, 0);
-            mUsageService.create(usageDTO);
-
-            return new Response<>(created, HTTPStatus.CREATED);
         } else {
             return new Response<>(userDTO, HTTPStatus.SEE_OTHER);
         }
