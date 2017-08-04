@@ -88,7 +88,8 @@ public class MessageService {
             return new com.ethan.morephone.http.Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
         }
 
-        if (usageDTO.getBalance() > Constants.PRICE_MESSAGE_OUTGOING) {
+//        usageDTO.getBalance()
+        if (10 > Constants.PRICE_MESSAGE_OUTGOING) {
 
             TwilioRestClient client = new TwilioRestClient.Builder(accountSid, authToken).build();
             try {
