@@ -138,7 +138,7 @@ public class CallService {
 //    }
 
     @RequestMapping(value = "/events", method = RequestMethod.POST, produces = {"application/xml"})
-    public void callEvent(@RequestParam Map<String, String> allRequestParams) {
+    public String callEvent(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("MultiValueMap: " + allRequestParams.toString());
 
         CallStatus callStatus = CallStatus.getCallStatus(allRequestParams.get("CallStatus"));
@@ -156,6 +156,8 @@ public class CallService {
         if (callStatus != null) {
             Utils.logMessage("CALL STATUS: " + callStatus.callStatus());
         }
+
+        return "";
 
     }
 

@@ -47,8 +47,8 @@ public class MessageService {
         this.mUsageService = usageService;
     }
 
-    @RequestMapping(value = "/receive-message", method = RequestMethod.POST)
-    public void receiveMessage(@RequestParam Map<String, String> allRequestParams) {
+    @RequestMapping(value = "/receive-message", method = RequestMethod.POST, produces = {"application/xml"})
+    public String receiveMessage(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("Receive MultiValueMap: " + allRequestParams.toString());
         PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(allRequestParams.get("To"));
         if (phoneNumberDTO != null) {
@@ -65,6 +65,7 @@ public class MessageService {
                 sendNotification(token, allRequestParams.get("From") + "-" + allRequestParams.get("To"), allRequestParams.get("Body"));
             }
         }
+        return "";
 
     }
 
