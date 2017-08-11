@@ -1,2 +1,2 @@
-scheduler: java $JAVA_OPTS -cp target/classes:target/dependency/* com.ethan.morephone.SchedulerMain
+#scheduler: java $JAVA_OPTS -cp target/classes:target/dependency/* com.ethan.morephone.SchedulerMain
 
