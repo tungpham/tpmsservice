@@ -29,6 +29,7 @@ public final class User {
 
     private User(Builder builder) {
         this.email = builder.email;
+        this.accountSid = builder.accountSid;
         this.firstName = builder.firstName;
         this.lastName = builder.lastName;
         this.country = builder.country;
