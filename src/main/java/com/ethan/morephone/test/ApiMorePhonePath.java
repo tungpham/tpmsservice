@@ -18,4 +18,6 @@ public interface ApiMorePhonePath {
     Call<com.ethan.morephone.http.Response<PhoneNumber>> deletePhoneNumber(@Path("id") String id,
                                                                            @Query("account_sid") String accountSid,
                                                                            @Query("auth_token") String authToken);
+    @POST("scheduler/job")
+    Call<String> scheduler();
 }

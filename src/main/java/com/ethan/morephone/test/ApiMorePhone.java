@@ -102,4 +102,9 @@ public class ApiMorePhone {
         Call<com.ethan.morephone.http.Response<PhoneNumber>> call = getApiPath().deletePhoneNumber(id, accountToken, authToken);
         call.enqueue(callback);
     }
+
+    public static void scheduler(Callback<String> callback) {
+        Call<String> call = getApiPath().scheduler();
+        call.enqueue(callback);
+    }
 }
