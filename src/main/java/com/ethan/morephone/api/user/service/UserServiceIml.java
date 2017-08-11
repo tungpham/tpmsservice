@@ -166,6 +166,7 @@ public class UserServiceIml implements UserService {
         UserDTO dto = new UserDTO();
 
         dto.setId(model.getId());
+        dto.setAccountSid(model.getAccountSid());
         dto.setEmail(model.getEmail());
         dto.setCountry(model.getCountry());
         dto.setFirstName(model.getFirstName());
