@@ -37,7 +37,7 @@ final class UsageController {
 
         if (usageDTO == null) {
             return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
-        }else{
+        } else {
             return new Response<>(usageDTO, HTTPStatus.OK);
         }
     }

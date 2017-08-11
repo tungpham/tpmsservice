@@ -62,14 +62,16 @@ final class PhoneNumberController {
             if (incomingPhoneNumber != null) {
                 todoEntry.setSid(incomingPhoneNumber.getSid());
                 todoEntry.setFriendlyName(incomingPhoneNumber.getFriendlyName());
-                PhoneNumberDTO phoneNumberDTO = service.findBySid(todoEntry.getSid());
-                if (phoneNumberDTO == null) {
-                    PhoneNumberDTO created = service.create(todoEntry);
-                    Utils.logMessage("CREATE NEW PHONE NUMBER: " + created);
-                    return new Response<>(created, HTTPStatus.CREATED);
-                } else {
-                    return new Response<>(HTTPStatus.SEE_OTHER.getReasonPhrase(), HTTPStatus.SEE_OTHER);
-                }
+//                PhoneNumberDTO phoneNumberDTO = service.findBySid(todoEntry.getSid());
+
+                return new Response<>(todoEntry, HTTPStatus.CREATED);
+//                if (phoneNumberDTO == null) {
+//                    PhoneNumberDTO created = service.create(todoEntry);
+//                    Utils.logMessage("CREATE NEW PHONE NUMBER: " + created);
+//                    return new Response<>(created, HTTPStatus.CREATED);
+//                } else {
+//                    return new Response<>(HTTPStatus.SEE_OTHER.getReasonPhrase(), HTTPStatus.SEE_OTHER);
+//                }
 
             } else {
                 Utils.logMessage("CANNOT CREATE");
@@ -87,18 +89,18 @@ final class PhoneNumberController {
     Response<Object> delete(@PathVariable("id") String id,
                             @RequestParam("account_sid") String accountSid,
                             @RequestParam("auth_token") String authToken) {
-        PhoneNumberDTO deleted = service.delete(id);
+//        PhoneNumberDTO deleted = service.delete(id);
 
         Utils.logMessage("accountSid: " + accountSid);
         Utils.logMessage("authToken: " + authToken);
 
-        if (deleted != null) {
+//        if (deleted != null) {
             Twilio.init(accountSid, authToken);
             IncomingPhoneNumberDeleter deleter = new IncomingPhoneNumberDeleter(id);
             try {
                 if (deleter.delete()) {
                     Utils.logMessage("DELETE PHONE NUMBER SUCCESS ");
-                    return new Response<>(deleted, HTTPStatus.OK);
+                    return new Response<>(HTTPStatus.OK.getReasonPhrase(), HTTPStatus.OK);
                 } else {
                     Utils.logMessage("DELETE PHONE NUMBER ERROR ");
                     return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
@@ -106,9 +108,9 @@ final class PhoneNumberController {
             } catch (Exception e) {
                 return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
             }
-        } else {
-            return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
-        }
+//        } else {
+//            return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+//        }
     }
 
     @RequestMapping(method = RequestMethod.GET)
