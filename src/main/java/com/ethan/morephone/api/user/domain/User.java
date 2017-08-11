@@ -12,6 +12,7 @@ public final class User {
 
     @Id
     private String id;
+    private String accountSid;
     private String email;
     private String firstName;
     private String lastName;
@@ -116,6 +117,14 @@ public final class User {
         this.token = token;
     }
 
+    public String getAccountSid() {
+        return accountSid;
+    }
+
+    public void setAccountSid(String accountSid) {
+        this.accountSid = accountSid;
+    }
+
     public void setPlatform(String platform) {
         this.platform = platform;
     }
@@ -146,6 +155,7 @@ public final class User {
 
     public static class Builder {
         private String email;
+        private String accountSid;
         private String firstName;
         private String lastName;
         private String country;
@@ -160,6 +170,11 @@ public final class User {
 
         public Builder email(String email) {
             this.email = email;
+            return this;
+        }
+
+        public Builder accountSid(String accountSid) {
+            this.accountSid = accountSid;
             return this;
         }
 

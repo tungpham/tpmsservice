@@ -43,4 +43,6 @@ public interface UserRepository extends Repository<User, String> {
     User save(User saved);
 
     List<User> findByEmail(String email);
+
+    List<User> findByAccountSid(String email);
 }

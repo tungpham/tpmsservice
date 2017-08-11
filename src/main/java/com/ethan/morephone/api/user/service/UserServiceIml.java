@@ -36,6 +36,7 @@ public class UserServiceIml implements UserService {
 
         User persisted = User.getBuilder()
                 .email(user.getEmail())
+                .accountSid(user.getAccountSid())
                 .country(user.getCountry())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
@@ -110,6 +111,16 @@ public class UserServiceIml implements UserService {
     }
 
     @Override
+    public UserDTO findByAccountSid(String accountSid) {
+        User found = findUserByAccountSid(accountSid);
+        if (found != null) {
+            return convertToDTO(found);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public UserDTO updateToken(String id, String token) {
         User updated = findTodoById(id);
         if(!updated.getToken().equals(token)) {
@@ -133,6 +144,15 @@ public class UserServiceIml implements UserService {
             return null;
         }
 
+    }
+
+    private User findUserByAccountSid(String accountSid) {
+        List<User> result = repository.findByAccountSid(accountSid);
+        if (result != null && !result.isEmpty()) {
+            return result.get(0);
+        } else {
+            return null;
+        }
     }
 
     private List<UserDTO> convertToDTOs(List<User> models) {

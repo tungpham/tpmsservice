@@ -1,7 +1,6 @@
 package com.ethan.morephone.twilio.service;
 
 import com.ethan.morephone.Constants;
-import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
 import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
 import com.ethan.morephone.api.usage.domain.UsageDTO;
 import com.ethan.morephone.api.usage.service.UsageService;
@@ -50,12 +49,13 @@ public class MessageService {
     @RequestMapping(value = "/receive-message", method = RequestMethod.POST, produces = {"application/xml"})
     public String receiveMessage(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("Receive MultiValueMap: " + allRequestParams.toString());
-        PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(allRequestParams.get("To"));
-        if (phoneNumberDTO != null) {
-            String userId = phoneNumberDTO.getUserId();
+//        PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(allRequestParams.get("To"));
+//        if (phoneNumberDTO != null) {
+//            String userId = phoneNumberDTO.getUserId();
 
-            Utils.logMessage("RECEIVE SMS USER ID: " + userId);
-            UserDTO user = mUserService.findById(userId);
+//            Utils.logMessage("RECEIVE SMS USER ID: " + userId);
+            String accountSid = allRequestParams.get("AccountSid");
+            UserDTO user = mUserService.findByAccountSid(accountSid);
             if (user != null) {
                 String token = user.getToken();
                 Utils.logMessage("TOKEN: " + token);
@@ -64,7 +64,7 @@ public class MessageService {
 //                sendNotification("High", allRequestParams.get("To"), allRequestParams.get("From"), allRequestParams.get("Body"), identities);
                 sendNotification(token, allRequestParams.get("From") + "-" + allRequestParams.get("To"), allRequestParams.get("Body"));
             }
-        }
+//        }
         return "";
 
     }

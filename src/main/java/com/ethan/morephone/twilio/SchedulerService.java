@@ -14,7 +14,7 @@ public class SchedulerService {
 
     @PostMapping(value = "/job")
     public String scheduler() {
-        Utils.logMessage("OK ROI ");
+        Utils.logMessage("WAKE UP NOW");
         return "OKAY";
     }
 }

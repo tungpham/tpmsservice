@@ -49,5 +49,7 @@ public interface UserService {
 
     UserDTO findByEmail(String email);
 
+    UserDTO findByAccountSid(String accountSid);
+
     UserDTO updateToken(String id, String token);
 }
