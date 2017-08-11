@@ -18,9 +18,9 @@ public class Constants {
 //    public static final String EVENT_URL = "https://tpmsservice.herokuapp.com/api/v1/call/events";
 
 //    For test money
-    public static final String VOICE_URL = "https://immense-temple-84969.herokuapp.com/api/v1/call/dial";
-    public static final String MESSAGE_URL = "https://immense-temple-84969.herokuapp.com/api/v1/message/receive-message";
-    public static final String EVENT_URL = "https://immense-temple-84969.herokuapp.com/api/v1/call/events";
+    public static final String VOICE_URL = "https://tpmsservice.herokuapp.com/api/v1/call/dial";
+    public static final String MESSAGE_URL = "https://tpmsservice.herokuapp.com/api/v1/message/receive-message";
+    public static final String EVENT_URL = "https://tpmsservice.herokuapp.com/api/v1/call/events";
 
     //    Ethan
 
