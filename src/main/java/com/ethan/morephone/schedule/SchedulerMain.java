@@ -30,6 +30,8 @@ public class SchedulerMain {
                 .build();
 
         scheduler.scheduleJob(jobDetail, trigger);
+
+        Utils.logMessage("START SCHEDULER");
     }
 
     public static class HelloJob implements Job {
@@ -38,7 +40,7 @@ public class SchedulerMain {
         public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
             ApiMorePhone.scheduler(new Callback<String>() {
                 public void onResponse(Call<String> call, Response<String> response) {
-                    Utils.logMessage("SUCCESS: " + response.body());
+                    Utils.logMessage("SUCCESS: ");
                 }
 
                 public void onFailure(Call<String> call, Throwable throwable) {

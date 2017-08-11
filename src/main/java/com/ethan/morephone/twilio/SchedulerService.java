@@ -12,9 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api/v1/scheduler")
 public class SchedulerService {
 
-    @PostMapping(value = "/job")
-    public String scheduler() {
+    @PostMapping(value = "/job", produces = {"application/json"})
+    public void scheduler() {
         Utils.logMessage("OK ROI ");
-        return "OKAY";
     }
 }
