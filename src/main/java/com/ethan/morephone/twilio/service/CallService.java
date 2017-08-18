@@ -207,10 +207,18 @@ public class CallService {
                             .statusCallbackMethod(Method.POST)
                             .statusCallbackEvents(Arrays.asList(Event.INITIATED, Event.RINGING, Event.ANSWERED, Event.COMPLETED))
                             .build())
+                    .record(Dial.Record.RECORD_FROM_RINGING)
                     .build();
         }
 
-        twiml = new VoiceResponse.Builder().dial(dial).build();
+        Say pleaseLeaveMessage = new Say.Builder("Record your monkey howl after the tone.").build();
+        // Record the caller's voice.
+        Record record = new Record.Builder()
+                .maxLength(30)
+                .action("/handle-recording") // You may need to change this to point to the location of your servlet
+                .build();
+
+        twiml = new VoiceResponse.Builder().dial(dial).record(record).build();
 
         try {
             Utils.logMessage("RESULT: " + twiml.toXml());
@@ -222,4 +230,22 @@ public class CallService {
         return "";
     }
 
+    @RequestMapping(value = "/handle-recording", method = RequestMethod.POST, produces = {"application/xml"})
+    public String handleRecording(@RequestParam Map<String, String> allRequestParams) {
+        Utils.logMessage("MultiValueMap RECORD: " + allRequestParams.toString());
+        String recordingUrl = allRequestParams.get("RecordingUrl");
+
+        VoiceResponse twiml = new VoiceResponse.Builder()
+                .say(new Say.Builder("Thanks for howling... take a listen to what you howled.").build())
+                .play(new Play.Builder(recordingUrl).build())
+                .say(new Say.Builder("Goodbye").build())
+                .build();
+
+        try {
+            return twiml.toXml();
+        } catch (TwiMLException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
 }
