@@ -11,17 +11,12 @@ import com.ethan.morephone.data.entity.message.MessageItem;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.twilio.email.EmailServiceImpl;
 import com.ethan.morephone.twilio.fcm.FCM;
-import com.ethan.morephone.twilio.model.NotificationRequest;
-import com.ethan.morephone.twilio.model.Response;
 import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
-import com.twilio.Twilio;
 import com.twilio.exception.TwilioException;
 import com.twilio.http.TwilioRestClient;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.api.v2010.account.MessageCreator;
-import com.twilio.rest.notify.v1.service.Notification;
-import com.twilio.rest.notify.v1.service.NotificationCreator;
 import com.twilio.twiml.Body;
 import com.twilio.twiml.MessagingResponse;
 import com.twilio.twiml.TwiMLException;
@@ -185,47 +180,6 @@ public class MessageService {
             return new com.ethan.morephone.http.Response<>(HTTPStatus.MONEY.getReasonPhrase(), HTTPStatus.MONEY);
         }
         return new com.ethan.morephone.http.Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
-    }
-
-    @PostMapping(value = "/send-notification")
-    public Response notification(@RequestBody NotificationRequest notificationRequest) {
-        return sendNotification(notificationRequest.getPriority(), "PHone Number", notificationRequest.getTitle(), notificationRequest.getBody(), notificationRequest.getIdentity());
-    }
-
-//    private static void sendNotification(String tokenId, String title, String body) {
-//        //Just I am passed dummy information
-//
-////Method to send Push Notification
-//        FCM.sendNotification(tokenId, Constants.FCM_SERVER_KEY, title, body);
-//    }
-
-    private Response sendNotification(String priorityRequest, String phoneNumber, String title, String body, List<String> identity) {
-        Twilio.init(Constants.TWILIO_API_KEY, Constants.TWILIO_API_SECRET, Constants.TWILIO_ACCOUNT_SID);
-
-        try {
-            // Convert Priority from Object to enum value
-            Notification.Priority priority = Notification.Priority.forValue(priorityRequest);
-            Utils.logMessage("priority: " + priority.name());
-            NotificationCreator notificationCreator = new NotificationCreator(Constants.TWILIO_NOTIFICATION_SERVICE_SID);
-            notificationCreator.setTitle(title + "-" + phoneNumber);
-            notificationCreator.setBody(body);
-            notificationCreator.setPriority(priority);
-            notificationCreator.setIdentity(identity);
-            Notification notification = notificationCreator.create();
-
-            Utils.logMessage("Notification successfully created");
-            Utils.logMessage(notification.toString());
-
-            // Send a JSON response indicating success
-            Response sendNotificationResponse = new Response("Notification Created", "");
-            return sendNotificationResponse;
-
-        } catch (Exception ex) {
-
-            // Send a JSON response indicating an error
-            Response sendNotificationResponse = new Response("Failed to create notification: " + ex.getMessage(), ex.getMessage());
-            return sendNotificationResponse;
-        }
     }
 
 }

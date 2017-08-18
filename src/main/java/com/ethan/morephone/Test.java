@@ -5,14 +5,17 @@ import com.ethan.morephone.utils.Utils;
 import com.twilio.Twilio;
 import com.twilio.base.ResourceSet;
 import com.twilio.http.HttpMethod;
-import com.twilio.jwt.accesstoken.AccessToken;
-import com.twilio.jwt.accesstoken.VoiceGrant;
 import com.twilio.rest.api.v2010.account.ApplicationCreator;
 import com.twilio.rest.api.v2010.account.ApplicationReader;
 import com.twilio.rest.api.v2010.account.ApplicationUpdater;
-import com.twilio.twiml.Body;
-import com.twilio.twiml.MessagingResponse;
-import com.twilio.twiml.TwiMLException;
+import com.twilio.twiml.*;
+import org.apache.http.util.TextUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.Arrays;
+import java.util.Map;
 
 /**
  * Created by truongnguyen on 7/25/17.
@@ -46,16 +49,6 @@ public class Test {
         FCM.sendNotification(tokenId, server_key, title, body);
     }
 
-    private static void token() {
-        VoiceGrant voiceGrant = new VoiceGrant();
-        voiceGrant.setOutgoingApplicationSid(Constants.TWILIO_APPLICATION_SID);
-        voiceGrant.setPushCredentialSid(Constants.TWILIO_PUSH_CREDENTIALS);
-        AccessToken.Builder builder = new AccessToken.Builder(Constants.TWILIO_ACCOUNT_SID, Constants.TWILIO_API_KEY, Constants.TWILIO_API_SECRET);
-        builder.identity("");
-        builder.grant(voiceGrant);
-        String token = builder.build().toJwt();
-        Utils.logMessage(token);
-    }
 
     private static void application() {
         Twilio.init("AC1bb60516853a77bcf93ea89e4a7e3b45", "bb82a5d15eca8e8ae4171173ce150014");
@@ -104,5 +97,93 @@ public class Test {
         } catch (TwiMLException e) {
             e.printStackTrace();
         }
+    }
+
+    @RequestMapping(value = "/dial", method = RequestMethod.POST, produces = {"application/xml"})
+    public String callPhone(@RequestParam Map<String, String> allRequestParams) {
+
+        Utils.logMessage("MultiValueMap: " + allRequestParams.toString());
+
+        String from = allRequestParams.get("From");
+        String to = allRequestParams.get("To");
+
+        VoiceResponse twiml;
+
+        if (TextUtils.isEmpty(from) && TextUtils.isEmpty(to)) {
+            try {
+                twiml = new VoiceResponse.Builder()
+                        .say(new Say.Builder("Invalid Value f").build())
+                        .build();
+                return twiml.toXml();
+            } catch (com.twilio.twiml.TwiMLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Dial dial = null;
+
+        if (from.startsWith("client:")) {
+            System.out.println("Client - PSTN");
+            // client -> PSTN
+            dial = new Dial.Builder()
+                    .callerId(from.substring(7, from.length()))
+                    .number(new com.twilio.twiml.Number.Builder(to)
+                            .statusCallback(Constants.EVENT_URL)
+                            .statusCallbackMethod(Method.POST)
+                            .statusCallbackEvents(Arrays.asList(Event.INITIATED, Event.RINGING, Event.ANSWERED, Event.COMPLETED))
+                            .build())
+                    .build();
+
+        } else {
+            System.out.println("PSTN - client");
+            // PSTN -> client
+
+            dial = new Dial.Builder()
+                    .callerId(from)
+                    .client(new Client.Builder(to)
+                            .statusCallback(Constants.EVENT_URL)
+                            .statusCallbackMethod(Method.POST)
+                            .statusCallbackEvents(Arrays.asList(Event.INITIATED, Event.RINGING, Event.ANSWERED, Event.COMPLETED))
+                            .build())
+                    .record(Dial.Record.RECORD_FROM_RINGING)
+                    .build();
+        }
+
+        Say pleaseLeaveMessage = new Say.Builder("Record your monkey howl after the tone.").build();
+        // Record the caller's voice.
+        Record record = new Record.Builder()
+                .maxLength(30)
+                .action("/handle-recording") // You may need to change this to point to the location of your servlet
+                .build();
+
+        twiml = new VoiceResponse.Builder().dial(dial).record(record).build();
+
+        try {
+            Utils.logMessage("RESULT: " + twiml.toXml());
+            return twiml.toXml();
+        } catch (TwiMLException e) {
+            e.printStackTrace();
+            Utils.logMessage("ERROR CALL: " + e.getMessage());
+        }
+        return "";
+    }
+
+    @RequestMapping(value = "/handle-recording", method = RequestMethod.POST, produces = {"application/xml"})
+    public String handleRecording(@RequestParam Map<String, String> allRequestParams) {
+        Utils.logMessage("MultiValueMap RECORD: " + allRequestParams.toString());
+        String recordingUrl = allRequestParams.get("RecordingUrl");
+
+        VoiceResponse twiml = new VoiceResponse.Builder()
+                .say(new Say.Builder("Thanks for howling... take a listen to what you howled.").build())
+                .play(new Play.Builder(recordingUrl).build())
+                .say(new Say.Builder("Goodbye").build())
+                .build();
+
+        try {
+            return twiml.toXml();
+        } catch (TwiMLException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }

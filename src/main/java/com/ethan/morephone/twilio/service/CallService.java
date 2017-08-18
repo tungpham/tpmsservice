@@ -1,11 +1,14 @@
 package com.ethan.morephone.twilio.service;
 
 import com.ethan.morephone.Constants;
-import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
+import com.ethan.morephone.api.usage.domain.UsageDTO;
+import com.ethan.morephone.api.usage.service.UsageService;
+import com.ethan.morephone.api.user.domain.UserDTO;
 import com.ethan.morephone.api.user.service.UserService;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.http.Response;
 import com.ethan.morephone.twilio.call.CallStatus;
+import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.utils.Utils;
 import com.twilio.sdk.CapabilityToken;
 import com.twilio.sdk.client.TwilioCapability;
@@ -25,13 +28,13 @@ import java.util.Map;
 @RequestMapping(value = "/api/v1/call")
 public class CallService {
 
+    private final UsageService mUsageService;
     private final UserService mUserService;
-    private final PhoneNumberService mPhoneNumberService;
 
     @Autowired
-    CallService(UserService userService, PhoneNumberService phoneNumberService) {
+    CallService(UsageService usageService, UserService userService) {
+        this.mUsageService = usageService;
         this.mUserService = userService;
-        this.mPhoneNumberService = phoneNumberService;
     }
 
     @PostMapping(value = "/token")
@@ -57,86 +60,6 @@ public class CallService {
         return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
     }
 
-//    @RequestMapping(value = "/call", method = RequestMethod.POST, produces = {"application/xml"})
-//    public String call(@RequestParam Map<String, String> allRequestParams) {
-//
-//        System.out.println("MultiValueMap: " + allRequestParams.toString());
-//
-//        String from = allRequestParams.get("From");
-//        String to = allRequestParams.get("To");
-//
-////        String CALLER_ID = "+17606215500";
-////        String CLIENT_ID = "17606215500";
-//
-//        TwiMLResponse twiml = new TwiMLResponse();
-//
-//        VoiceResponse voiceResponse = new VoiceResponse.Builder()
-//                .say(new Say.Builder("Invalid Value f").build())
-//                .build();
-//
-//        if (TextUtils.isEmpty(from) && TextUtils.isEmpty(to)) {
-//            try {
-//                return voiceResponse.toXml();
-//            } catch (com.twilio.twiml.TwiMLException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        Dial dial = new Dial();
-//
-//
-//        if (from.startsWith("client:")) {
-//            System.out.println("Client - PSTN");
-//            // client -> PSTN
-//            dial.setCallerId(from.substring(7, from.length()));
-//            dial.setRecord(true);
-//            try {
-//                dial.append(new Number(to));
-//            } catch (TwiMLException e) {
-//                e.printStackTrace();
-//            }
-//        } else {
-//            System.out.println("PSTN - client");
-//            // PSTN -> client
-//            dial.setCallerId(from);
-//            dial.setRecord(true);
-//
-//            PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(allRequestParams.get("To"));
-//            if (phoneNumberDTO != null) {
-//                String userId = phoneNumberDTO.getUserId();
-//
-//                Utils.logMessage("USER ID: " + userId);
-//                UserDTO user = mUserService.findById(userId);
-//
-//                if (user != null) {
-//                    try {
-//                        Utils.logMessage("EMAIL: " + user.getEmail());
-//                        dial.append(new Client(user.getEmail()));
-//                    } catch (TwiMLException e) {
-//                        e.printStackTrace();
-//                        Utils.logMessage("ERROR APPEND: " + e.getMessage());
-//                    }
-//                }
-//
-//            } else {
-//                Utils.logMessage("CALL NORMAL");
-//                try {
-//                    dial.append(new Client(to));
-//                } catch (TwiMLException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//
-//        try {
-//            twiml.append(dial);
-//        } catch (TwiMLException e) {
-//            e.printStackTrace();
-//            Utils.logMessage("ERROR CALL: " + e.getMessage());
-//        }
-//        return twiml.toXML();
-//    }
-
     @RequestMapping(value = "/events", method = RequestMethod.POST, produces = {"application/xml"})
     public String callEvent(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("MultiValueMap: " + allRequestParams.toString());
@@ -154,6 +77,18 @@ public class CallService {
         }
 
         if (callStatus != null) {
+
+            if (callStatus == CallStatus.COMPLETED && !TextUtils.isEmpty(direction) && !direction.equals("inbound")) {
+                double money = duration * Constants.PRICE_CALL_OUTGOING / 60;
+                Utils.logMessage("BI TRU: " + money);
+
+                String accountSid = allRequestParams.get("AccountSid");
+
+                UsageDTO usage = mUsageService.findByAccountSid(accountSid);
+                mUsageService.updateCallOutgoing(usage.getUserId(), usage.getBalance() - money);
+            } else {
+                Utils.logMessage("DIRECTION: " + direction);
+            }
             Utils.logMessage("CALL STATUS: " + callStatus.callStatus());
         }
 
@@ -168,6 +103,7 @@ public class CallService {
 
         String from = allRequestParams.get("From");
         String to = allRequestParams.get("To");
+
 
         VoiceResponse twiml;
 
@@ -185,21 +121,45 @@ public class CallService {
         Dial dial = null;
 
         if (from.startsWith("client:")) {
-            System.out.println("Client - PSTN");
-            // client -> PSTN
-            dial = new Dial.Builder()
-                    .callerId(from.substring(7, from.length()))
-                    .number(new Number.Builder(to)
-                            .statusCallback(Constants.EVENT_URL)
-                            .statusCallbackMethod(Method.POST)
-                            .statusCallbackEvents(Arrays.asList(Event.INITIATED, Event.RINGING, Event.ANSWERED, Event.COMPLETED))
-                            .build())
-                    .build();
+
+            Utils.logMessage("Client - PSTN");
+
+            String accountSid = allRequestParams.get("AccountSid");
+
+            UsageDTO usage = mUsageService.findByAccountSid(accountSid);
+            if (usage != null) {
+
+                if (usage.getBalance() < Constants.PRICE_CALL_MIN) {
+                    UserDTO userDTO = mUserService.findById(usage.getUserId());
+                    if (userDTO != null) {
+                        FCM.sendNotification(userDTO.getToken(), Constants.FCM_SERVER_KEY, HTTPStatus.MONEY.getReasonPhrase(), "");
+                    }
+                    try {
+                        twiml = new VoiceResponse.Builder()
+                                .say(new Say.Builder("Your more phone is out of money. Please add money to your account.").build())
+                                .build();
+                        return twiml.toXml();
+                    } catch (com.twilio.twiml.TwiMLException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    int limit = (int) (usage.getBalance() / Constants.PRICE_CALL_OUTGOING * 60);
+                    Utils.logMessage(" TOTAL MONEY: " + usage.getBalance() + "      ||    " + limit);
+                    dial = new Dial.Builder()
+                            .callerId(from.substring(7, from.length()))
+                            .number(new Number.Builder(to)
+                                    .statusCallback(Constants.EVENT_URL)
+                                    .statusCallbackMethod(Method.POST)
+                                    .statusCallbackEvents(Arrays.asList(Event.INITIATED, Event.RINGING, Event.ANSWERED, Event.COMPLETED))
+                                    .build())
+                            .timeLimit(limit)
+                            .build();
+                }
+            }
 
         } else {
-            System.out.println("PSTN - client");
-            // PSTN -> client
 
+            Utils.logMessage("PSTN - client");
             dial = new Dial.Builder()
                     .callerId(from)
                     .client(new Client.Builder(to)
@@ -207,39 +167,10 @@ public class CallService {
                             .statusCallbackMethod(Method.POST)
                             .statusCallbackEvents(Arrays.asList(Event.INITIATED, Event.RINGING, Event.ANSWERED, Event.COMPLETED))
                             .build())
-                    .record(Dial.Record.RECORD_FROM_RINGING)
                     .build();
         }
 
-        Say pleaseLeaveMessage = new Say.Builder("Record your monkey howl after the tone.").build();
-        // Record the caller's voice.
-        Record record = new Record.Builder()
-                .maxLength(30)
-                .action("/handle-recording") // You may need to change this to point to the location of your servlet
-                .build();
-
-        twiml = new VoiceResponse.Builder().dial(dial).record(record).build();
-
-        try {
-            Utils.logMessage("RESULT: " + twiml.toXml());
-            return twiml.toXml();
-        } catch (TwiMLException e) {
-            e.printStackTrace();
-            Utils.logMessage("ERROR CALL: " + e.getMessage());
-        }
-        return "";
-    }
-
-    @RequestMapping(value = "/handle-recording", method = RequestMethod.POST, produces = {"application/xml"})
-    public String handleRecording(@RequestParam Map<String, String> allRequestParams) {
-        Utils.logMessage("MultiValueMap RECORD: " + allRequestParams.toString());
-        String recordingUrl = allRequestParams.get("RecordingUrl");
-
-        VoiceResponse twiml = new VoiceResponse.Builder()
-                .say(new Say.Builder("Thanks for howling... take a listen to what you howled.").build())
-                .play(new Play.Builder(recordingUrl).build())
-                .say(new Say.Builder("Goodbye").build())
-                .build();
+        twiml = new VoiceResponse.Builder().dial(dial).build();
 
         try {
             return twiml.toXml();
@@ -248,4 +179,5 @@ public class CallService {
         }
         return "";
     }
+
 }
