@@ -50,4 +50,11 @@ public interface PhoneNumberService {
     PhoneNumberDTO findBySid(String sid);
 
     PhoneNumberDTO findByPhoneNumber(String phoneNumber);
+
+    PhoneNumberDTO updateForward(String id, String forwardPhoneNumber, String forwardEmail);
+
+    PhoneNumberDTO enableForward(String id, boolean isEnable);
+
+    List<PhoneNumberDTO> findByUserId(String userId);
+
 }

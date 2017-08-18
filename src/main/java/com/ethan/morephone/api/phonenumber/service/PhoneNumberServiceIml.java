@@ -38,6 +38,8 @@ public class PhoneNumberServiceIml implements PhoneNumberService {
                 .friendlyName(user.getFriendlyName())
                 .phoneNumber(user.getPhoneNumber())
                 .userId(user.getUserId())
+                .forwardPhoneNumber(user.getForwardPhoneNumber())
+                .forwardEmail(user.getForwardEmail())
                 .build();
 
         persisted = repository.save(persisted);
@@ -112,6 +114,32 @@ public class PhoneNumberServiceIml implements PhoneNumberService {
         }
     }
 
+    @Override
+    public PhoneNumberDTO updateForward(String id, String forwardPhoneNumber, String forwardEmail) {
+        PhoneNumber updated = findPhoneNumberById(id);
+        updated.updateForward(forwardPhoneNumber, forwardEmail);
+        updated = repository.save(updated);
+        return convertToDTO(updated);
+    }
+
+    @Override
+    public PhoneNumberDTO enableForward(String id, boolean isEnable) {
+        PhoneNumber updated = findPhoneNumberById(id);
+        updated.enableForward(isEnable);
+        updated = repository.save(updated);
+        return convertToDTO(updated);
+    }
+
+    @Override
+    public List<PhoneNumberDTO> findByUserId(String userId) {
+        List<PhoneNumber> phoneNumbers = repository.findByUserId(userId);
+        if (phoneNumbers != null) {
+            return convertToDTOs(phoneNumbers);
+        } else {
+            return null;
+        }
+    }
+
     private PhoneNumber findPhoneNumberById(String id) {
         Optional<PhoneNumber> result = repository.findOne(id);
         return result.orElseThrow(() -> new PhoneNumberNotFoundException(id));
@@ -152,9 +180,11 @@ public class PhoneNumberServiceIml implements PhoneNumberService {
         dto.setFriendlyName(model.getFriendlyName());
         dto.setPhoneNumber(model.getPhoneNumber());
         dto.setUserId(model.getUserId());
+        dto.setForwardPhoneNumber(model.getForwardPhoneNumber());
+        dto.setForwardEmail(model.getForwardEmail());
+        dto.setForward(model.isForward());
         dto.setCreatedAt(model.getCreatedAt());
         dto.setUpdatedAt(model.getUpdatedAt());
-
 
         return dto;
     }

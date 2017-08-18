@@ -44,4 +44,6 @@ public interface UsageRepository extends Repository<Usage, String> {
 
     List<Usage> findByUserId(String userId);
 
+    List<Usage> findByAccountSid(String accountSid);
+
 }

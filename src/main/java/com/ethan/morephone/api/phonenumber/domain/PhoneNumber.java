@@ -15,6 +15,9 @@ public final class PhoneNumber {
     private String sid;
     private String phoneNumber;
     private String friendlyName;
+    private String forwardPhoneNumber;
+    private String forwardEmail;
+    private boolean isForward;
     private String userId;
     private long createdAt;
     private long updatedAt;
@@ -26,6 +29,9 @@ public final class PhoneNumber {
         this.sid = builder.sid;
         this.phoneNumber = builder.phoneNumber;
         this.friendlyName = builder.friendlyName;
+        this.forwardPhoneNumber = builder.forwardPhoneNumber;
+        this.forwardEmail = builder.forwardEmail;
+        this.isForward = builder.isForward;
         this.userId = builder.userId;
         Date date = new Date();
         createdAt = date.getTime();
@@ -92,6 +98,43 @@ public final class PhoneNumber {
         this.updatedAt = updatedAt;
     }
 
+    public boolean isForward() {
+        return isForward;
+    }
+
+    public void setForward(boolean forward) {
+        isForward = forward;
+    }
+
+    public String getForwardPhoneNumber() {
+        return forwardPhoneNumber;
+    }
+
+    public void setForwardPhoneNumber(String forwardPhoneNumber) {
+        this.forwardPhoneNumber = forwardPhoneNumber;
+    }
+
+    public String getForwardEmail() {
+        return forwardEmail;
+    }
+
+    public void setForwardEmail(String forwardEmail) {
+        this.forwardEmail = forwardEmail;
+    }
+
+    public void enableForward(boolean isForward){
+        this.isForward = isForward;
+        Date date = new Date();
+        updatedAt = date.getTime();
+    }
+
+    public void updateForward(String forwardPhoneNumber, String forwardEmail) {
+        this.forwardPhoneNumber = forwardPhoneNumber;
+        this.forwardEmail = forwardEmail;
+        Date date = new Date();
+        updatedAt = date.getTime();
+    }
+
 //    public void update(String token) {
 //        this.token = token;
 //    }
@@ -112,6 +155,9 @@ public final class PhoneNumber {
         private String phoneNumber;
         private String friendlyName;
         private String userId;
+        private String forwardPhoneNumber;
+        private String forwardEmail;
+        private boolean isForward;
 
         private Builder() {
         }
@@ -129,6 +175,21 @@ public final class PhoneNumber {
 
         public Builder friendlyName(String friendlyName) {
             this.friendlyName = friendlyName;
+            return this;
+        }
+
+        public Builder forwardPhoneNumber(String forwardPhoneNumber) {
+            this.forwardPhoneNumber = forwardPhoneNumber;
+            return this;
+        }
+
+        public Builder forwardEmail(String forwardEmail) {
+            this.forwardEmail = forwardEmail;
+            return this;
+        }
+
+        public Builder isForward(boolean isForward) {
+            this.isForward = isForward;
             return this;
         }
 

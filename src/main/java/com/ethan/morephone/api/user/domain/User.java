@@ -130,6 +130,8 @@ public final class User {
         this.platform = platform;
     }
 
+
+
     public void update(String country, String languageCode) {
         this.country = country;
         this.languageCode = languageCode;
@@ -142,6 +144,8 @@ public final class User {
         Date date = new Date();
         updatedAt = date.getTime();
     }
+
+
 
     @Override
     public String toString() {
@@ -157,6 +161,7 @@ public final class User {
     public static class Builder {
         private String email;
         private String accountSid;
+
         private String firstName;
         private String lastName;
         private String country;

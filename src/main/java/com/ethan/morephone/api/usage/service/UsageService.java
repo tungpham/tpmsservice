@@ -41,9 +41,11 @@ public interface UsageService {
 
     UsageDTO findByUserId(String id);
 
+    UsageDTO findByAccountSid(String accountSid);
+
     /**
      * Updates the information of a usage entry.
-     * @param user  The information of the updated usage entry.
+     * @param userId  The information of the updated usage entry.
      * @return      The information of the updated usage entry.
      * @throws      com.ethan.morephone.api.user.UserNotFoundException if no usage entry is found.
      */

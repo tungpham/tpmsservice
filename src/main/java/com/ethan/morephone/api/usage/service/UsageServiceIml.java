@@ -35,7 +35,8 @@ public class UsageServiceIml implements UsageService {
         LOGGER.info("Creating a new user entry with information: {}", user);
 
         Usage persisted = Usage.getBuilder()
-                .usageId(user.getUserId())
+                .userId(user.getUserId())
+                .accountSid(user.getAccountSid())
                 .balance(user.getBalance())
                 .messageIncoming(user.getMessageIncoming())
                 .messageOutgoing(user.getMessageOutgoing())
@@ -95,10 +96,20 @@ public class UsageServiceIml implements UsageService {
     }
 
     @Override
+    public UsageDTO findByAccountSid(String accountSid) {
+        Usage usage = findUsageByAccountSid(accountSid);
+        if (usage != null) {
+            return convertToDTO(usage);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public UsageDTO updateBalance(String userId, double balance) {
         Usage usage = findUsageByUserId(userId);
         if (usage != null) {
-            usage.updateBalance(balance);
+            usage.updateBalance(usage.getBalance() + balance);
             return convertToDTO(repository.save(usage));
         }
         return null;
@@ -154,6 +165,15 @@ public class UsageServiceIml implements UsageService {
         }
     }
 
+    private Usage findUsageByAccountSid(String accountSid) {
+        List<Usage> result = repository.findByAccountSid(accountSid);
+        if (result != null && !result.isEmpty()) {
+            return result.get(0);
+        } else {
+            return null;
+        }
+    }
+
 
     private Usage findUsageById(String id) {
         Optional<Usage> result = repository.findOne(id);
@@ -173,6 +193,7 @@ public class UsageServiceIml implements UsageService {
 
         dto.setId(model.getId());
         dto.setUserId(model.getUserId());
+        dto.setAccountSid(model.getAccountSid());
         dto.setBalance(model.getBalance());
         dto.setMessageIncoming(model.getMessageIncoming());
         dto.setMessageOutgoing(model.getMessageOutgoing());

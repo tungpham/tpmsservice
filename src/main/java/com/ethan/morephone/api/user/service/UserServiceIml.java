@@ -123,7 +123,7 @@ public class UserServiceIml implements UserService {
     @Override
     public UserDTO updateToken(String id, String token) {
         User updated = findTodoById(id);
-        if(!updated.getToken().equals(token)) {
+        if (!updated.getToken().equals(token)) {
             updated.update(token);
             updated = repository.save(updated);
         }

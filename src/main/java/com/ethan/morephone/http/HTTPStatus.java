@@ -14,7 +14,7 @@ public enum HTTPStatus implements StatusType {
 	/**
 	 * 200 OK, see {@link <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">HTTP/1.1 documentation</a>}.
 	 */
-	MONEY(100, "OK"),
+	MONEY(100, "MONEY"),
 
 	OK(200, "OK"),
 	/**

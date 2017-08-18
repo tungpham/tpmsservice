@@ -1,6 +1,8 @@
 package com.ethan.morephone.api.user.controller;
 
 import com.ethan.morephone.Constants;
+import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
+import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
 import com.ethan.morephone.api.usage.domain.UsageDTO;
 import com.ethan.morephone.api.usage.service.UsageService;
 import com.ethan.morephone.api.user.UserNotFoundException;
@@ -10,10 +12,9 @@ import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.http.Response;
 import com.ethan.morephone.utils.Utils;
 import com.twilio.Twilio;
+import com.twilio.base.ResourceSet;
 import com.twilio.http.HttpMethod;
-import com.twilio.rest.api.v2010.account.ApplicationCreator;
-import com.twilio.rest.notify.v1.service.Binding;
-import com.twilio.rest.notify.v1.service.BindingCreator;
+import com.twilio.rest.api.v2010.account.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,38 +36,91 @@ final class UserController {
     private static final String FCM_BINDING_TYPE = "fcm";
 
     private final UserService service;
+    private final PhoneNumberService mPhoneNumberService;
     private final UsageService mUsageService;
 
     @Autowired
-    UserController(UserService service, UsageService usageService) {
+    UserController(UserService service, PhoneNumberService phoneNumberService, UsageService usageService) {
         this.service = service;
+        this.mPhoneNumberService = phoneNumberService;
         this.mUsageService = usageService;
     }
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     Response<Object> create(@RequestBody @Valid UserDTO todoEntry) {
-        LOGGER.info("Creating a new user entry with information: {}", todoEntry);
 
+        //Check user exist
         UserDTO userDTO = service.findByEmail(todoEntry.getEmail());
+
         if (userDTO == null) {
 
+            Utils.logMessage("ACCOUNT SID: " + todoEntry.getAccountSid());
 
-            Utils.logMessage("ACCOUNTSID: " + todoEntry.getAccountSid());
-            Utils.logMessage("AUTH CODE : " + todoEntry.getAuthToken());
             Twilio.init(todoEntry.getAccountSid(), todoEntry.getAuthToken());
 
-            com.twilio.rest.api.v2010.account.Application applicationCreator = new ApplicationCreator(todoEntry.getEmail()).setVoiceUrl(Constants.VOICE_URL).setVoiceMethod(HttpMethod.POST)
-                    .setSmsUrl(Constants.MESSAGE_URL).setSmsMethod(HttpMethod.POST).create();
+            /*-------------------------------Check application twilio if exits will modifer or create new--------------------------------*/
+            String applicationName = todoEntry.getEmail();
+            Application application;
 
-            if (applicationCreator != null) {
-                Utils.logMessage("CREATE APPLICATION SUCCESS");
+            ResourceSet<Application> applications = new ApplicationReader("AC1bb60516853a77bcf93ea89e4a7e3b45").read();
+
+            Utils.logMessage("APPLICATIONS");
+
+            if (applications != null && applications.iterator().hasNext()) {
+                application = applications.iterator().next();
+
+                application = new ApplicationUpdater(application.getSid())
+                        .setFriendlyName(applicationName)
+                        .setVoiceUrl(Constants.VOICE_URL)
+                        .setVoiceMethod(HttpMethod.POST)
+                        .setSmsUrl(Constants.MESSAGE_URL)
+                        .setSmsMethod(HttpMethod.POST)
+                        .update();
+
+                Utils.logMessage("APPLICATIONS UPDATE");
+
+            } else {
+
+                application = new ApplicationCreator(
+                        applicationName)
+                        .setVoiceUrl(Constants.VOICE_URL)
+                        .setVoiceMethod(HttpMethod.POST)
+                        .setSmsUrl(Constants.MESSAGE_URL)
+                        .setSmsMethod(HttpMethod.POST)
+                        .create();
+
+                Utils.logMessage("APPLICATIONS CREATE");
+
+            }
+
+            /*----------------------END APPLICATION-------------------------*/
+
+            if (application != null) {
+
+                 /*----------------------CREATE USER -----------------------*/
                 UserDTO created = service.create(todoEntry);
-                created.setApplicationSid(applicationCreator.getSid());
+                created.setApplicationSid(application.getSid());
 
-                Utils.logMessage("Created a new user entry with information: {}" + created);
-
-                UsageDTO usageDTO = new UsageDTO(created.getId(), 0, 0, 0, 0, 0);
+                /*----------------------CREATE USAGE -----------------------*/
+                UsageDTO usageDTO = new UsageDTO(created.getId(), created.getAccountSid(), 0, 0, 0, 0, 0);
                 mUsageService.create(usageDTO);
+
+                /*----------------------SYNC PHONE NUMBER -----------------------*/
+                ResourceSet<IncomingPhoneNumber> incomingPhoneNumbers = new IncomingPhoneNumberReader(todoEntry.getAccountSid()).read();
+                if (incomingPhoneNumbers != null && incomingPhoneNumbers.iterator().hasNext()) {
+                    for (IncomingPhoneNumber incomingPhoneNumber : incomingPhoneNumbers) {
+                        PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findBySid(incomingPhoneNumber.getSid());
+                        if (phoneNumberDTO == null) {
+                            phoneNumberDTO = new PhoneNumberDTO();
+                            phoneNumberDTO.setFriendlyName(incomingPhoneNumber.getFriendlyName());
+                            phoneNumberDTO.setPhoneNumber(incomingPhoneNumber.getPhoneNumber().toString());
+                            phoneNumberDTO.setSid(incomingPhoneNumber.getSid());
+                            phoneNumberDTO.setUserId(created.getId());
+
+                            mPhoneNumberService.create(phoneNumberDTO);
+                        }
+                    }
+                }
 
                 return new Response<>(created, HTTPStatus.CREATED);
             } else {
@@ -80,21 +134,13 @@ final class UserController {
 
     @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
     UserDTO delete(@PathVariable("id") String id) {
-        LOGGER.info("Deleting user entry with id: {}", id);
-
         UserDTO deleted = service.delete(id);
-        LOGGER.info("Deleted user entry with information: {}", deleted);
-
         return deleted;
     }
 
     @RequestMapping(method = RequestMethod.GET)
     List<UserDTO> findAll() {
-        LOGGER.info("Finding all user entries");
-
         List<UserDTO> userDTOS = service.findAll();
-        LOGGER.info("Found {} user entries", userDTOS.size());
-
         return userDTOS;
     }
 
@@ -121,10 +167,8 @@ final class UserController {
     @RequestMapping(value = "/{id}/token", method = RequestMethod.PUT)
     Response<Object> updateToken(@PathVariable("id") String id,
                                  @RequestParam(value = "token") String token) {
-        LOGGER.info("Updating user entry with token:", token);
 
         UserDTO updated = service.updateToken(id, token);
-        LOGGER.info("Updated user entry with information: {}", updated);
 
         if (updated == null) {
             return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
@@ -134,34 +178,11 @@ final class UserController {
     }
 
 
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public void handleTodoNotFound(UserNotFoundException ex) {
         LOGGER.error("Handling error with message: {}", ex.getMessage());
-    }
-
-
-    public void bindingUser(String identity, String address) {
-        Twilio.init(Constants.TWILIO_API_KEY, Constants.TWILIO_API_SECRET, Constants.TWILIO_ACCOUNT_SID);
-        try {
-            // Convert BindingType from Object to enum value
-            Binding.BindingType bindingType = Binding.BindingType.forValue(FCM_BINDING_TYPE);
-            // Add the notification service sid
-
-            Utils.logMessage("SERVICE: " + Constants.TWILIO_NOTIFICATION_SERVICE_SID);
-            Utils.logMessage("bindingType: " + bindingType);
-            Utils.logMessage("identity: " + identity);
-            Utils.logMessage("ADDRESS: " + address);
-            // Create the binding
-            BindingCreator bindingCreator = new BindingCreator(Constants.TWILIO_NOTIFICATION_SERVICE_SID, "", identity, bindingType, address);
-            Binding binding = bindingCreator.create();
-
-            // Send a JSON response indicating success
-            Utils.logMessage("BINDING SUCCESS: " + identity);
-        } catch (Exception ex) {
-            // Send a JSON response indicating an error
-            Utils.logMessage("BINDING ERROR: " + ex.getMessage());
-        }
     }
 
 }

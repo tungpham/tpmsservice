@@ -14,6 +14,7 @@ public final class Usage {
     @Id
     private String id;
     private String userId;
+    private String accountSid;
     private double balance;
     private long messageIncoming;
     private long messageOutgoing;
@@ -26,7 +27,8 @@ public final class Usage {
     }
 
     private Usage(Builder builder) {
-        this.userId = builder.usageId;
+        this.userId = builder.userId;
+        this.accountSid = builder.accountSid;
         this.balance = builder.balance;
         this.messageIncoming = builder.messageIncoming;
         this.messageOutgoing = builder.messageOutgoing;
@@ -54,8 +56,16 @@ public final class Usage {
         return userId;
     }
 
-    public void setUserId(String usageId) {
-        this.userId = usageId;
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getAccountSid() {
+        return accountSid;
+    }
+
+    public void setAccountSid(String accountSid) {
+        this.accountSid = accountSid;
     }
 
     public double getBalance() {
@@ -146,7 +156,7 @@ public final class Usage {
         updatedAt = date.getTime();
     }
 
-    public void updateBalance(double balance){
+    public void updateBalance(double balance) {
         this.balance = balance;
 
         Date date = new Date();
@@ -156,17 +166,18 @@ public final class Usage {
     @Override
     public String toString() {
         return String.format(
-                "User[id=%s, balance=%s, userId=%s]",
+                "User[id=%s, balance=%s, accountSid=%s]",
                 this.id,
                 this.balance,
-                this.userId
+                this.accountSid
         );
     }
 
 
     public static class Builder {
 
-        private String usageId;
+        private String userId;
+        private String accountSid;
         private double balance;
         private long messageIncoming;
         private long messageOutgoing;
@@ -176,8 +187,13 @@ public final class Usage {
         private Builder() {
         }
 
-        public Builder usageId(String usageId) {
-            this.usageId = usageId;
+        public Builder accountSid(String accountSid) {
+            this.accountSid = accountSid;
+            return this;
+        }
+
+        public Builder userId(String userId) {
+            this.userId = userId;
             return this;
         }
 
@@ -210,14 +226,14 @@ public final class Usage {
 
             Usage build = new Usage(this);
 
-            build.checkUserId(build.getUserId());
+            build.checkAccountSid(build.getAccountSid());
 
             return build;
         }
     }
 
-    private void checkUserId(String usageId) {
-        Utils.notNull(usageId, "usageId cannot be null");
-        Utils.notEmpty(usageId, "usageId cannot be empty");
+    private void checkAccountSid(String accountSid) {
+        Utils.notNull(accountSid, "accountSid cannot be null");
+        Utils.notEmpty(accountSid, "accountSid cannot be empty");
     }
 }

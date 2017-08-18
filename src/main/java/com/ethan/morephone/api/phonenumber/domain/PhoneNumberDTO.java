@@ -13,6 +13,9 @@ public final class PhoneNumberDTO {
     private String accountSid;
     private String authToken;
     private String applicationSid;
+    private String forwardPhoneNumber;
+    private String forwardEmail;
+    private boolean isForward;
     private long createdAt;
     private long updatedAt;
 
@@ -98,6 +101,30 @@ public final class PhoneNumberDTO {
 
     public void setApplicationSid(String applicationSid) {
         this.applicationSid = applicationSid;
+    }
+
+    public String getForwardPhoneNumber() {
+        return forwardPhoneNumber;
+    }
+
+    public void setForwardPhoneNumber(String forwardPhoneNumber) {
+        this.forwardPhoneNumber = forwardPhoneNumber;
+    }
+
+    public String getForwardEmail() {
+        return forwardEmail;
+    }
+
+    public void setForwardEmail(String forwardEmail) {
+        this.forwardEmail = forwardEmail;
+    }
+
+    public boolean isForward() {
+        return isForward;
+    }
+
+    public void setForward(boolean forward) {
+        isForward = forward;
     }
 
     @Override

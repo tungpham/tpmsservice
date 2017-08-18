@@ -52,4 +52,5 @@ public interface UserService {
     UserDTO findByAccountSid(String accountSid);
 
     UserDTO updateToken(String id, String token);
+
 }

@@ -7,6 +7,7 @@ public final class UsageDTO {
 
     private String id;
     private String userId;
+    private String accountSid;
     private double balance;
     private long messageIncoming;
     private long messageOutgoing;
@@ -19,8 +20,9 @@ public final class UsageDTO {
 
     }
 
-    public UsageDTO(String userId, double balance, long messageIncoming, long messageOutgoing, long callIncoming, long callOutgoing) {
+    public UsageDTO(String userId, String accountSid, double balance, long messageIncoming, long messageOutgoing, long callIncoming, long callOutgoing) {
         this.userId = userId;
+        this.accountSid = accountSid;
         this.balance = balance;
         this.messageIncoming = messageIncoming;
         this.messageOutgoing = messageOutgoing;
@@ -42,6 +44,14 @@ public final class UsageDTO {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getAccountSid() {
+        return accountSid;
+    }
+
+    public void setAccountSid(String accountSid) {
+        this.accountSid = accountSid;
     }
 
     public double getBalance() {

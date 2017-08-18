@@ -1,6 +1,7 @@
 package com.ethan.morephone.twilio.service;
 
 import com.ethan.morephone.Constants;
+import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
 import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
 import com.ethan.morephone.api.usage.domain.UsageDTO;
 import com.ethan.morephone.api.usage.service.UsageService;
@@ -8,6 +9,7 @@ import com.ethan.morephone.api.user.domain.UserDTO;
 import com.ethan.morephone.api.user.service.UserService;
 import com.ethan.morephone.data.entity.message.MessageItem;
 import com.ethan.morephone.http.HTTPStatus;
+import com.ethan.morephone.twilio.email.EmailServiceImpl;
 import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.twilio.model.NotificationRequest;
 import com.ethan.morephone.twilio.model.Response;
@@ -20,6 +22,9 @@ import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.api.v2010.account.MessageCreator;
 import com.twilio.rest.notify.v1.service.Notification;
 import com.twilio.rest.notify.v1.service.NotificationCreator;
+import com.twilio.twiml.Body;
+import com.twilio.twiml.MessagingResponse;
+import com.twilio.twiml.TwiMLException;
 import com.twilio.type.PhoneNumber;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -38,22 +43,30 @@ public class MessageService {
     private final UserService mUserService;
     private final UsageService mUsageService;
     private final PhoneNumberService mPhoneNumberService;
+    private final EmailServiceImpl mEmailService;
 
     @Autowired
-    MessageService(UserService userService, PhoneNumberService phoneNumberService, UsageService usageService) {
+    MessageService(UserService userService, PhoneNumberService phoneNumberService, UsageService usageService, EmailServiceImpl emailService) {
         this.mUserService = userService;
         this.mPhoneNumberService = phoneNumberService;
         this.mUsageService = usageService;
+        this.mEmailService = emailService;
     }
 
     @RequestMapping(value = "/receive-message", method = RequestMethod.POST, produces = {"application/xml"})
     public String receiveMessage(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("Receive MultiValueMap: " + allRequestParams.toString());
-//        PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(allRequestParams.get("To"));
-//        if (phoneNumberDTO != null) {
-//            String userId = phoneNumberDTO.getUserId();
 
-//            Utils.logMessage("RECEIVE SMS USER ID: " + userId);
+        String response = "";
+
+        String to = allRequestParams.get("To");
+        String from = allRequestParams.get("From");
+        String body = allRequestParams.get("Body");
+
+        PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(to);
+
+        if (phoneNumberDTO != null) {
+
             String accountSid = allRequestParams.get("AccountSid");
             UserDTO user = mUserService.findByAccountSid(accountSid);
             if (user != null) {
@@ -62,10 +75,46 @@ public class MessageService {
                 List<String> identities = new ArrayList<>();
                 identities.add(user.getEmail());
 //                sendNotification("High", allRequestParams.get("To"), allRequestParams.get("From"), allRequestParams.get("Body"), identities);
-                sendNotification(token, allRequestParams.get("From") + "-" + allRequestParams.get("To"), allRequestParams.get("Body"));
+//                sendNotification(token, allRequestParams.get("From") + "-" + allRequestParams.get("To"), allRequestParams.get("Body"));
+                FCM.sendNotification(token, Constants.FCM_SERVER_KEY, from + "-" + to, body);
             }
-//        }
-        return "";
+
+            if (phoneNumberDTO.isForward()) {
+
+                UsageDTO usageDTO = mUsageService.findByUserId(user.getId());
+                if (usageDTO != null && usageDTO.getBalance() > Constants.PRICE_MESSAGE_OUTGOING) {
+
+                    //Forward sms to other phone number
+                    if (!TextUtils.isEmpty(phoneNumberDTO.getForwardPhoneNumber())) {
+
+                        com.twilio.twiml.Message message = new com.twilio.twiml.Message.Builder()
+                                .to(phoneNumberDTO.getForwardPhoneNumber())
+                                .body(new Body(body))
+                                .build();
+
+                        MessagingResponse twiml = new MessagingResponse.Builder()
+                                .message(message)
+                                .build();
+
+                        try {
+                            mUsageService.updateMessageOutgoing(user.getId());
+                            response = twiml.toXml();
+                        } catch (TwiMLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    //Forward sms to email
+                    if(!TextUtils.isEmpty(phoneNumberDTO.getForwardEmail())){
+                        mEmailService.sendSimpleMessage(phoneNumberDTO.getForwardEmail(), from, body);
+                    }
+
+                } else {
+                    FCM.sendNotification(user.getToken(), Constants.FCM_SERVER_KEY, HTTPStatus.MONEY.getReasonPhrase(), "");
+                }
+            }
+        }
+        return response;
 
     }
 
@@ -90,7 +139,7 @@ public class MessageService {
         }
 
 //        usageDTO.getBalance()
-        if (10 > Constants.PRICE_MESSAGE_OUTGOING) {
+        if (usageDTO.getBalance() > Constants.PRICE_MESSAGE_OUTGOING) {
 
             TwilioRestClient client = new TwilioRestClient.Builder(accountSid, authToken).build();
             try {
@@ -128,7 +177,11 @@ public class MessageService {
                 Utils.logMessage("An exception occurred trying to send a message to {}, exception: {} " + to + " ||| " + e.getMessage());
             }
         } else {
-            Utils.logMessage("MONEY: " + usageDTO.getBalance());
+            UserDTO userDTO = mUserService.findById(usageDTO.getUserId());
+            if (userDTO != null) {
+                FCM.sendNotification(userDTO.getToken(), Constants.FCM_SERVER_KEY, HTTPStatus.MONEY.getReasonPhrase(), "");
+                Utils.logMessage("SEND NOTIFCATION SMS");
+            }
             return new com.ethan.morephone.http.Response<>(HTTPStatus.MONEY.getReasonPhrase(), HTTPStatus.MONEY);
         }
         return new com.ethan.morephone.http.Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
@@ -139,12 +192,12 @@ public class MessageService {
         return sendNotification(notificationRequest.getPriority(), "PHone Number", notificationRequest.getTitle(), notificationRequest.getBody(), notificationRequest.getIdentity());
     }
 
-    private static void sendNotification(String tokenId, String title, String body) {
-        //Just I am passed dummy information
-
-//Method to send Push Notification
-        FCM.send_FCM_Notification(tokenId, Constants.FCM_SERVER_KEY, title, body);
-    }
+//    private static void sendNotification(String tokenId, String title, String body) {
+//        //Just I am passed dummy information
+//
+////Method to send Push Notification
+//        FCM.sendNotification(tokenId, Constants.FCM_SERVER_KEY, title, body);
+//    }
 
     private Response sendNotification(String priorityRequest, String phoneNumber, String title, String body, List<String> identity) {
         Twilio.init(Constants.TWILIO_API_KEY, Constants.TWILIO_API_SECRET, Constants.TWILIO_ACCOUNT_SID);

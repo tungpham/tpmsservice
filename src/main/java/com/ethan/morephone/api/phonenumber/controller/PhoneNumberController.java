@@ -60,18 +60,17 @@ final class PhoneNumberController {
             Utils.logMessage("CREATE: " + todoEntry.getPhoneNumber());
 
             if (incomingPhoneNumber != null) {
+
                 todoEntry.setSid(incomingPhoneNumber.getSid());
                 todoEntry.setFriendlyName(incomingPhoneNumber.getFriendlyName());
-//                PhoneNumberDTO phoneNumberDTO = service.findBySid(todoEntry.getSid());
-
-                return new Response<>(todoEntry, HTTPStatus.CREATED);
-//                if (phoneNumberDTO == null) {
-//                    PhoneNumberDTO created = service.create(todoEntry);
-//                    Utils.logMessage("CREATE NEW PHONE NUMBER: " + created);
-//                    return new Response<>(created, HTTPStatus.CREATED);
-//                } else {
-//                    return new Response<>(HTTPStatus.SEE_OTHER.getReasonPhrase(), HTTPStatus.SEE_OTHER);
-//                }
+                PhoneNumberDTO phoneNumberDTO = service.findBySid(todoEntry.getSid());
+                if (phoneNumberDTO == null) {
+                    PhoneNumberDTO created = service.create(todoEntry);
+                    Utils.logMessage("CREATE NEW PHONE NUMBER: " + created);
+                    return new Response<>(created, HTTPStatus.CREATED);
+                } else {
+                    return new Response<>(HTTPStatus.SEE_OTHER.getReasonPhrase(), HTTPStatus.SEE_OTHER);
+                }
 
             } else {
                 Utils.logMessage("CANNOT CREATE");
@@ -95,46 +94,85 @@ final class PhoneNumberController {
         Utils.logMessage("authToken: " + authToken);
 
 //        if (deleted != null) {
-            Twilio.init(accountSid, authToken);
-            IncomingPhoneNumberDeleter deleter = new IncomingPhoneNumberDeleter(id);
-            try {
-                if (deleter.delete()) {
-                    Utils.logMessage("DELETE PHONE NUMBER SUCCESS ");
-                    return new Response<>(HTTPStatus.OK.getReasonPhrase(), HTTPStatus.OK);
-                } else {
-                    Utils.logMessage("DELETE PHONE NUMBER ERROR ");
-                    return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
-                }
-            } catch (Exception e) {
+        Twilio.init(accountSid, authToken);
+        IncomingPhoneNumberDeleter deleter = new IncomingPhoneNumberDeleter(id);
+        try {
+            if (deleter.delete()) {
+                Utils.logMessage("DELETE PHONE NUMBER SUCCESS ");
+                return new Response<>(HTTPStatus.OK.getReasonPhrase(), HTTPStatus.OK);
+            } else {
+                Utils.logMessage("DELETE PHONE NUMBER ERROR ");
                 return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
             }
+        } catch (Exception e) {
+            return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+        }
 //        } else {
 //            return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
 //        }
     }
 
+    @RequestMapping(value = "/{id}/forward", method = RequestMethod.PUT)
+    Response<Object> updateForwardPhoneNumber(@PathVariable("id") String id,
+                                              @RequestParam(value = "forward_phone_number") String forwardPhoneNumber,
+                                              @RequestParam(value = "forward_email") String forwardEmail) {
+
+        PhoneNumberDTO updated = service.updateForward(id, forwardPhoneNumber, forwardEmail);
+
+        if (updated == null) {
+            return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+        } else {
+            return new Response<>(updated, HTTPStatus.OK);
+        }
+    }
+
+    @RequestMapping(value = "/{id}/forward/enable", method = RequestMethod.PUT)
+    Response<Object> enableForwardPhoneNumber(@PathVariable("id") String id,
+                                              @RequestParam(value = "is_forward") boolean isForward) {
+
+        PhoneNumberDTO updated = service.enableForward(id, isForward);
+
+        if (updated == null) {
+            return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+        } else {
+            return new Response<>(updated, HTTPStatus.OK);
+        }
+    }
+
     @RequestMapping(method = RequestMethod.GET)
-    List<PhoneNumberDTO> findAll() {
+    Response<Object> findPhoneNumberByUserId(@RequestParam("userId") String userId) {
 
-        List<PhoneNumberDTO> userDTOS = service.findAll();
+        List<PhoneNumberDTO> phoneNumberDTOS = service.findByUserId(userId);
 
-        return userDTOS;
+        if (phoneNumberDTOS == null) {
+            return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+        } else {
+            return new Response<>(phoneNumberDTOS, HTTPStatus.OK);
+        }
     }
 
     @RequestMapping(value = "{id}", method = RequestMethod.GET)
-    PhoneNumberDTO findById(@PathVariable("id") String id) {
+    Response<Object> findById(@PathVariable("id") String id) {
 
-        PhoneNumberDTO userDTO = service.findById(id);
+        PhoneNumberDTO phoneNumberDTO = service.findById(id);
 
-        return userDTO;
+        if (phoneNumberDTO == null) {
+            return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+        } else {
+            return new Response<>(phoneNumberDTO, HTTPStatus.OK);
+        }
     }
 
     @RequestMapping(value = "{id}", method = RequestMethod.PUT)
-    PhoneNumberDTO update(@RequestBody @Valid PhoneNumberDTO todoEntry) {
+    Response<Object> update(@RequestBody @Valid PhoneNumberDTO todoEntry) {
 
         PhoneNumberDTO updated = service.update(todoEntry);
 
-        return updated;
+        if (updated == null) {
+            return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+        } else {
+            return new Response<>(updated, HTTPStatus.OK);
+        }
     }
 
     @ExceptionHandler

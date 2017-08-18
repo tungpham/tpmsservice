@@ -5,6 +5,7 @@ import com.ethan.morephone.api.purchase.domain.PurchaseDTO;
 import com.ethan.morephone.api.purchase.service.PurchaseService;
 import com.ethan.morephone.api.usage.service.UsageService;
 import com.ethan.morephone.api.user.UserNotFoundException;
+import com.ethan.morephone.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +35,11 @@ final class PurchaseController {
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     PurchaseDTO create(@RequestBody @Valid PurchaseDTO todoEntry) {
-        LOGGER.info("Creating a new purchase entry with information: {}", todoEntry);
 
+        Utils.logMessage("PURCAHSE : " + todoEntry.toString());
         PurchaseDTO created = service.create(todoEntry);
-        if (created.getProductId().equals("")) {
+        Utils.logMessage("PRODUCTID: " + created.getProductId());
+        if (created.getProductId().equals("add_fund")) {
             mUsageService.updateBalance(created.getUserId(), Constants.PRODUCT_PRICE);
         }
         LOGGER.info("Created a new purchase entry with information: {}", created);
