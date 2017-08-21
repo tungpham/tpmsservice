@@ -169,7 +169,7 @@ public class CallService {
                             .build())
 //                    .record(Dial.Record.RECORD_FROM_RINGING)
                     .timeout(10)
-                    .action("/handle-recording")
+                    .action("/api/v1/call/handle-recording")
                     .build();
         }
 
@@ -204,6 +204,7 @@ public class CallService {
 
     @RequestMapping(value = "/handle-recording", method = RequestMethod.POST, produces = {"application/xml"})
     public String handleRecording(@RequestParam Map<String, String> allRequestParams) {
+
         Utils.logMessage("MultiValueMap HANDLE RECORD: " + allRequestParams.toString());
         String recordingUrl = allRequestParams.get("RecordingUrl");
 
