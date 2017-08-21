@@ -168,7 +168,7 @@ public class CallService {
                             .statusCallbackEvents(Arrays.asList(Event.INITIATED, Event.RINGING, Event.ANSWERED, Event.COMPLETED))
                             .build())
 //                    .record(Dial.Record.RECORD_FROM_RINGING)
-                    .timeout(30)
+                    .timeout(10)
                     .action("/handle-recording")
                     .build();
         }
