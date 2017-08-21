@@ -169,6 +169,7 @@ public class CallService {
                             .build())
 //                    .record(Dial.Record.RECORD_FROM_RINGING)
                     .timeout(30)
+                    .action("/handle-recording")
                     .build();
         }
 
@@ -182,9 +183,28 @@ public class CallService {
         return "";
     }
 
+    @RequestMapping(value = "/record", method = RequestMethod.POST, produces = {"application/xml"})
+    public String record(@RequestParam Map<String, String> allRequestParams) {
+        Utils.logMessage("MultiValueMap RECORD: " + allRequestParams.toString());
+        String recordingUrl = allRequestParams.get("RecordingUrl");
+
+        VoiceResponse twiml = new VoiceResponse.Builder()
+                .say(new Say.Builder("Thanks for howling... take a listen to what you howled.").build())
+                .play(new Play.Builder(recordingUrl).build())
+                .say(new Say.Builder("Goodbye").build())
+                .build();
+
+        try {
+            return twiml.toXml();
+        } catch (TwiMLException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
     @RequestMapping(value = "/handle-recording", method = RequestMethod.POST, produces = {"application/xml"})
     public String handleRecording(@RequestParam Map<String, String> allRequestParams) {
-        Utils.logMessage("MultiValueMap RECORD: " + allRequestParams.toString());
+        Utils.logMessage("MultiValueMap HANDLE RECORD: " + allRequestParams.toString());
         String recordingUrl = allRequestParams.get("RecordingUrl");
 
         VoiceResponse twiml = new VoiceResponse.Builder()
