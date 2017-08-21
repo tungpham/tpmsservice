@@ -187,10 +187,11 @@ public class CallService {
     public String record(@RequestParam Map<String, String> allRequestParams) {
 
         Utils.logMessage("MultiValueMap RECORD: " + allRequestParams.toString());
-        Say pleaseLeaveMessage = new Say.Builder("Record your monkey howl after the tone.").build();
+        Say pleaseLeaveMessage = new Say.Builder("Nobody answer, you can leave a message after the tone.").build();
         // Record the caller's voice.
         Record record = new Record.Builder()
-                .maxLength(60)
+                .maxLength(30)
+                .finishOnKey("#")
                 .action("/api/v1/call/handle-recording") // You may need to change this to point to the location of your servlet
                 .build();
         VoiceResponse twiml = new VoiceResponse.Builder().say(pleaseLeaveMessage).record(record).build();
@@ -208,11 +209,10 @@ public class CallService {
 
         Utils.logMessage("MultiValueMap HANDLE RECORD: " + allRequestParams.toString());
         String recordingUrl = allRequestParams.get("RecordingUrl");
+        Utils.logMessage("RECORDING URL: " + recordingUrl);
 
         VoiceResponse twiml = new VoiceResponse.Builder()
-                .say(new Say.Builder("Thanks for howling... take a listen to what you howled.").build())
-                .play(new Play.Builder(recordingUrl).build())
-                .say(new Say.Builder("Goodbye").build())
+                .say(new Say.Builder("Thanks for leave a message. Good bye").build())
                 .build();
 
         try {
