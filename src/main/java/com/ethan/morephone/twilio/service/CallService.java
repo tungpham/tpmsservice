@@ -169,7 +169,7 @@ public class CallService {
                             .build())
 //                    .record(Dial.Record.RECORD_FROM_RINGING)
                     .timeout(10)
-                    .action("/api/v1/call/handle-recording")
+                    .action("/api/v1/call/leave-message")
                     .build();
         }
 
@@ -183,16 +183,17 @@ public class CallService {
         return "";
     }
 
-    @RequestMapping(value = "/record", method = RequestMethod.POST, produces = {"application/xml"})
+    @RequestMapping(value = "/leave-message", method = RequestMethod.POST, produces = {"application/xml"})
     public String record(@RequestParam Map<String, String> allRequestParams) {
-        Utils.logMessage("MultiValueMap RECORD: " + allRequestParams.toString());
-        String recordingUrl = allRequestParams.get("RecordingUrl");
 
-        VoiceResponse twiml = new VoiceResponse.Builder()
-                .say(new Say.Builder("Thanks for howling... take a listen to what you howled.").build())
-                .play(new Play.Builder(recordingUrl).build())
-                .say(new Say.Builder("Goodbye").build())
+        Utils.logMessage("MultiValueMap RECORD: " + allRequestParams.toString());
+        Say pleaseLeaveMessage = new Say.Builder("Record your monkey howl after the tone.").build();
+        // Record the caller's voice.
+        Record record = new Record.Builder()
+                .maxLength(60)
+                .action("/api/v1/call/handle-recording") // You may need to change this to point to the location of your servlet
                 .build();
+        VoiceResponse twiml = new VoiceResponse.Builder().say(pleaseLeaveMessage).record(record).build();
 
         try {
             return twiml.toXml();
