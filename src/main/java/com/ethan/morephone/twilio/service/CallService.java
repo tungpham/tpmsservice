@@ -187,11 +187,11 @@ public class CallService {
     public String record(@RequestParam Map<String, String> allRequestParams) {
 
         Utils.logMessage("MultiValueMap RECORD: " + allRequestParams.toString());
-        Say pleaseLeaveMessage = new Say.Builder("Nobody answer, you can leave a message after the tone.").build();
+        Say pleaseLeaveMessage = new Say.Builder("Please leave a message at the beep. \n" +
+                                                        "Press the star key when finished. ").build();
         // Record the caller's voice.
         Record record = new Record.Builder()
-                .maxLength(30)
-                .finishOnKey("#")
+                .finishOnKey("*")
                 .action("/api/v1/call/handle-recording") // You may need to change this to point to the location of your servlet
                 .build();
         VoiceResponse twiml = new VoiceResponse.Builder().say(pleaseLeaveMessage).record(record).build();
@@ -212,7 +212,7 @@ public class CallService {
         Utils.logMessage("RECORDING URL: " + recordingUrl);
 
         VoiceResponse twiml = new VoiceResponse.Builder()
-                .say(new Say.Builder("Thanks for leave a message. Good bye").build())
+                .say(new Say.Builder("Thank you for your message. Goodbye.").build())
                 .build();
 
         try {
