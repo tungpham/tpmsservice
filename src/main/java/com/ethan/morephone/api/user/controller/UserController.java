@@ -62,7 +62,7 @@ final class UserController {
             String applicationName = todoEntry.getEmail();
             Application application;
 
-            ResourceSet<Application> applications = new ApplicationReader("AC1bb60516853a77bcf93ea89e4a7e3b45").read();
+            ResourceSet<Application> applications = new ApplicationReader(todoEntry.getAccountSid()).read();
 
             Utils.logMessage("APPLICATIONS");
 
