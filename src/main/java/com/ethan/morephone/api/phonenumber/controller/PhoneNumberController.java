@@ -1,10 +1,16 @@
 package com.ethan.morephone.api.phonenumber.controller;
 
+import com.ethan.morephone.Constants;
 import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
 import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
+import com.ethan.morephone.api.usage.domain.UsageDTO;
+import com.ethan.morephone.api.usage.service.UsageService;
 import com.ethan.morephone.api.user.UserNotFoundException;
+import com.ethan.morephone.api.user.domain.UserDTO;
+import com.ethan.morephone.api.user.service.UserService;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.http.Response;
+import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
 import com.twilio.Twilio;
@@ -28,10 +34,14 @@ final class PhoneNumberController {
 
 
     private final PhoneNumberService service;
+    private final UserService mUserService;
+    private final UsageService mUsageService;
 
     @Autowired
-    PhoneNumberController(PhoneNumberService service) {
+    PhoneNumberController(PhoneNumberService service, UsageService usageService, UserService userService) {
         this.service = service;
+        this.mUsageService = usageService;
+        this.mUserService = userService;
     }
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
@@ -47,34 +57,45 @@ final class PhoneNumberController {
         }
 
         try {
-            Twilio.init(todoEntry.getAccountSid(), todoEntry.getAuthToken());
 
-            com.twilio.rest.api.v2010.account.IncomingPhoneNumber incomingPhoneNumber =
-                    new IncomingPhoneNumberCreator(new PhoneNumber(todoEntry.getPhoneNumber()))
-                            .setVoiceApplicationSid(todoEntry.getApplicationSid())
-                            .setVoiceMethod(HttpMethod.POST)
-                            .setSmsApplicationSid(todoEntry.getApplicationSid())
-                            .setSmsMethod(HttpMethod.POST)
-                            .create();
+            UsageDTO usageDTO = mUsageService.findByUserId(todoEntry.getUserId());
+            if (usageDTO != null && usageDTO.getBalance() > Constants.PRICE_BUY_PHONE_NUMBER) {
 
-            Utils.logMessage("CREATE: " + todoEntry.getPhoneNumber());
+                Twilio.init(todoEntry.getAccountSid(), todoEntry.getAuthToken());
 
-            if (incomingPhoneNumber != null) {
+                com.twilio.rest.api.v2010.account.IncomingPhoneNumber incomingPhoneNumber =
+                        new IncomingPhoneNumberCreator(new PhoneNumber(todoEntry.getPhoneNumber()))
+                                .setVoiceApplicationSid(todoEntry.getApplicationSid())
+                                .setVoiceMethod(HttpMethod.POST)
+                                .setSmsApplicationSid(todoEntry.getApplicationSid())
+                                .setSmsMethod(HttpMethod.POST)
+                                .create();
 
-                todoEntry.setSid(incomingPhoneNumber.getSid());
-                todoEntry.setFriendlyName(incomingPhoneNumber.getFriendlyName());
-                PhoneNumberDTO phoneNumberDTO = service.findBySid(todoEntry.getSid());
-                if (phoneNumberDTO == null) {
-                    PhoneNumberDTO created = service.create(todoEntry);
-                    Utils.logMessage("CREATE NEW PHONE NUMBER: " + created);
-                    return new Response<>(created, HTTPStatus.CREATED);
+                Utils.logMessage("CREATE: " + todoEntry.getPhoneNumber());
+
+                if (incomingPhoneNumber != null) {
+
+                    mUsageService.updateBalance(todoEntry.getUserId(), usageDTO.getBalance() - Constants.PRICE_BUY_PHONE_NUMBER);
+
+                    todoEntry.setSid(incomingPhoneNumber.getSid());
+                    todoEntry.setFriendlyName(incomingPhoneNumber.getFriendlyName());
+                    PhoneNumberDTO phoneNumberDTO = service.findBySid(todoEntry.getSid());
+                    if (phoneNumberDTO == null) {
+                        PhoneNumberDTO created = service.create(todoEntry);
+                        Utils.logMessage("CREATE NEW PHONE NUMBER: " + created);
+                        return new Response<>(created, HTTPStatus.CREATED);
+                    } else {
+                        return new Response<>(HTTPStatus.SEE_OTHER.getReasonPhrase(), HTTPStatus.SEE_OTHER);
+                    }
+
                 } else {
-                    return new Response<>(HTTPStatus.SEE_OTHER.getReasonPhrase(), HTTPStatus.SEE_OTHER);
+                    return new Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
                 }
 
             } else {
-                Utils.logMessage("CANNOT CREATE");
-                return new Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
+                UserDTO userDTO = mUserService.findById(todoEntry.getUserId());
+                FCM.sendNotification(userDTO.getToken(), Constants.FCM_SERVER_KEY, HTTPStatus.MONEY.getReasonPhrase(), "");
+                return new Response<>(HTTPStatus.MONEY.getReasonPhrase(), HTTPStatus.MONEY);
             }
 
         } catch (Exception e) {

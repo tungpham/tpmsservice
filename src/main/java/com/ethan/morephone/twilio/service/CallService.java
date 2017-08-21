@@ -42,6 +42,7 @@ public class CallService {
                                         @RequestParam(value = "account_sid") String accountSid,
                                         @RequestParam(value = "auth_token") String authToken,
                                         @RequestParam(value = "application_sid") String applicationSid) {
+
         Utils.logMessage("CLIENT: " + client);
         Utils.logMessage("account_sid: " + accountSid);
         Utils.logMessage("auth_token: " + authToken);
@@ -167,7 +168,6 @@ public class CallService {
                             .statusCallbackMethod(Method.POST)
                             .statusCallbackEvents(Arrays.asList(Event.INITIATED, Event.RINGING, Event.ANSWERED, Event.COMPLETED))
                             .build())
-//                    .record(Dial.Record.RECORD_FROM_RINGING)
                     .timeout(10)
                     .action("/api/v1/call/leave-message")
                     .build();

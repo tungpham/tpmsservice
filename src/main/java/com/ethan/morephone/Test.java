@@ -8,6 +8,8 @@ import com.twilio.http.HttpMethod;
 import com.twilio.rest.api.v2010.account.ApplicationCreator;
 import com.twilio.rest.api.v2010.account.ApplicationReader;
 import com.twilio.rest.api.v2010.account.ApplicationUpdater;
+import com.twilio.rest.api.v2010.account.call.Recording;
+import com.twilio.rest.api.v2010.account.call.RecordingReader;
 import com.twilio.twiml.*;
 import org.apache.http.util.TextUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,9 +36,9 @@ public class Test {
 //        deletePhoneNumber();
 //        application();
 //        service = new PhoneNumberServiceIml();\
-        messageForward();
+//        messageForward();
+        getRecord();
     }
-
 
 
     private static void sendNotification(String title, String body) {
@@ -82,7 +84,7 @@ public class Test {
     }
 
 
-    private static void messageForward(){
+    private static void messageForward() {
         com.twilio.twiml.Message message = new com.twilio.twiml.Message.Builder()
                 .to("+16193322905")
                 .body(new Body("Hello, Mobile Monkey"))
@@ -206,5 +208,41 @@ public class Test {
             e.printStackTrace();
         }
         return "";
+    }
+
+    public static void getRecord() {
+        String accountSid = "AC1bb60516853a77bcf93ea89e4a7e3b45";
+        Twilio.init(accountSid, "bb82a5d15eca8e8ae4171173ce150014");
+//        ResourceSet<Recording> recordings = new RecordingReader("AC1bb60516853a77bcf93ea89e4a7e3b45").read();
+//        if (recordings != null && recordings.iterator() != null) {
+//            for (Recording recording : recordings) {
+//                Utils.logMessage("RECORD: ");
+//            }
+//        }
+        long start = System.currentTimeMillis();
+//        ResourceSet<Call> calls = new CallReader(accountSid)
+//                .setTo(new PhoneNumber("+14152365339"))
+//                .limit(10)
+//                .read();
+//        if (calls != null && calls.iterator() != null) {
+//            for (Call call : calls) {
+//                ResourceSet<Recording> recordings = new RecordingReader(accountSid, call.getSid()).read();
+//                if (recordings != null && recordings.iterator() != null) {
+//                    for (Recording recording : recordings) {;
+//                        Utils.logMessage("RECORDING: " + recording.getUri());
+//                    }
+//                }
+//            }
+//        }
+
+        ResourceSet<Recording> recordings = new RecordingReader(accountSid).read();
+        if (recordings != null && recordings.iterator() != null) {
+            for (Recording recording : recordings) {
+                Utils.logMessage("RECORDING: " + recording.getUri());
+            }
+        }
+
+        long duration = System.currentTimeMillis() - start;
+        Utils.logMessage("TOTAL: " + duration/1000);
     }
 }
