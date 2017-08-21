@@ -167,10 +167,30 @@ public class CallService {
                             .statusCallbackMethod(Method.POST)
                             .statusCallbackEvents(Arrays.asList(Event.INITIATED, Event.RINGING, Event.ANSWERED, Event.COMPLETED))
                             .build())
+                    .record(Dial.Record.RECORD_FROM_RINGING)
                     .build();
         }
 
         twiml = new VoiceResponse.Builder().dial(dial).build();
+
+        try {
+            return twiml.toXml();
+        } catch (TwiMLException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    @RequestMapping(value = "/handle-recording", method = RequestMethod.POST, produces = {"application/xml"})
+    public String handleRecording(@RequestParam Map<String, String> allRequestParams) {
+        Utils.logMessage("MultiValueMap RECORD: " + allRequestParams.toString());
+        String recordingUrl = allRequestParams.get("RecordingUrl");
+
+        VoiceResponse twiml = new VoiceResponse.Builder()
+                .say(new Say.Builder("Thanks for howling... take a listen to what you howled.").build())
+                .play(new Play.Builder(recordingUrl).build())
+                .say(new Say.Builder("Goodbye").build())
+                .build();
 
         try {
             return twiml.toXml();
