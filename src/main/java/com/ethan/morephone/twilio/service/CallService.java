@@ -192,6 +192,8 @@ public class CallService {
         // Record the caller's voice.
         Record record = new Record.Builder()
                 .finishOnKey("*")
+                .recordingStatusCallbackMethod(Method.POST)
+                .recordingStatusCallback("/api/v1/call/record-event")
                 .action("/api/v1/call/handle-recording") // You may need to change this to point to the location of your servlet
                 .build();
         VoiceResponse twiml = new VoiceResponse.Builder().say(pleaseLeaveMessage).record(record).build();
@@ -221,6 +223,42 @@ public class CallService {
             e.printStackTrace();
         }
         return "";
+    }
+
+    @RequestMapping(value = "/record-event", method = RequestMethod.POST, produces = {"application/xml"})
+    public String recordEvent(@RequestParam Map<String, String> allRequestParams) {
+        Utils.logMessage("MultiValueMap RECORD EVENT: " + allRequestParams.toString());
+
+        CallStatus callStatus = CallStatus.getCallStatus(allRequestParams.get("CallStatus"));
+        String callDuration = allRequestParams.get("CallDuration");
+        String parentCallSid = allRequestParams.get("ParentCallSid");
+        String direction = allRequestParams.get("Direction");
+        String from = allRequestParams.get("From");
+        String to = allRequestParams.get("To");
+
+        long duration = 0;
+        if (!TextUtils.isEmpty(callDuration)) {
+            duration = Long.parseLong(callDuration);
+        }
+
+        if (callStatus != null) {
+
+            if (callStatus == CallStatus.COMPLETED && !TextUtils.isEmpty(direction) && !direction.equals("inbound")) {
+                double money = duration * Constants.PRICE_CALL_OUTGOING / 60;
+                Utils.logMessage("BI TRU: " + money);
+
+                String accountSid = allRequestParams.get("AccountSid");
+
+                UsageDTO usage = mUsageService.findByAccountSid(accountSid);
+                mUsageService.updateCallOutgoing(usage.getUserId(), usage.getBalance() - money);
+            } else {
+                Utils.logMessage("DIRECTION: " + direction);
+            }
+            Utils.logMessage("CALL STATUS: " + callStatus.callStatus());
+        }
+
+        return "";
+
     }
 
 }
