@@ -125,7 +125,7 @@ public final class Usage {
     }
 
     public void updateMessageIncoming() {
-        this.balance = this.balance - Constants.PRICE_MESSAGE_INCOMING;
+//        this.balance = this.balance - Constants.PRICE_MESSAGE_INCOMING;
         this.messageIncoming = this.messageIncoming + 1;
 
         Date date = new Date();

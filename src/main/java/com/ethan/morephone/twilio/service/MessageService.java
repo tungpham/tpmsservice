@@ -69,6 +69,8 @@ public class MessageService {
                 Utils.logMessage("TOKEN: " + token);
                 List<String> identities = new ArrayList<>();
                 identities.add(user.getEmail());
+                mUsageService.updateMessageIncoming(user.getId());
+
 //                sendNotification("High", allRequestParams.get("To"), allRequestParams.get("From"), allRequestParams.get("Body"), identities);
 //                sendNotification(token, allRequestParams.get("From") + "-" + allRequestParams.get("To"), allRequestParams.get("Body"));
                 FCM.sendNotification(token, Constants.FCM_SERVER_KEY, from + "-" + to, body);

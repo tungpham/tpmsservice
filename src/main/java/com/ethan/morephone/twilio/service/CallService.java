@@ -78,19 +78,17 @@ public class CallService {
         }
 
         if (callStatus != null) {
-
+            String accountSid = allRequestParams.get("AccountSid");
+            UsageDTO usage = mUsageService.findByAccountSid(accountSid);
             if (callStatus == CallStatus.COMPLETED && !TextUtils.isEmpty(direction) && !direction.equals("inbound")) {
                 double money = duration * Constants.PRICE_CALL_OUTGOING / 60;
-                Utils.logMessage("BI TRU: " + money);
 
-                String accountSid = allRequestParams.get("AccountSid");
-
-                UsageDTO usage = mUsageService.findByAccountSid(accountSid);
                 mUsageService.updateCallOutgoing(usage.getUserId(), usage.getBalance() - money);
             } else {
+                mUsageService.updateCallIncoming(usage.getUserId(), usage.getBalance());
                 Utils.logMessage("DIRECTION: " + direction);
             }
-            Utils.logMessage("CALL STATUS: " + callStatus.callStatus());
+            Utils.logMessage("CALL STATUS: " + callStatus.callStatus() + " ||| DIRECTION: " + direction);
         }
 
         return "";

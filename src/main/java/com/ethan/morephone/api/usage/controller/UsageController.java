@@ -30,10 +30,8 @@ final class UsageController {
 
     @RequestMapping(value = "{id}", method = RequestMethod.GET)
     Response<Object> findByUserId(@PathVariable("id") String userId) {
-        LOGGER.info("Finding usage entry with id: {}", userId);
 
         UsageDTO usageDTO = service.findByUserId(userId);
-        LOGGER.info("Found usage entry with information: {}", usageDTO);
 
         if (usageDTO == null) {
             return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
