@@ -112,17 +112,22 @@ final class PhoneNumberController {
             UsageDTO usageDTO = mUsageService.findByUserId(todoEntry.getUserId());
             if (usageDTO != null && usageDTO.getBalance() > Constants.PRICE_BUY_PHONE_NUMBER) {
 
-                mUsageService.updateBalance(todoEntry.getUserId(), usageDTO.getBalance() - Constants.PRICE_BUY_PHONE_NUMBER);
+                if (todoEntry.getExpire() < System.currentTimeMillis()) {
 
-                PhoneNumberDTO phoneNumberDTO = service.findBySid(todoEntry.getSid());
-                if (phoneNumberDTO != null) {
-                    phoneNumberDTO.setUserId(todoEntry.getUserId());
-                    phoneNumberDTO.setExpire(todoEntry.getExpire());
-                    PhoneNumberDTO created = service.update(phoneNumberDTO);
-                    Utils.logMessage("BUY POOL PHONE NUMBER: " + created);
-                    return new Response<>(created, HTTPStatus.CREATED);
+                    mUsageService.updateBalance(todoEntry.getUserId(), usageDTO.getBalance() - Constants.PRICE_BUY_PHONE_NUMBER);
+
+                    PhoneNumberDTO phoneNumberDTO = service.findBySid(todoEntry.getSid());
+                    if (phoneNumberDTO != null) {
+                        phoneNumberDTO.setUserId(todoEntry.getUserId());
+                        phoneNumberDTO.setExpire(todoEntry.getExpire());
+                        PhoneNumberDTO created = service.update(phoneNumberDTO);
+                        Utils.logMessage("BUY POOL PHONE NUMBER: " + created);
+                        return new Response<>(created, HTTPStatus.CREATED);
+                    } else {
+                        return new Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
+                    }
                 } else {
-                    return new Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
+                    return new Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
                 }
 
             } else {
@@ -197,7 +202,7 @@ final class PhoneNumberController {
         }
     }
 
-    @RequestMapping(value = "/pool",method = RequestMethod.GET)
+    @RequestMapping(value = "/pool", method = RequestMethod.GET)
     Response<Object> findPhoneNumberByPool() {
 
         List<PhoneNumberDTO> phoneNumberDTOS = service.findByPool(true);
