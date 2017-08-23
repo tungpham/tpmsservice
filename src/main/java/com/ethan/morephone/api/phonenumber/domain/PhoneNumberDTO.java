@@ -15,7 +15,9 @@ public final class PhoneNumberDTO {
     private String applicationSid;
     private String forwardPhoneNumber;
     private String forwardEmail;
+    private long expire;
     private boolean isForward;
+    private boolean pool;
     private long createdAt;
     private long updatedAt;
 
@@ -125,6 +127,22 @@ public final class PhoneNumberDTO {
 
     public void setForward(boolean forward) {
         isForward = forward;
+    }
+
+    public long getExpire() {
+        return expire;
+    }
+
+    public void setExpire(long expire) {
+        this.expire = expire;
+    }
+
+    public boolean getPool() {
+        return pool;
+    }
+
+    public void setPool(boolean pool) {
+        this.pool = pool;
     }
 
     @Override

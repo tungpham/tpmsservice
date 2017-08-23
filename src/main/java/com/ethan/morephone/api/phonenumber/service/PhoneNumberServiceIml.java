@@ -40,6 +40,8 @@ public class PhoneNumberServiceIml implements PhoneNumberService {
                 .userId(user.getUserId())
                 .forwardPhoneNumber(user.getForwardPhoneNumber())
                 .forwardEmail(user.getForwardEmail())
+                .expire(user.getExpire())
+                .pool(user.getPool())
                 .build();
 
         persisted = repository.save(persisted);
@@ -140,6 +142,16 @@ public class PhoneNumberServiceIml implements PhoneNumberService {
         }
     }
 
+    @Override
+    public List<PhoneNumberDTO> findByPool(boolean pool) {
+        List<PhoneNumber> phoneNumbers = repository.findByPool(pool);
+        if (phoneNumbers != null) {
+            return convertToDTOs(phoneNumbers);
+        } else {
+            return null;
+        }
+    }
+
     private PhoneNumber findPhoneNumberById(String id) {
         Optional<PhoneNumber> result = repository.findOne(id);
         return result.orElseThrow(() -> new PhoneNumberNotFoundException(id));
@@ -183,8 +195,10 @@ public class PhoneNumberServiceIml implements PhoneNumberService {
         dto.setForwardPhoneNumber(model.getForwardPhoneNumber());
         dto.setForwardEmail(model.getForwardEmail());
         dto.setForward(model.isForward());
+        dto.setExpire(model.getExpire());
         dto.setCreatedAt(model.getCreatedAt());
         dto.setUpdatedAt(model.getUpdatedAt());
+        dto.setPool(model.getPool());
 
         return dto;
     }

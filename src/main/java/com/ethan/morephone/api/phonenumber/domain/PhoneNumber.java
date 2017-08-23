@@ -19,6 +19,8 @@ public final class PhoneNumber {
     private String forwardEmail;
     private boolean isForward;
     private String userId;
+    private long expire;
+    private boolean pool;
     private long createdAt;
     private long updatedAt;
 
@@ -33,6 +35,8 @@ public final class PhoneNumber {
         this.forwardEmail = builder.forwardEmail;
         this.isForward = builder.isForward;
         this.userId = builder.userId;
+        this.expire = builder.expire;
+        this.pool = builder.pool;
         Date date = new Date();
         createdAt = date.getTime();
         updatedAt = date.getTime();
@@ -122,6 +126,22 @@ public final class PhoneNumber {
         this.forwardEmail = forwardEmail;
     }
 
+    public long getExpire() {
+        return expire;
+    }
+
+    public void setExpire(long expire) {
+        this.expire = expire;
+    }
+
+    public boolean getPool() {
+        return pool;
+    }
+
+    public void setPool(boolean pool) {
+        this.pool = pool;
+    }
+
     public void enableForward(boolean isForward){
         this.isForward = isForward;
         Date date = new Date();
@@ -157,7 +177,9 @@ public final class PhoneNumber {
         private String userId;
         private String forwardPhoneNumber;
         private String forwardEmail;
+        private long expire = 0;
         private boolean isForward;
+        private boolean pool;
 
         private Builder() {
         }
@@ -183,6 +205,11 @@ public final class PhoneNumber {
             return this;
         }
 
+        public Builder expire(long expire) {
+            this.expire = expire;
+            return this;
+        }
+
         public Builder forwardEmail(String forwardEmail) {
             this.forwardEmail = forwardEmail;
             return this;
@@ -190,6 +217,11 @@ public final class PhoneNumber {
 
         public Builder isForward(boolean isForward) {
             this.isForward = isForward;
+            return this;
+        }
+
+        public Builder pool(boolean pool) {
+            this.pool = pool;
             return this;
         }
 

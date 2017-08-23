@@ -47,4 +47,6 @@ public interface PhoneNumberRepository extends Repository<PhoneNumber, String> {
     List<PhoneNumber> findByUserId(String userId);
 
     List<PhoneNumber> findByPhoneNumber(String phoneNumber);
+
+    List<PhoneNumber> findByPool(boolean pool);
 }

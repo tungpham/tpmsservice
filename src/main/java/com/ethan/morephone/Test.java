@@ -17,7 +17,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by truongnguyen on 7/25/17.
@@ -37,7 +42,8 @@ public class Test {
 //        application();
 //        service = new PhoneNumberServiceIml();\
 //        messageForward();
-        getRecord();
+//        getRecord();
+        testTask();
     }
 
 
@@ -244,5 +250,30 @@ public class Test {
 
         long duration = System.currentTimeMillis() - start;
         Utils.logMessage("TOTAL: " + duration/1000);
+    }
+
+    private static ScheduledExecutorService mExecutorService;
+    private static ScheduledFuture<?> mScheduleFuture;
+
+    private static void testTask(){
+        mExecutorService = Executors.newSingleThreadScheduledExecutor();
+        stopDonutProgressUpdate();
+        if (!mExecutorService.isShutdown()) {
+            mScheduleFuture = mExecutorService.schedule(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            Utils.logMessage("START "+ new Date());
+                        }
+                    },
+                    10,
+                    TimeUnit.SECONDS);
+        }
+    }
+
+    private static void stopDonutProgressUpdate() {
+        if (mScheduleFuture != null) {
+            mScheduleFuture.cancel(false);
+        }
     }
 }

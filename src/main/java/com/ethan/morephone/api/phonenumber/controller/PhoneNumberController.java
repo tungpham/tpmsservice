@@ -105,32 +105,69 @@ final class PhoneNumberController {
 
     }
 
+    @RequestMapping(value = "/pool", method = RequestMethod.POST, produces = "application/json")
+    Response<Object> buyPoolPhoneNumber(@RequestBody @Valid PhoneNumberDTO todoEntry) {
+        try {
+
+            UsageDTO usageDTO = mUsageService.findByUserId(todoEntry.getUserId());
+            if (usageDTO != null && usageDTO.getBalance() > Constants.PRICE_BUY_PHONE_NUMBER) {
+
+                mUsageService.updateBalance(todoEntry.getUserId(), usageDTO.getBalance() - Constants.PRICE_BUY_PHONE_NUMBER);
+
+                PhoneNumberDTO phoneNumberDTO = service.findBySid(todoEntry.getSid());
+                if (phoneNumberDTO != null) {
+                    phoneNumberDTO.setUserId(todoEntry.getUserId());
+                    phoneNumberDTO.setExpire(todoEntry.getExpire());
+                    PhoneNumberDTO created = service.update(phoneNumberDTO);
+                    Utils.logMessage("BUY POOL PHONE NUMBER: " + created);
+                    return new Response<>(created, HTTPStatus.CREATED);
+                } else {
+                    return new Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
+                }
+
+            } else {
+                UserDTO userDTO = mUserService.findById(todoEntry.getUserId());
+                FCM.sendNotification(userDTO.getToken(), Constants.FCM_SERVER_KEY, HTTPStatus.MONEY.getReasonPhrase(), "");
+                return new Response<>(HTTPStatus.MONEY.getReasonPhrase(), HTTPStatus.MONEY);
+            }
+
+        } catch (Exception e) {
+            Utils.logMessage("EROR CREATE");
+            return new Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
+        }
+
+    }
+
     @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
     Response<Object> delete(@PathVariable("id") String id,
                             @RequestParam("account_sid") String accountSid,
                             @RequestParam("auth_token") String authToken) {
-//        PhoneNumberDTO deleted = service.delete(id);
 
         Utils.logMessage("accountSid: " + accountSid);
         Utils.logMessage("authToken: " + authToken);
 
-//        if (deleted != null) {
-        Twilio.init(accountSid, authToken);
-        IncomingPhoneNumberDeleter deleter = new IncomingPhoneNumberDeleter(id);
-        try {
-            if (deleter.delete()) {
-                Utils.logMessage("DELETE PHONE NUMBER SUCCESS ");
-                return new Response<>(HTTPStatus.OK.getReasonPhrase(), HTTPStatus.OK);
-            } else {
-                Utils.logMessage("DELETE PHONE NUMBER ERROR ");
+        PhoneNumberDTO phoneNumberDTO = service.findById(id);
+        if (phoneNumberDTO.getPool()) {
+            phoneNumberDTO.setUserId("");
+            phoneNumberDTO.setExpire(0);
+            service.update(phoneNumberDTO);
+            return new Response<>(HTTPStatus.OK.getReasonPhrase(), HTTPStatus.OK);
+        } else {
+            Twilio.init(accountSid, authToken);
+            IncomingPhoneNumberDeleter deleter = new IncomingPhoneNumberDeleter(id);
+            try {
+                if (deleter.delete()) {
+                    Utils.logMessage("DELETE PHONE NUMBER SUCCESS ");
+                    service.delete(id);
+                    return new Response<>(HTTPStatus.OK.getReasonPhrase(), HTTPStatus.OK);
+                } else {
+                    Utils.logMessage("DELETE PHONE NUMBER ERROR ");
+                    return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+                }
+            } catch (Exception e) {
                 return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
             }
-        } catch (Exception e) {
-            return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
         }
-//        } else {
-//            return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
-//        }
     }
 
     @RequestMapping(value = "/{id}/forward", method = RequestMethod.PUT)
@@ -157,6 +194,18 @@ final class PhoneNumberController {
             return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
         } else {
             return new Response<>(updated, HTTPStatus.OK);
+        }
+    }
+
+    @RequestMapping(value = "/pool",method = RequestMethod.GET)
+    Response<Object> findPhoneNumberByPool() {
+
+        List<PhoneNumberDTO> phoneNumberDTOS = service.findByPool(true);
+
+        if (phoneNumberDTOS != null && !phoneNumberDTOS.isEmpty()) {
+            return new Response<>(phoneNumberDTOS, HTTPStatus.OK);
+        } else {
+            return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
         }
     }
 
