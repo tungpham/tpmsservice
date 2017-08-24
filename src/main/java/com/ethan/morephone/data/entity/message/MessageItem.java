@@ -1,7 +1,7 @@
 package com.ethan.morephone.data.entity.message;
 
 import com.ethan.morephone.utils.DateUtils;
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Date;
 
@@ -10,69 +10,65 @@ import java.util.Date;
  */
 public class MessageItem implements Comparable<MessageItem> {
 
-    @SerializedName("sid")
+    @JsonProperty("sid")
     public String sid;
 
-    @SerializedName("date_created")
+    @JsonProperty("date_created")
     public String dateCreated;
 
-    @SerializedName("date_updated")
+    @JsonProperty("date_updated")
     public String dateUpdated;
 
-    @SerializedName("date_sent")
+    @JsonProperty("date_sent")
     public String dateSent;
 
-    @SerializedName("account_sid")
+    @JsonProperty("account_sid")
     public String accountSid;
 
-    @SerializedName("to")
+    @JsonProperty("to")
     public String to;
 
-    @SerializedName("from")
+    @JsonProperty("from")
     public String from;
 
-    @SerializedName("messaging_service_sid")
+    @JsonProperty("messaging_service_sid")
     public String messagingServiceSid;
 
-    @SerializedName("body")
+    @JsonProperty("body")
     public String body;
 
-    @SerializedName("status")
+    @JsonProperty("status")
     public String status;
 
-    @SerializedName("num_segments")
+    @JsonProperty("num_segments")
     public String numSegments;
 
-    @SerializedName("num_media")
+    @JsonProperty("num_media")
     public String numMedia;
 
-    @SerializedName("direction")
+    @JsonProperty("direction")
     public String direction;
 
-    @SerializedName("api_version")
+    @JsonProperty("api_version")
     public String apiVersion;
 
-    @SerializedName("price")
+    @JsonProperty("price")
     public String price;
 
-    @SerializedName("price_unit")
+    @JsonProperty("price_unit")
     public String priceUnit;
 
-    @SerializedName("error_code")
+    @JsonProperty("error_code")
     public String errorCode;
 
-    @SerializedName("error_message")
+    @JsonProperty("error_message")
     public String errorMessage;
 
-    @SerializedName("uri")
+    @JsonProperty("uri")
     public String uri;
 
-    @SerializedName("subresource_uris")
+    @JsonProperty("subresource_uris")
     public SubresourceUris subresourceUris;
-
-    public boolean isLoading = false;
-    public boolean isSendFail = false;
-
 
     public MessageItem(String id,
                        String dateCreated,
@@ -134,7 +130,7 @@ public class MessageItem implements Comparable<MessageItem> {
 
     public class SubresourceUris {
 
-        @SerializedName("media")
+        @JsonProperty("media")
         private String media;
 
         public SubresourceUris(String media) {

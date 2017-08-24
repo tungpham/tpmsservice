@@ -3,6 +3,7 @@ package com.ethan.morephone.twilio.model;
 import com.ethan.morephone.data.entity.message.MessageItem;
 import com.ethan.morephone.utils.DateUtils;
 import com.ethan.morephone.utils.TextUtils;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Date;
 import java.util.List;
@@ -12,8 +13,11 @@ import java.util.List;
  */
 public class ConversationModel implements Comparable<ConversationModel> {
 
+    @JsonProperty("phone_number")
     private String mPhoneNumber;
+    @JsonProperty("date_created")
     private String mDateCreated;
+    @JsonProperty("message_items")
     private List<MessageItem> mMessageItems;
 
     public ConversationModel(String phoneNumber, String dateCreated, List<MessageItem> messageItems) {
