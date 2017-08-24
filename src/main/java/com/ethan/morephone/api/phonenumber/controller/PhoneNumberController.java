@@ -156,7 +156,7 @@ final class PhoneNumberController {
         Utils.logMessage("accountSid: " + accountSid);
         Utils.logMessage("authToken: " + authToken);
 
-        PhoneNumberDTO phoneNumberDTO = service.findById(id);
+        PhoneNumberDTO phoneNumberDTO = service.findBySid(id);
         if (phoneNumberDTO != null) {
             if (phoneNumberDTO.getPool()) {
                 phoneNumberDTO.setUserId("");
