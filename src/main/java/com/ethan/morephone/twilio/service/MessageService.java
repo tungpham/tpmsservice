@@ -11,12 +11,16 @@ import com.ethan.morephone.data.entity.message.MessageItem;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.twilio.email.EmailServiceImpl;
 import com.ethan.morephone.twilio.fcm.FCM;
+import com.ethan.morephone.twilio.model.ConversationModel;
 import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
+import com.twilio.Twilio;
+import com.twilio.base.ResourceSet;
 import com.twilio.exception.TwilioException;
 import com.twilio.http.TwilioRestClient;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.api.v2010.account.MessageCreator;
+import com.twilio.rest.api.v2010.account.MessageReader;
 import com.twilio.twiml.Body;
 import com.twilio.twiml.MessagingResponse;
 import com.twilio.twiml.TwiMLException;
@@ -25,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -184,4 +189,69 @@ public class MessageService {
         return new com.ethan.morephone.http.Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
     }
 
+
+    @GetMapping(value = "/retrieve-message")
+    com.ethan.morephone.http.Response<Object> retrieveMessage(@RequestParam(value = "account_sid") String accountSid,
+                                                          @RequestParam(value = "auth_token") String authToken,
+                                                          @RequestParam(value = "phone_number") String phoneNumber) {
+        Twilio.init(accountSid, authToken);
+
+        HashMap<String, List<com.twilio.rest.api.v2010.account.Message>> mArrayMap = new HashMap<>();
+
+        ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesIncoming = new MessageReader(accountSid).setTo(new PhoneNumber(phoneNumber)).read();
+
+        if (messagesIncoming != null) {
+            mArrayMap.putAll(executeData(messagesIncoming, true));
+        }
+
+        ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesOutgoing = new MessageReader(accountSid).setFrom(new PhoneNumber(phoneNumber)).read();
+
+        if (messagesOutgoing != null) {
+            mArrayMap.putAll(executeData(messagesOutgoing, false));
+        }
+
+        List<ConversationModel> mConversationModels = new ArrayList<>();
+        for (Map.Entry entry : mArrayMap.entrySet()) {
+            List<com.twilio.rest.api.v2010.account.Message> items = mArrayMap.get(entry.getKey());
+            if (items != null && !items.isEmpty()) {
+//                Collections.sort(items);
+                String dateCreated = items.get(items.size() - 1).getDateCreated().toString();
+                Utils.logMessage("DATE CREATED: " + dateCreated);
+                mConversationModels.add(new ConversationModel(entry.getKey().toString(), dateCreated, items));
+            }
+        }
+
+        return new com.ethan.morephone.http.Response<>(mConversationModels, HTTPStatus.OK);
+    }
+
+    private static HashMap<String, List<Message>> executeData(ResourceSet<Message> messageItems, boolean isComing) {
+        HashMap<String, List<com.twilio.rest.api.v2010.account.Message>> mArrayMap = new HashMap<>();
+        if (isComing) {
+            for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
+                if (messageItem.getStatus() != null && messageItem.getStatus() == com.twilio.rest.api.v2010.account.Message.Status.RECEIVED) {
+                    if (mArrayMap.containsKey(messageItem.getFrom().toString())) {
+                        mArrayMap.get(messageItem.getFrom().toString()).add(messageItem);
+                    } else {
+                        List<com.twilio.rest.api.v2010.account.Message> items = new ArrayList<>();
+                        items.add(messageItem);
+                        mArrayMap.put(messageItem.getFrom().toString(), items);
+                    }
+                }
+
+            }
+        } else {
+            for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
+                if (messageItem.getStatus() != null && messageItem.getStatus() == com.twilio.rest.api.v2010.account.Message.Status.DELIVERED) {
+                    if (mArrayMap.containsKey(messageItem.getTo())) {
+                        mArrayMap.get(messageItem.getTo()).add(messageItem);
+                    } else {
+                        List<com.twilio.rest.api.v2010.account.Message> items = new ArrayList<>();
+                        items.add(messageItem);
+                        mArrayMap.put(messageItem.getTo(), items);
+                    }
+                }
+            }
+        }
+        return mArrayMap;
+    }
 }

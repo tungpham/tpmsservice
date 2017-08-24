@@ -1,6 +1,8 @@
 package com.ethan.morephone;
 
 import com.ethan.morephone.twilio.fcm.FCM;
+import com.ethan.morephone.twilio.model.ConversationModel;
+import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
 import com.twilio.Twilio;
 import com.twilio.base.ResourceSet;
@@ -8,17 +10,16 @@ import com.twilio.http.HttpMethod;
 import com.twilio.rest.api.v2010.account.ApplicationCreator;
 import com.twilio.rest.api.v2010.account.ApplicationReader;
 import com.twilio.rest.api.v2010.account.ApplicationUpdater;
+import com.twilio.rest.api.v2010.account.MessageReader;
 import com.twilio.rest.api.v2010.account.call.Recording;
 import com.twilio.rest.api.v2010.account.call.RecordingReader;
 import com.twilio.twiml.*;
-import org.apache.http.util.TextUtils;
+import com.twilio.type.PhoneNumber;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -43,7 +44,9 @@ public class Test {
 //        service = new PhoneNumberServiceIml();\
 //        messageForward();
 //        getRecord();
-        testTask();
+//        testTask();
+
+        loadConversationMessage("AC1bb60516853a77bcf93ea89e4a7e3b45","bb82a5d15eca8e8ae4171173ce150014","+14152365339");
     }
 
 
@@ -249,13 +252,13 @@ public class Test {
         }
 
         long duration = System.currentTimeMillis() - start;
-        Utils.logMessage("TOTAL: " + duration/1000);
+        Utils.logMessage("TOTAL: " + duration / 1000);
     }
 
     private static ScheduledExecutorService mExecutorService;
     private static ScheduledFuture<?> mScheduleFuture;
 
-    private static void testTask(){
+    private static void testTask() {
         mExecutorService = Executors.newSingleThreadScheduledExecutor();
         stopDonutProgressUpdate();
         if (!mExecutorService.isShutdown()) {
@@ -263,7 +266,7 @@ public class Test {
                     new Runnable() {
                         @Override
                         public void run() {
-                            Utils.logMessage("START "+ new Date());
+                            Utils.logMessage("START " + new Date());
                         }
                     },
                     10,
@@ -275,5 +278,78 @@ public class Test {
         if (mScheduleFuture != null) {
             mScheduleFuture.cancel(false);
         }
+    }
+
+
+    private static void loadConversationMessage(String accountSid, String authToken, String phoneNumber) {
+        Twilio.init(accountSid, authToken);
+
+        HashMap<String, List<com.twilio.rest.api.v2010.account.Message>> mArrayMap = new HashMap<>();
+
+        ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesIncoming = new MessageReader(accountSid).setTo(new PhoneNumber(phoneNumber)).read();
+
+        if (messagesIncoming != null) {
+            mArrayMap.putAll(executeData(messagesIncoming, true));
+        }
+
+        ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesOutgoing = new MessageReader(accountSid).setFrom(new PhoneNumber(phoneNumber)).read();
+
+        if (messagesOutgoing != null) {
+            mArrayMap.putAll(executeData(messagesOutgoing, false));
+        }
+
+        List<ConversationModel> mConversationModels = new ArrayList<>();
+        for (Map.Entry entry : mArrayMap.entrySet()) {
+            List<com.twilio.rest.api.v2010.account.Message> items = mArrayMap.get(entry.getKey());
+            if (items != null && !items.isEmpty()) {
+//                Collections.sort(items);
+                String dateCreated = items.get(items.size() - 1).getDateCreated().toString();
+                Utils.logMessage("DATE CREATED: " + dateCreated);
+                mConversationModels.add(new ConversationModel(entry.getKey().toString(), dateCreated, items));
+            }
+        }
+
+        for (ConversationModel conversationModel : mConversationModels) {
+            Utils.logMessage(conversationModel.getPhoneNumber() + " DATE " + conversationModel.getDateCreated());
+            for (com.twilio.rest.api.v2010.account.Message message : conversationModel.getMessageItems()) {
+                Utils.logMessage(message.getBody());
+            }
+
+            Utils.logMessage("**********************************");
+        }
+    }
+
+    private static HashMap<String, List<com.twilio.rest.api.v2010.account.Message>> mArrayMap = new HashMap<>();
+    private static List<ConversationModel> mConversationModels = new ArrayList<>();
+
+    private static HashMap<String, List<com.twilio.rest.api.v2010.account.Message>> executeData(ResourceSet<com.twilio.rest.api.v2010.account.Message> messageItems, boolean isComing) {
+        HashMap<String, List<com.twilio.rest.api.v2010.account.Message>> mArrayMap = new HashMap<>();
+        if (isComing) {
+            for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
+                if (messageItem.getStatus() != null && messageItem.getStatus() == com.twilio.rest.api.v2010.account.Message.Status.RECEIVED) {
+                    if (mArrayMap.containsKey(messageItem.getFrom().toString())) {
+                        mArrayMap.get(messageItem.getFrom().toString()).add(messageItem);
+                    } else {
+                        List<com.twilio.rest.api.v2010.account.Message> items = new ArrayList<>();
+                        items.add(messageItem);
+                        mArrayMap.put(messageItem.getFrom().toString(), items);
+                    }
+                }
+
+            }
+        } else {
+            for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
+                if (messageItem.getStatus() != null && messageItem.getStatus() == com.twilio.rest.api.v2010.account.Message.Status.DELIVERED) {
+                    if (mArrayMap.containsKey(messageItem.getTo())) {
+                        mArrayMap.get(messageItem.getTo()).add(messageItem);
+                    } else {
+                        List<com.twilio.rest.api.v2010.account.Message> items = new ArrayList<>();
+                        items.add(messageItem);
+                        mArrayMap.put(messageItem.getTo(), items);
+                    }
+                }
+            }
+        }
+        return mArrayMap;
     }
 }
