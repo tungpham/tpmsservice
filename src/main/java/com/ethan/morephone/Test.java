@@ -2,16 +2,14 @@ package com.ethan.morephone;
 
 import com.ethan.morephone.data.entity.message.MessageItem;
 import com.ethan.morephone.twilio.fcm.FCM;
+import com.ethan.morephone.twilio.model.CallDTO;
 import com.ethan.morephone.twilio.model.ConversationModel;
 import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
 import com.twilio.Twilio;
 import com.twilio.base.ResourceSet;
 import com.twilio.http.HttpMethod;
-import com.twilio.rest.api.v2010.account.ApplicationCreator;
-import com.twilio.rest.api.v2010.account.ApplicationReader;
-import com.twilio.rest.api.v2010.account.ApplicationUpdater;
-import com.twilio.rest.api.v2010.account.MessageReader;
+import com.twilio.rest.api.v2010.account.*;
 import com.twilio.rest.api.v2010.account.call.Recording;
 import com.twilio.rest.api.v2010.account.call.RecordingReader;
 import com.twilio.twiml.*;
@@ -49,7 +47,8 @@ public class Test {
 //        getRecord();
 //        testTask();
 
-        loadConversationMessage("AC1bb60516853a77bcf93ea89e4a7e3b45","bb82a5d15eca8e8ae4171173ce150014","+14152365339");
+//        getRecordData("AC1bb60516853a77bcf93ea89e4a7e3b45", "bb82a5d15eca8e8ae4171173ce150014", "+14152365339");
+        retrieveCallLogs("AC588786f8b8b8a4ad83c5d576646ae764", "5767b6743ca34d734e1c94d694e72d03", "+15097616265");
     }
 
 
@@ -356,7 +355,7 @@ public class Test {
         return mArrayMap;
     }
 
-    private static MessageItem convertMessage(com.twilio.rest.api.v2010.account.Message message){
+    private static MessageItem convertMessage(com.twilio.rest.api.v2010.account.Message message) {
         String formatDate = "E, d MMM yyyy HH:mm:ss Z";
         return new MessageItem(message.getSid(),
                 message.getDateCreated() == null ? "" : message.getDateCreated().toString(formatDate),
@@ -392,6 +391,98 @@ public class Test {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private static void getRecordData(String accountSid, String authToken, String phoneNumber) {
+        List<com.ethan.morephone.twilio.model.Record> records = new ArrayList<>();
+        Twilio.init(accountSid, authToken);
+        ResourceSet<com.twilio.rest.api.v2010.account.Recording> recordings = new com.twilio.rest.api.v2010.account.RecordingReader(accountSid).read();
+        if (recordings != null) {
+            for (com.twilio.rest.api.v2010.account.Recording recording : recordings) {
+                Utils.logMessage("RECORD: " + recording.getDuration());
+                Call call = new CallFetcher(accountSid, recording.getCallSid()).fetch();
+
+                if (call != null && call.getTo().equals(phoneNumber)) {
+                    Utils.logMessage("COME");
+                    records.add(new com.ethan.morephone.twilio.model.Record(
+                            recording.getSid(),
+                            recording.getAccountSid(),
+                            recording.getCallSid(),
+                            phoneNumber,
+                            recording.getDuration(),
+                            recording.getDateCreated().toString(Constants.FORMAT_DATE),
+                            recording.getApiVersion(),
+                            recording.getDateUpdated().toString(Constants.FORMAT_DATE),
+                            recording.getStatus().toString(),
+                            recording.getSource().name(),
+                            recording.getChannels(),
+                            recording.getPrice().toString(),
+                            recording.getPriceUnit(),
+                            recording.getUri()
+                    ));
+                }
+            }
+        }
+
+        for (com.ethan.morephone.twilio.model.Record record : records) {
+            Utils.logMessage("KQ: " + record.duration);
+        }
+    }
+
+    private static void retrieveCallLogs(String accountSid, String authToken, String phoneNumber) {
+        Twilio.init(accountSid, authToken);
+
+        List<CallDTO> calls = new ArrayList<>();
+
+        ResourceSet<Call> callsIncoming = new CallReader(accountSid).setTo(new PhoneNumber(phoneNumber)).read();
+
+        if(callsIncoming != null){
+            for(Call call : callsIncoming){
+                calls.add(convertToDTO(call));
+            }
+        }
+
+        ResourceSet<Call> callsOutgoing = new CallReader(accountSid).setFrom(new PhoneNumber(phoneNumber)).read();
+
+        if(callsOutgoing != null){
+            for(Call call : callsOutgoing){
+                calls.add(convertToDTO(call));
+            }
+        }
+
+        Collections.sort(calls);
+    }
+
+
+    private static CallDTO convertToDTO(Call call) {
+        return new CallDTO(call.getSid(),
+                call.getDateCreated().toString(Constants.FORMAT_DATE),
+                call.getDateUpdated().toString(Constants.FORMAT_DATE),
+                call.getParentCallSid(),
+                call.getAccountSid(),
+                call.getTo(),
+                call.getFrom(),
+                call.getToFormatted(),
+                call.getFromFormatted(),
+                call.getPhoneNumberSid(),
+                call.getStatus().name(),
+                call.getStartTime().toString(Constants.FORMAT_DATE),
+                call.getEndTime().toString(Constants.FORMAT_DATE),
+                call.getDuration(),
+                call.getPrice() == null ? "" : call.getPrice().toString(),
+                call.getPriceUnit().getCurrencyCode(),
+                call.getDirection(),
+                call.getAnsweredBy(),
+                call.getApiVersion(),
+                call.getAnnotation(),
+                call.getForwardedFrom(),
+                call.getGroupSid(),
+                call.getCallerName(),
+                call.getUri(),
+                null
+
+        );
+
     }
 
 }

@@ -264,11 +264,10 @@ public class MessageService {
     }
 
     private static MessageItem convertMessage(com.twilio.rest.api.v2010.account.Message message) {
-        String formatDate = "E, d MMM yyyy HH:mm:ss Z";
         return new MessageItem(message.getSid(),
-                message.getDateCreated() == null ? "" : message.getDateCreated().toString(formatDate),
-                message.getDateUpdated() == null ? "" : message.getDateUpdated().toString(formatDate),
-                message.getDateSent() == null ? "" : message.getDateSent().toString(formatDate),
+                message.getDateCreated() == null ? "" : message.getDateCreated().toString(Constants.FORMAT_DATE),
+                message.getDateUpdated() == null ? "" : message.getDateUpdated().toString(Constants.FORMAT_DATE),
+                message.getDateSent() == null ? "" : message.getDateSent().toString(Constants.FORMAT_DATE),
                 message.getAccountSid(),
                 message.getTo(),
                 message.getFrom() == null ? "" : message.getFrom().toString(),

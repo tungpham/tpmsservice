@@ -11,17 +11,24 @@ import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.http.Response;
 import com.ethan.morephone.twilio.call.CallStatus;
 import com.ethan.morephone.twilio.fcm.FCM;
+import com.ethan.morephone.twilio.model.CallDTO;
 import com.ethan.morephone.utils.Utils;
+import com.twilio.Twilio;
+import com.twilio.base.ResourceSet;
+import com.twilio.rest.api.v2010.account.Call;
+import com.twilio.rest.api.v2010.account.CallFetcher;
+import com.twilio.rest.api.v2010.account.CallReader;
+import com.twilio.rest.api.v2010.account.Recording;
 import com.twilio.sdk.CapabilityToken;
 import com.twilio.sdk.client.TwilioCapability;
 import com.twilio.twiml.*;
 import com.twilio.twiml.Number;
+import com.twilio.type.PhoneNumber;
 import org.apache.http.util.TextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by truongnguyen on 6/30/17.
@@ -98,16 +105,16 @@ public class CallService {
 
             if (phoneNumberFrom != null) {
                 UsageDTO usageFrom = mUsageService.findByUserId(phoneNumberFrom.getUserId());
-                if(usageFrom != null) {
+                if (usageFrom != null) {
                     double moneyFrom = duration * Constants.PRICE_CALL_OUTGOING / 60;
                     mUsageService.updateCallOutgoing(usageFrom.getUserId(), usageFrom.getBalance() - moneyFrom);
                 }
             }
 
             PhoneNumberDTO phoneNumberTo = mPhoneNumberService.findByPhoneNumber(to);
-            if(phoneNumberTo != null) {
+            if (phoneNumberTo != null) {
                 UsageDTO usageTo = mUsageService.findByUserId(phoneNumberTo.getUserId());
-                if(usageTo != null) {
+                if (usageTo != null) {
                     double moneyTo = duration * Constants.PRICE_CALL_INCOMING / 60;
                     mUsageService.updateCallOutgoing(usageTo.getUserId(), usageTo.getBalance() - moneyTo);
                 }
@@ -291,4 +298,119 @@ public class CallService {
 
     }
 
+    @GetMapping(value = "/records")
+    com.ethan.morephone.http.Response<Object> retrieveRecords(@RequestParam(value = "account_sid") String accountSid,
+                                                              @RequestParam(value = "auth_token") String authToken,
+                                                              @RequestParam(value = "phone_number") String phoneNumber) {
+        PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(phoneNumber);
+        if (phoneNumberDTO != null) {
+            if (phoneNumberDTO.getPool()) {
+                Twilio.init(Constants.ACCOUNT_SID, Constants.AUTH_TOKEN);
+            } else {
+                Twilio.init(accountSid, authToken);
+            }
+            List<com.ethan.morephone.twilio.model.Record> records = new ArrayList<>();
+
+            ResourceSet<Recording> recordings = new com.twilio.rest.api.v2010.account.RecordingReader(accountSid).read();
+            if (recordings != null) {
+                for (com.twilio.rest.api.v2010.account.Recording recording : recordings) {
+                    Call call = new CallFetcher(accountSid, recording.getCallSid()).fetch();
+
+                    if (call != null && call.getTo().equals(phoneNumber)) {
+                        records.add(new com.ethan.morephone.twilio.model.Record(
+                                recording.getSid(),
+                                recording.getAccountSid(),
+                                recording.getCallSid(),
+                                phoneNumber,
+                                recording.getDuration(),
+                                recording.getDateCreated().toString(Constants.FORMAT_DATE),
+                                recording.getApiVersion(),
+                                recording.getDateUpdated().toString(Constants.FORMAT_DATE),
+                                recording.getStatus().toString(),
+                                recording.getSource().name(),
+                                recording.getChannels(),
+                                recording.getPrice().toString(),
+                                recording.getPriceUnit(),
+                                recording.getUri()
+                        ));
+                    }
+                }
+            }
+            return new com.ethan.morephone.http.Response<>(records, HTTPStatus.OK);
+        } else {
+            return new com.ethan.morephone.http.Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+        }
+    }
+
+
+    @GetMapping(value = "/logs")
+    com.ethan.morephone.http.Response<Object> retrieveCallLogs(@RequestParam(value = "account_sid") String accountSid,
+                                                               @RequestParam(value = "auth_token") String authToken,
+                                                               @RequestParam(value = "phone_number") String phoneNumber) {
+        PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(phoneNumber);
+        if (phoneNumberDTO != null) {
+            if (phoneNumberDTO.getPool()) {
+                Twilio.init(Constants.ACCOUNT_SID, Constants.AUTH_TOKEN);
+            } else {
+                Twilio.init(accountSid, authToken);
+            }
+
+            List<CallDTO> calls = new ArrayList<>();
+
+            ResourceSet<Call> callsIncoming = new CallReader(accountSid).setTo(new PhoneNumber(phoneNumber)).read();
+
+            if (callsIncoming != null) {
+                for (Call call : callsIncoming) {
+                    calls.add(convertToDTO(call));
+                }
+            }
+
+            ResourceSet<Call> callsOutgoing = new CallReader(accountSid).setFrom(new PhoneNumber(phoneNumber)).read();
+
+            if (callsOutgoing != null) {
+                for (Call call : callsOutgoing) {
+                    calls.add(convertToDTO(call));
+                }
+            }
+
+            if (!calls.isEmpty()) {
+                Collections.sort(calls);
+                return new com.ethan.morephone.http.Response<>(calls, HTTPStatus.OK);
+            }
+        }
+
+        return new com.ethan.morephone.http.Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+    }
+
+
+    private CallDTO convertToDTO(Call call) {
+        return new CallDTO(call.getSid(),
+                call.getDateCreated().toString(Constants.FORMAT_DATE),
+                call.getDateUpdated().toString(Constants.FORMAT_DATE),
+                call.getParentCallSid(),
+                call.getAccountSid(),
+                call.getTo(),
+                call.getFrom(),
+                call.getToFormatted(),
+                call.getFromFormatted(),
+                call.getPhoneNumberSid(),
+                call.getStatus().name(),
+                call.getStartTime().toString(Constants.FORMAT_DATE),
+                call.getEndTime().toString(Constants.FORMAT_DATE),
+                call.getDuration(),
+                call.getPrice() == null ? "" : call.getPrice().toString(),
+                call.getPriceUnit().getCurrencyCode(),
+                call.getDirection(),
+                call.getAnsweredBy(),
+                call.getApiVersion(),
+                call.getAnnotation(),
+                call.getForwardedFrom(),
+                call.getGroupSid(),
+                call.getCallerName(),
+                call.getUri(),
+                null
+
+        );
+
+    }
 }

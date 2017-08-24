@@ -26,4 +26,6 @@ public class Constants {
     public static final String ACCOUNT_SID = "ACe5b9f66da3be351d9b8a02706b34b41d";
     public static final String AUTH_TOKEN = "764cd986c4040f7339fa24d0723ece87";
     public static final String APPLICATION_ID = "AP9f42c0e2c9424f7286cc3c42d3c6c7c0";
+
+    public static final String FORMAT_DATE = "E, d MMM yyyy HH:mm:ss Z";
 }
