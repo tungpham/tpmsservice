@@ -6,6 +6,7 @@ package com.ethan.morephone;
 public class Constants {
 
     public static final double PRICE_BUY_PHONE_NUMBER = 3;
+    public static final double PRICE_BUY_POOL_PHONE_NUMBER = 1;
     public static final double PRICE_MESSAGE_INCOMING = 0.01;
     public static final double PRICE_MESSAGE_OUTGOING = 0.01;
     public static final double PRICE_CALL_INCOMING = 0.01;

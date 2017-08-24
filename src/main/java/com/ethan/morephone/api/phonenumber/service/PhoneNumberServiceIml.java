@@ -146,7 +146,7 @@ public class PhoneNumberServiceIml implements PhoneNumberService {
 
     @Override
     public List<PhoneNumberDTO> findByPool(boolean pool) {
-        List<PhoneNumber> phoneNumbers = repository.findByPool(pool);
+        List<PhoneNumber> phoneNumbers = repository.findByPoolAndUserId(pool, "");
         if (phoneNumbers != null) {
             return convertToDTOs(phoneNumbers);
         } else {

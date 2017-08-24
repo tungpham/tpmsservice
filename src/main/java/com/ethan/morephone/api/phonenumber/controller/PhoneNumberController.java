@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -113,13 +114,17 @@ final class PhoneNumberController {
                 Utils.logMessage("EXPIRE: " + todoEntry.getExpire());
                 if (todoEntry.getExpire() > System.currentTimeMillis()) {
 
-                    mUsageService.updateBalance(todoEntry.getUserId(), usageDTO.getBalance() - Constants.PRICE_BUY_PHONE_NUMBER);
-
                     PhoneNumberDTO phoneNumberDTO = service.findByPhoneNumber(todoEntry.getPhoneNumber());
                     if (phoneNumberDTO != null) {
                         phoneNumberDTO.setUserId(todoEntry.getUserId());
                         phoneNumberDTO.setExpire(todoEntry.getExpire());
                         PhoneNumberDTO created = service.update(phoneNumberDTO);
+
+                        long diffDate = Utils.getDifferenceDays(new Date(System.currentTimeMillis()), new Date(todoEntry.getExpire()));
+
+                        double balance = usageDTO.getBalance() - (diffDate + 1) * Constants.PRICE_BUY_POOL_PHONE_NUMBER;
+                        mUsageService.updateBalance(todoEntry.getUserId(), balance);
+
                         Utils.logMessage("BUY POOL PHONE NUMBER: " + created);
                         return new Response<>(created, HTTPStatus.CREATED);
                     } else {
