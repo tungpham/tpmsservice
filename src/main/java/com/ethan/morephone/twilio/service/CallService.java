@@ -305,10 +305,11 @@ public class CallService {
         PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(phoneNumber);
         if (phoneNumberDTO != null) {
             if (phoneNumberDTO.getPool()) {
-                Twilio.init(Constants.ACCOUNT_SID, Constants.AUTH_TOKEN);
-            } else {
-                Twilio.init(accountSid, authToken);
+                accountSid = Constants.ACCOUNT_SID;
+                authToken = Constants.AUTH_TOKEN;
             }
+
+            Twilio.init(accountSid, authToken);
             List<com.ethan.morephone.twilio.model.Record> records = new ArrayList<>();
 
             ResourceSet<Recording> recordings = new com.twilio.rest.api.v2010.account.RecordingReader(accountSid).read();
@@ -321,7 +322,7 @@ public class CallService {
                                 recording.getSid(),
                                 recording.getAccountSid(),
                                 recording.getCallSid(),
-                                phoneNumber,
+                                call.getFrom(),
                                 recording.getDuration(),
                                 recording.getDateCreated().toString(Constants.FORMAT_DATE),
                                 recording.getApiVersion(),
@@ -350,10 +351,11 @@ public class CallService {
         PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(phoneNumber);
         if (phoneNumberDTO != null) {
             if (phoneNumberDTO.getPool()) {
-                Twilio.init(Constants.ACCOUNT_SID, Constants.AUTH_TOKEN);
-            } else {
-                Twilio.init(accountSid, authToken);
+                accountSid = Constants.ACCOUNT_SID;
+                authToken = Constants.AUTH_TOKEN;
             }
+
+            Twilio.init(accountSid, authToken);
 
             List<CallDTO> calls = new ArrayList<>();
 
