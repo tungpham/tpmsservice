@@ -109,7 +109,7 @@ public class UsageServiceIml implements UsageService {
     public UsageDTO updateBalance(String userId, double balance) {
         Usage usage = findUsageByUserId(userId);
         if (usage != null) {
-            usage.updateBalance(usage.getBalance() + balance);
+            usage.updateBalance(balance);
             return convertToDTO(repository.save(usage));
         }
         return null;

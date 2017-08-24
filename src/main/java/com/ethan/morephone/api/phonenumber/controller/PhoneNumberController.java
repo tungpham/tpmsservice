@@ -123,6 +123,7 @@ final class PhoneNumberController {
                         long diffDate = Utils.getDifferenceDays(new Date(System.currentTimeMillis()), new Date(todoEntry.getExpire()));
                         double price = (diffDate + 1) * Constants.PRICE_BUY_POOL_PHONE_NUMBER;
                         Utils.logMessage("TOTAL PRICE: " + price);
+
                         double balance = usageDTO.getBalance() - price;
                         mUsageService.updateBalance(todoEntry.getUserId(), balance);
 

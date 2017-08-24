@@ -3,6 +3,7 @@ package com.ethan.morephone.api.purchase.controller;
 import com.ethan.morephone.Constants;
 import com.ethan.morephone.api.purchase.domain.PurchaseDTO;
 import com.ethan.morephone.api.purchase.service.PurchaseService;
+import com.ethan.morephone.api.usage.domain.UsageDTO;
 import com.ethan.morephone.api.usage.service.UsageService;
 import com.ethan.morephone.api.user.UserNotFoundException;
 import com.ethan.morephone.utils.Utils;
@@ -40,7 +41,8 @@ final class PurchaseController {
         PurchaseDTO created = service.create(todoEntry);
         Utils.logMessage("PRODUCTID: " + created.getProductId());
         if (created.getProductId().equals("add_fund")) {
-            mUsageService.updateBalance(created.getUserId(), Constants.PRODUCT_PRICE);
+            UsageDTO usageDTO = mUsageService.findByUserId(created.getUserId());
+            mUsageService.updateBalance(created.getUserId(), usageDTO.getBalance() + Constants.PRODUCT_PRICE);
         }
         LOGGER.info("Created a new purchase entry with information: {}", created);
 
