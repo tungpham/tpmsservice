@@ -89,6 +89,8 @@ public class PhoneNumberServiceIml implements PhoneNumberService {
         LOGGER.info("Updating user entry with information: {}", user);
 
         PhoneNumber updated = findPhoneNumberById(user.getId());
+        updated.setUserId(user.getUserId());
+        updated.setExpire(user.getExpire());
         updated = repository.save(updated);
 
         LOGGER.info("Updated user entry with information: {}", updated);
