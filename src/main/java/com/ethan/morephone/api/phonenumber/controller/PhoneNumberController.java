@@ -108,7 +108,6 @@ final class PhoneNumberController {
     @RequestMapping(value = "/pool", method = RequestMethod.POST, produces = "application/json")
     Response<Object> buyPoolPhoneNumber(@RequestBody @Valid PhoneNumberDTO todoEntry) {
         try {
-
             UsageDTO usageDTO = mUsageService.findByUserId(todoEntry.getUserId());
             if (usageDTO != null && usageDTO.getBalance() > Constants.PRICE_BUY_PHONE_NUMBER) {
                 Utils.logMessage("EXPIRE: " + todoEntry.getExpire());
@@ -116,7 +115,7 @@ final class PhoneNumberController {
 
                     mUsageService.updateBalance(todoEntry.getUserId(), usageDTO.getBalance() - Constants.PRICE_BUY_PHONE_NUMBER);
 
-                    PhoneNumberDTO phoneNumberDTO = service.findBySid(todoEntry.getSid());
+                    PhoneNumberDTO phoneNumberDTO = service.findByPhoneNumber(todoEntry.getPhoneNumber());
                     if (phoneNumberDTO != null) {
                         phoneNumberDTO.setUserId(todoEntry.getUserId());
                         phoneNumberDTO.setExpire(todoEntry.getExpire());
