@@ -68,7 +68,7 @@ public class MessageService {
             UserDTO user = mUserService.findById(phoneNumberDTO.getUserId());
             if (user != null) {
                 String token = user.getToken();
-                Utils.logMessage("TOKEN: " + token);
+                Utils.logMessage("TOKEN RECEIVE SMS: " + token);
                 List<String> identities = new ArrayList<>();
                 identities.add(user.getEmail());
                 mUsageService.updateMessageIncoming(user.getId());
@@ -133,10 +133,11 @@ public class MessageService {
 
         PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(from);
         if (phoneNumberDTO != null && phoneNumberDTO.getPool()) {
-            Twilio.init(Constants.ACCOUNT_SID, Constants.AUTH_TOKEN);
-        } else {
-            Twilio.init(accountSid, authToken);
+            accountSid = Constants.ACCOUNT_SID;
+            authToken = Constants.AUTH_TOKEN;
         }
+
+        Twilio.init(accountSid, authToken);
 
         UsageDTO usageDTO = mUsageService.findByUserId(userId);
 
@@ -198,41 +199,45 @@ public class MessageService {
                                                               @RequestParam(value = "auth_token") String authToken,
                                                               @RequestParam(value = "phone_number") String phoneNumber) {
         PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(phoneNumber);
-        if (phoneNumberDTO != null && phoneNumberDTO.getPool()) {
-            Twilio.init(Constants.ACCOUNT_SID, Constants.AUTH_TOKEN);
-        } else {
-            Twilio.init(accountSid, authToken);
-        }
-
-        HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
-
-        ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesIncoming = new MessageReader(accountSid).setTo(new PhoneNumber(phoneNumber)).read();
-
-        if (messagesIncoming != null) {
-            mArrayMap.putAll(executeData(messagesIncoming, true));
-        }
-
-        ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesOutgoing = new MessageReader(accountSid).setFrom(new PhoneNumber(phoneNumber)).read();
-
-        if (messagesOutgoing != null) {
-            mArrayMap.putAll(executeData(messagesOutgoing, false));
-        }
-
-        List<ConversationModel> mConversationModels = new ArrayList<>();
-        for (Map.Entry entry : mArrayMap.entrySet()) {
-            List<MessageItem> items = mArrayMap.get(entry.getKey());
-            if (items != null && !items.isEmpty()) {
-                Collections.sort(items);
-                String dateCreated = items.get(items.size() - 1).dateCreated;
-                Utils.logMessage("DATE CREATED: " + dateCreated);
-                mConversationModels.add(new ConversationModel(entry.getKey().toString(), dateCreated, items));
+        if (phoneNumberDTO != null) {
+            if (phoneNumberDTO.getPool()) {
+                accountSid = Constants.ACCOUNT_SID;
+                authToken = Constants.AUTH_TOKEN;
             }
-        }
+            Twilio.init(accountSid, authToken);
 
-        return new com.ethan.morephone.http.Response<>(mConversationModels, HTTPStatus.OK);
+            HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
+
+            ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesIncoming = new MessageReader(accountSid).setTo(new PhoneNumber(phoneNumber)).read();
+
+            if (messagesIncoming != null) {
+                mArrayMap.putAll(executeData(messagesIncoming, true));
+            }
+
+            ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesOutgoing = new MessageReader(accountSid).setFrom(new PhoneNumber(phoneNumber)).read();
+
+            if (messagesOutgoing != null) {
+                mArrayMap.putAll(executeData(messagesOutgoing, false));
+            }
+
+            List<ConversationModel> mConversationModels = new ArrayList<>();
+            for (Map.Entry entry : mArrayMap.entrySet()) {
+                List<MessageItem> items = mArrayMap.get(entry.getKey());
+                if (items != null && !items.isEmpty()) {
+                    Collections.sort(items);
+                    String dateCreated = items.get(items.size() - 1).dateCreated;
+                    Utils.logMessage("DATE CREATED: " + dateCreated);
+                    mConversationModels.add(new ConversationModel(entry.getKey().toString(), dateCreated, items));
+                }
+            }
+
+            return new com.ethan.morephone.http.Response<>(mConversationModels, HTTPStatus.OK);
+        }
+        return new com.ethan.morephone.http.Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
     }
 
-    private static HashMap<String, List<MessageItem>> executeData(ResourceSet<Message> messageItems, boolean isComing) {
+    private static HashMap<String, List<MessageItem>> executeData(ResourceSet<Message> messageItems,
+                                                                  boolean isComing) {
         HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
         if (isComing) {
             for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
