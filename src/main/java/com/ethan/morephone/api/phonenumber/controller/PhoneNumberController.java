@@ -121,8 +121,9 @@ final class PhoneNumberController {
                         PhoneNumberDTO created = service.update(phoneNumberDTO);
 
                         long diffDate = Utils.getDifferenceDays(new Date(System.currentTimeMillis()), new Date(todoEntry.getExpire()));
-
-                        double balance = usageDTO.getBalance() - (diffDate + 1) * Constants.PRICE_BUY_POOL_PHONE_NUMBER;
+                        double price = (diffDate + 1) * Constants.PRICE_BUY_POOL_PHONE_NUMBER;
+                        Utils.logMessage("TOTAL PRICE: " + price);
+                        double balance = usageDTO.getBalance() - price;
                         mUsageService.updateBalance(todoEntry.getUserId(), balance);
 
                         Utils.logMessage("BUY POOL PHONE NUMBER: " + created);
@@ -156,26 +157,30 @@ final class PhoneNumberController {
         Utils.logMessage("authToken: " + authToken);
 
         PhoneNumberDTO phoneNumberDTO = service.findById(id);
-        if (phoneNumberDTO.getPool()) {
-            phoneNumberDTO.setUserId("");
-            phoneNumberDTO.setExpire(0);
-            service.update(phoneNumberDTO);
-            return new Response<>(HTTPStatus.OK.getReasonPhrase(), HTTPStatus.OK);
-        } else {
-            Twilio.init(accountSid, authToken);
-            IncomingPhoneNumberDeleter deleter = new IncomingPhoneNumberDeleter(id);
-            try {
-                if (deleter.delete()) {
-                    Utils.logMessage("DELETE PHONE NUMBER SUCCESS ");
-                    service.delete(id);
-                    return new Response<>(HTTPStatus.OK.getReasonPhrase(), HTTPStatus.OK);
-                } else {
-                    Utils.logMessage("DELETE PHONE NUMBER ERROR ");
+        if (phoneNumberDTO != null) {
+            if (phoneNumberDTO.getPool()) {
+                phoneNumberDTO.setUserId("");
+                phoneNumberDTO.setExpire(0);
+                service.update(phoneNumberDTO);
+                return new Response<>(HTTPStatus.OK.getReasonPhrase(), HTTPStatus.OK);
+            } else {
+                Twilio.init(accountSid, authToken);
+                IncomingPhoneNumberDeleter deleter = new IncomingPhoneNumberDeleter(id);
+                try {
+                    if (deleter.delete()) {
+                        Utils.logMessage("DELETE PHONE NUMBER SUCCESS ");
+                        service.delete(id);
+                        return new Response<>(HTTPStatus.OK.getReasonPhrase(), HTTPStatus.OK);
+                    } else {
+                        Utils.logMessage("DELETE PHONE NUMBER ERROR ");
+                        return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+                    }
+                } catch (Exception e) {
                     return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
                 }
-            } catch (Exception e) {
-                return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
             }
+        } else {
+            return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
         }
     }
 
