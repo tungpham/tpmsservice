@@ -1,6 +1,8 @@
 package com.ethan.morephone.twilio.service;
 
 import com.ethan.morephone.Constants;
+import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
+import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
 import com.ethan.morephone.api.usage.domain.UsageDTO;
 import com.ethan.morephone.api.usage.service.UsageService;
 import com.ethan.morephone.api.user.domain.UserDTO;
@@ -30,11 +32,13 @@ public class CallService {
 
     private final UsageService mUsageService;
     private final UserService mUserService;
+    private final PhoneNumberService mPhoneNumberService;
 
     @Autowired
-    CallService(UsageService usageService, UserService userService) {
+    CallService(UsageService usageService, UserService userService, PhoneNumberService phoneNumberService) {
         this.mUsageService = usageService;
         this.mUserService = userService;
+        this.mPhoneNumberService = phoneNumberService;
     }
 
     @PostMapping(value = "/token")
@@ -43,21 +47,32 @@ public class CallService {
                                         @RequestParam(value = "auth_token") String authToken,
                                         @RequestParam(value = "application_sid") String applicationSid) {
 
-        Utils.logMessage("CLIENT: " + client);
-        Utils.logMessage("account_sid: " + accountSid);
-        Utils.logMessage("auth_token: " + authToken);
-        Utils.logMessage("application_sid: " + applicationSid);
-        TwilioCapability capability = new TwilioCapability(accountSid, authToken);
-        capability.allowClientOutgoing(applicationSid);
-        capability.allowClientIncoming(client);
+        PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(client);
+        if(phoneNumberDTO != null){
+            Utils.logMessage("CLIENT: " + client);
+            Utils.logMessage("account_sid: " + accountSid);
+            Utils.logMessage("auth_token: " + authToken);
+            Utils.logMessage("application_sid: " + applicationSid);
 
-        try {
-            String token = capability.generateToken();
-            return new Response<>(token, HTTPStatus.CREATED);
-        } catch (CapabilityToken.DomainException e) {
-            e.printStackTrace();
+            TwilioCapability capability;
+            if(phoneNumberDTO.getPool()){
+                capability = new TwilioCapability(Constants.ACCOUNT_SID, Constants.AUTH_TOKEN);
+                capability.allowClientOutgoing(Constants.APPLICATION_ID);
+                capability.allowClientIncoming(client);
+                Utils.logMessage("ALOW NOW");
+            }else{
+                capability = new TwilioCapability(accountSid, authToken);
+                capability.allowClientOutgoing(applicationSid);
+                capability.allowClientIncoming(client);
+            }
+
+            try {
+                String token = capability.generateToken();
+                return new Response<>(token, HTTPStatus.CREATED);
+            } catch (CapabilityToken.DomainException e) {
+                e.printStackTrace();
+            }
         }
-
         return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
     }
 
