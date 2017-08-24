@@ -48,19 +48,19 @@ public class CallService {
                                         @RequestParam(value = "application_sid") String applicationSid) {
 
         PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(client);
-        if(phoneNumberDTO != null){
+        if (phoneNumberDTO != null) {
             Utils.logMessage("CLIENT: " + client);
             Utils.logMessage("account_sid: " + accountSid);
             Utils.logMessage("auth_token: " + authToken);
             Utils.logMessage("application_sid: " + applicationSid);
 
             TwilioCapability capability;
-            if(phoneNumberDTO.getPool()){
+            if (phoneNumberDTO.getPool()) {
                 capability = new TwilioCapability(Constants.ACCOUNT_SID, Constants.AUTH_TOKEN);
                 capability.allowClientOutgoing(Constants.APPLICATION_ID);
                 capability.allowClientIncoming(client);
                 Utils.logMessage("ALOW NOW");
-            }else{
+            } else {
                 capability = new TwilioCapability(accountSid, authToken);
                 capability.allowClientOutgoing(applicationSid);
                 capability.allowClientIncoming(client);
@@ -92,17 +92,27 @@ public class CallService {
             duration = Long.parseLong(callDuration);
         }
 
-        if (callStatus != null) {
-            String accountSid = allRequestParams.get("AccountSid");
-            UsageDTO usage = mUsageService.findByAccountSid(accountSid);
-            if (callStatus == CallStatus.COMPLETED && !TextUtils.isEmpty(direction) && !direction.equals("inbound")) {
-                double money = duration * Constants.PRICE_CALL_OUTGOING / 60;
+        if (callStatus != null && callStatus == CallStatus.COMPLETED) {
 
-                mUsageService.updateCallOutgoing(usage.getUserId(), usage.getBalance() - money);
-            } else {
-                mUsageService.updateCallIncoming(usage.getUserId(), usage.getBalance());
-                Utils.logMessage("DIRECTION: " + direction);
+            PhoneNumberDTO phoneNumberFrom = mPhoneNumberService.findByPhoneNumber(from);
+
+            if (phoneNumberFrom != null) {
+                UsageDTO usageFrom = mUsageService.findByUserId(phoneNumberFrom.getUserId());
+                if(usageFrom != null) {
+                    double moneyFrom = duration * Constants.PRICE_CALL_OUTGOING / 60;
+                    mUsageService.updateCallOutgoing(usageFrom.getUserId(), usageFrom.getBalance() - moneyFrom);
+                }
             }
+
+            PhoneNumberDTO phoneNumberTo = mPhoneNumberService.findByPhoneNumber(to);
+            if(phoneNumberTo != null) {
+                UsageDTO usageTo = mUsageService.findByUserId(phoneNumberTo.getUserId());
+                if(usageTo != null) {
+                    double moneyTo = duration * Constants.PRICE_CALL_INCOMING / 60;
+                    mUsageService.updateCallOutgoing(usageTo.getUserId(), usageTo.getBalance() - moneyTo);
+                }
+            }
+
             Utils.logMessage("CALL STATUS: " + callStatus.callStatus() + " ||| DIRECTION: " + direction);
         }
 
@@ -138,38 +148,44 @@ public class CallService {
 
             Utils.logMessage("Client - PSTN");
 
-            String accountSid = allRequestParams.get("AccountSid");
+//            String accountSid = allRequestParams.get("AccountSid");
+            PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(from.substring(7, from.length()));
+            if (phoneNumberDTO != null) {
 
-            UsageDTO usage = mUsageService.findByAccountSid(accountSid);
-            if (usage != null) {
+                UsageDTO usage = mUsageService.findByUserId(phoneNumberDTO.getUserId());
 
-                if (usage.getBalance() < Constants.PRICE_CALL_MIN) {
-                    UserDTO userDTO = mUserService.findById(usage.getUserId());
-                    if (userDTO != null) {
-                        FCM.sendNotification(userDTO.getToken(), Constants.FCM_SERVER_KEY, HTTPStatus.MONEY.getReasonPhrase(), "");
-                    }
-                    try {
-                        twiml = new VoiceResponse.Builder()
-                                .say(new Say.Builder("Your more phone is out of money. Please add money to your account.").build())
+                if (usage != null) {
+
+                    if (usage.getBalance() < Constants.PRICE_CALL_MIN) {
+                        UserDTO userDTO = mUserService.findById(usage.getUserId());
+                        if (userDTO != null) {
+                            FCM.sendNotification(userDTO.getToken(), Constants.FCM_SERVER_KEY, HTTPStatus.MONEY.getReasonPhrase(), "");
+                        }
+                        try {
+                            twiml = new VoiceResponse.Builder()
+                                    .say(new Say.Builder("Your more phone is out of money. Please add money to your account.").build())
+                                    .build();
+                            return twiml.toXml();
+                        } catch (com.twilio.twiml.TwiMLException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        int limit = (int) (usage.getBalance() / Constants.PRICE_CALL_OUTGOING * 60);
+                        Utils.logMessage(" TOTAL MONEY: " + usage.getBalance() + "      ||    " + limit);
+                        dial = new Dial.Builder()
+                                .callerId(from.substring(7, from.length()))
+                                .number(new Number.Builder(to)
+                                        .statusCallback(Constants.EVENT_URL)
+                                        .statusCallbackMethod(Method.POST)
+                                        .statusCallbackEvents(Arrays.asList(Event.INITIATED, Event.RINGING, Event.ANSWERED, Event.COMPLETED))
+                                        .build())
+                                .timeLimit(limit)
                                 .build();
-                        return twiml.toXml();
-                    } catch (com.twilio.twiml.TwiMLException e) {
-                        e.printStackTrace();
                     }
-                } else {
-                    int limit = (int) (usage.getBalance() / Constants.PRICE_CALL_OUTGOING * 60);
-                    Utils.logMessage(" TOTAL MONEY: " + usage.getBalance() + "      ||    " + limit);
-                    dial = new Dial.Builder()
-                            .callerId(from.substring(7, from.length()))
-                            .number(new Number.Builder(to)
-                                    .statusCallback(Constants.EVENT_URL)
-                                    .statusCallbackMethod(Method.POST)
-                                    .statusCallbackEvents(Arrays.asList(Event.INITIATED, Event.RINGING, Event.ANSWERED, Event.COMPLETED))
-                                    .build())
-                            .timeLimit(limit)
-                            .build();
                 }
+
             }
+
 
         } else {
 
@@ -201,7 +217,7 @@ public class CallService {
 
         Utils.logMessage("MultiValueMap RECORD: " + allRequestParams.toString());
         Say pleaseLeaveMessage = new Say.Builder("Please leave a message at the beep. \n" +
-                                                        "Press the star key when finished. ").build();
+                "Press the star key when finished. ").build();
         // Record the caller's voice.
         Record record = new Record.Builder()
                 .finishOnKey("*")

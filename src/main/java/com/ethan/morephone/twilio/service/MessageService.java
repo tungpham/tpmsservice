@@ -17,7 +17,6 @@ import com.ethan.morephone.utils.Utils;
 import com.twilio.Twilio;
 import com.twilio.base.ResourceSet;
 import com.twilio.exception.TwilioException;
-import com.twilio.http.TwilioRestClient;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.api.v2010.account.MessageCreator;
 import com.twilio.rest.api.v2010.account.MessageReader;
@@ -64,8 +63,9 @@ public class MessageService {
 
         if (phoneNumberDTO != null) {
 
-            String accountSid = allRequestParams.get("AccountSid");
-            UserDTO user = mUserService.findByAccountSid(accountSid);
+//            String accountSid = allRequestParams.get("AccountSid");
+
+            UserDTO user = mUserService.findById(phoneNumberDTO.getUserId());
             if (user != null) {
                 String token = user.getToken();
                 Utils.logMessage("TOKEN: " + token);
@@ -131,6 +131,13 @@ public class MessageService {
             return new com.ethan.morephone.http.Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
         }
 
+        PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(from);
+        if (phoneNumberDTO != null && phoneNumberDTO.getPool()) {
+            Twilio.init(Constants.ACCOUNT_SID, Constants.AUTH_TOKEN);
+        } else {
+            Twilio.init(accountSid, authToken);
+        }
+
         UsageDTO usageDTO = mUsageService.findByUserId(userId);
 
         if (usageDTO == null) {
@@ -140,12 +147,11 @@ public class MessageService {
 //        usageDTO.getBalance()
         if (usageDTO.getBalance() > Constants.PRICE_MESSAGE_OUTGOING) {
 
-            TwilioRestClient client = new TwilioRestClient.Builder(accountSid, authToken).build();
             try {
                 Message message = new MessageCreator(
                         new PhoneNumber(to),
                         new PhoneNumber(from),
-                        body).create(client);
+                        body).create();
 
                 MessageItem messageItem = new MessageItem(message.getSid(),
                         message.getDateCreated() == null ? "" : message.getDateCreated().toString(),
@@ -191,7 +197,12 @@ public class MessageService {
     com.ethan.morephone.http.Response<Object> retrieveMessage(@RequestParam(value = "account_sid") String accountSid,
                                                               @RequestParam(value = "auth_token") String authToken,
                                                               @RequestParam(value = "phone_number") String phoneNumber) {
-        Twilio.init(accountSid, authToken);
+        PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(phoneNumber);
+        if (phoneNumberDTO != null && phoneNumberDTO.getPool()) {
+            Twilio.init(Constants.ACCOUNT_SID, Constants.AUTH_TOKEN);
+        } else {
+            Twilio.init(accountSid, authToken);
+        }
 
         HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
 
