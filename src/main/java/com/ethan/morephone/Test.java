@@ -1,5 +1,6 @@
 package com.ethan.morephone;
 
+import com.ethan.morephone.data.entity.message.MessageItem;
 import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.twilio.model.ConversationModel;
 import com.ethan.morephone.utils.TextUtils;
@@ -284,7 +285,7 @@ public class Test {
     private static void loadConversationMessage(String accountSid, String authToken, String phoneNumber) {
         Twilio.init(accountSid, authToken);
 
-        HashMap<String, List<com.twilio.rest.api.v2010.account.Message>> mArrayMap = new HashMap<>();
+        HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
 
         ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesIncoming = new MessageReader(accountSid).setTo(new PhoneNumber(phoneNumber)).read();
 
@@ -300,10 +301,10 @@ public class Test {
 
         List<ConversationModel> mConversationModels = new ArrayList<>();
         for (Map.Entry entry : mArrayMap.entrySet()) {
-            List<com.twilio.rest.api.v2010.account.Message> items = mArrayMap.get(entry.getKey());
+            List<MessageItem> items = mArrayMap.get(entry.getKey());
             if (items != null && !items.isEmpty()) {
-//                Collections.sort(items);
-                String dateCreated = items.get(items.size() - 1).getDateCreated().toString();
+                Collections.sort(items);
+                String dateCreated = items.get(items.size() - 1).dateCreated;
                 Utils.logMessage("DATE CREATED: " + dateCreated);
                 mConversationModels.add(new ConversationModel(entry.getKey().toString(), dateCreated, items));
             }
@@ -311,8 +312,8 @@ public class Test {
 
         for (ConversationModel conversationModel : mConversationModels) {
             Utils.logMessage(conversationModel.getPhoneNumber() + " DATE " + conversationModel.getDateCreated());
-            for (com.twilio.rest.api.v2010.account.Message message : conversationModel.getMessageItems()) {
-                Utils.logMessage(message.getBody());
+            for (MessageItem message : conversationModel.getMessageItems()) {
+                Utils.logMessage(message.body);
             }
 
             Utils.logMessage("**********************************");
@@ -322,16 +323,16 @@ public class Test {
     private static HashMap<String, List<com.twilio.rest.api.v2010.account.Message>> mArrayMap = new HashMap<>();
     private static List<ConversationModel> mConversationModels = new ArrayList<>();
 
-    private static HashMap<String, List<com.twilio.rest.api.v2010.account.Message>> executeData(ResourceSet<com.twilio.rest.api.v2010.account.Message> messageItems, boolean isComing) {
-        HashMap<String, List<com.twilio.rest.api.v2010.account.Message>> mArrayMap = new HashMap<>();
+    private static HashMap<String, List<MessageItem>> executeData(ResourceSet<com.twilio.rest.api.v2010.account.Message> messageItems, boolean isComing) {
+        HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
         if (isComing) {
             for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
                 if (messageItem.getStatus() != null && messageItem.getStatus() == com.twilio.rest.api.v2010.account.Message.Status.RECEIVED) {
                     if (mArrayMap.containsKey(messageItem.getFrom().toString())) {
-                        mArrayMap.get(messageItem.getFrom().toString()).add(messageItem);
+                        mArrayMap.get(messageItem.getFrom().toString()).add(convertMessage(messageItem));
                     } else {
-                        List<com.twilio.rest.api.v2010.account.Message> items = new ArrayList<>();
-                        items.add(messageItem);
+                        List<MessageItem> items = new ArrayList<>();
+                        items.add(convertMessage(messageItem));
                         mArrayMap.put(messageItem.getFrom().toString(), items);
                     }
                 }
@@ -341,15 +342,39 @@ public class Test {
             for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
                 if (messageItem.getStatus() != null && messageItem.getStatus() == com.twilio.rest.api.v2010.account.Message.Status.DELIVERED) {
                     if (mArrayMap.containsKey(messageItem.getTo())) {
-                        mArrayMap.get(messageItem.getTo()).add(messageItem);
+                        mArrayMap.get(messageItem.getTo()).add(convertMessage(messageItem));
                     } else {
-                        List<com.twilio.rest.api.v2010.account.Message> items = new ArrayList<>();
-                        items.add(messageItem);
+                        List<MessageItem> items = new ArrayList<>();
+                        items.add(convertMessage(messageItem));
                         mArrayMap.put(messageItem.getTo(), items);
                     }
                 }
             }
         }
         return mArrayMap;
+    }
+
+    private static MessageItem convertMessage(com.twilio.rest.api.v2010.account.Message message){
+        return new MessageItem(message.getSid(),
+                message.getDateCreated() == null ? "" : message.getDateCreated().toString(),
+                message.getDateUpdated() == null ? "" : message.getDateUpdated().toString(),
+                message.getDateSent() == null ? "" : message.getDateSent().toString(),
+                message.getAccountSid(),
+                message.getTo(),
+                message.getFrom() == null ? "" : message.getFrom().toString(),
+                message.getMessagingServiceSid(),
+                message.getBody(),
+                message.getStatus() == null ? "" : message.getStatus().name(),
+                message.getNumSegments(),
+                message.getNumMedia(),
+                message.getDirection() == null ? "" : message.getDirection().toString(),
+                message.getApiVersion(),
+                message.getPrice() == null ? "" : message.getPrice().toString(),
+                message.getPriceUnit() == null ? "" : message.getPriceUnit().toString(),
+                String.valueOf(message.getErrorCode()),
+                message.getErrorMessage(),
+                message.getUri(),
+                null
+        );
     }
 }

@@ -1,8 +1,8 @@
 package com.ethan.morephone.twilio.model;
 
+import com.ethan.morephone.data.entity.message.MessageItem;
 import com.ethan.morephone.utils.DateUtils;
 import com.ethan.morephone.utils.TextUtils;
-import com.twilio.rest.api.v2010.account.Message;
 
 import java.util.Date;
 import java.util.List;
@@ -14,9 +14,9 @@ public class ConversationModel implements Comparable<ConversationModel> {
 
     private String mPhoneNumber;
     private String mDateCreated;
-    private List<Message> mMessageItems;
+    private List<MessageItem> mMessageItems;
 
-    public ConversationModel(String phoneNumber, String dateCreated, List<Message> messageItems) {
+    public ConversationModel(String phoneNumber, String dateCreated, List<MessageItem> messageItems) {
         this.mPhoneNumber = phoneNumber;
         this.mDateCreated = dateCreated;
         this.mMessageItems = messageItems;
@@ -31,11 +31,11 @@ public class ConversationModel implements Comparable<ConversationModel> {
         this.mPhoneNumber = phoneNumber;
     }
 
-    public List<Message> getMessageItems() {
+    public List<MessageItem> getMessageItems() {
         return mMessageItems;
     }
 
-    public void setMessageItems(List<Message> messageItems) {
+    public void setMessageItems(List<MessageItem> messageItems) {
         this.mMessageItems = messageItems;
     }
 

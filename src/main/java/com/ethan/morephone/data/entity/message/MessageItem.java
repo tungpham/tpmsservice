@@ -1,11 +1,14 @@
 package com.ethan.morephone.data.entity.message;
 
+import com.ethan.morephone.utils.DateUtils;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.Date;
 
 /**
  * Created by truongnguyen on 7/29/17.
  */
-public class MessageItem {
+public class MessageItem implements Comparable<MessageItem> {
 
     @SerializedName("sid")
     public String sid;
@@ -67,6 +70,9 @@ public class MessageItem {
     @SerializedName("subresource_uris")
     public SubresourceUris subresourceUris;
 
+    public boolean isLoading = false;
+    public boolean isSendFail = false;
+
 
     public MessageItem(String id,
                        String dateCreated,
@@ -109,6 +115,21 @@ public class MessageItem {
         this.errorMessage = errorMessage;
         this.uri = uri;
         this.subresourceUris = subresourceUris;
+    }
+
+    @Override
+    public int compareTo(MessageItem messageItem) {
+        Date current = DateUtils.getDate(this.dateSent);
+        Date now = DateUtils.getDate(messageItem.dateSent);
+        if (current != null && now != null) {
+            if (current.after(now)) {
+                return 1;
+            } else {
+                return -1;
+            }
+        } else {
+            return 0;
+        }
     }
 
     public class SubresourceUris {
