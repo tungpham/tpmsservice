@@ -311,8 +311,8 @@ public class Test {
         }
 
         for (ConversationModel conversationModel : mConversationModels) {
-            Utils.logMessage(conversationModel.getPhoneNumber() + " DATE " + conversationModel.getDateCreated());
-            for (MessageItem message : conversationModel.getMessageItems()) {
+            Utils.logMessage(conversationModel.mPhoneNumber + " DATE " + conversationModel.mDateCreated);
+            for (MessageItem message : conversationModel.mMessageItems) {
                 Utils.logMessage(message.body);
             }
 

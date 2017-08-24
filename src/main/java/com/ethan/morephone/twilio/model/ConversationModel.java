@@ -14,11 +14,13 @@ import java.util.List;
 public class ConversationModel implements Comparable<ConversationModel> {
 
     @JsonProperty("phone_number")
-    private String mPhoneNumber;
+    public String mPhoneNumber;
+
     @JsonProperty("date_created")
-    private String mDateCreated;
+    public String mDateCreated;
+
     @JsonProperty("message_items")
-    private List<MessageItem> mMessageItems;
+    public List<MessageItem> mMessageItems;
 
     public ConversationModel(String phoneNumber, String dateCreated, List<MessageItem> messageItems) {
         this.mPhoneNumber = phoneNumber;
@@ -27,36 +29,12 @@ public class ConversationModel implements Comparable<ConversationModel> {
 
     }
 
-    public String getPhoneNumber() {
-        return mPhoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.mPhoneNumber = phoneNumber;
-    }
-
-    public List<MessageItem> getMessageItems() {
-        return mMessageItems;
-    }
-
-    public void setMessageItems(List<MessageItem> messageItems) {
-        this.mMessageItems = messageItems;
-    }
-
-    public String getDateCreated() {
-        return mDateCreated;
-    }
-
-    public void setDateCreated(String mDateCreated) {
-        this.mDateCreated = mDateCreated;
-    }
-
     @Override
     public int compareTo(ConversationModel conversationModel) {
-        if (!TextUtils.isEmpty(mDateCreated) && !TextUtils.isEmpty(conversationModel.getDateCreated())) {
+        if (!TextUtils.isEmpty(mDateCreated) && !TextUtils.isEmpty(conversationModel.mDateCreated)) {
 
             Date current = DateUtils.getDate(mDateCreated);
-            Date now = DateUtils.getDate(conversationModel.getDateCreated());
+            Date now = DateUtils.getDate(conversationModel.mDateCreated);
             if (current.after(now)) {
                 return -1;
             } else {
