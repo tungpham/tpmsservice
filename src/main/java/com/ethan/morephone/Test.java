@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -355,10 +357,11 @@ public class Test {
     }
 
     private static MessageItem convertMessage(com.twilio.rest.api.v2010.account.Message message){
+        String formatDate = "E, d MMM yyyy HH:mm:ss Z";
         return new MessageItem(message.getSid(),
-                message.getDateCreated() == null ? "" : message.getDateCreated().toString(),
-                message.getDateUpdated() == null ? "" : message.getDateUpdated().toString(),
-                message.getDateSent() == null ? "" : message.getDateSent().toString(),
+                message.getDateCreated() == null ? "" : message.getDateCreated().toString(formatDate),
+                message.getDateUpdated() == null ? "" : message.getDateUpdated().toString(formatDate),
+                message.getDateSent() == null ? "" : message.getDateSent().toString(formatDate),
                 message.getAccountSid(),
                 message.getTo(),
                 message.getFrom() == null ? "" : message.getFrom().toString(),
@@ -377,4 +380,18 @@ public class Test {
                 null
         );
     }
+
+    public static Date getDateMessage(String date) {
+//        2017-08-04T07:57:46.000Z
+        SimpleDateFormat in = new SimpleDateFormat("yyyy-MMM-dEHH:mm:ssZ, d MMM yyyy HH:mm:ss Z");
+
+        try {
+            Date time = in.parse(date);
+            return time;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
