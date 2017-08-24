@@ -104,7 +104,7 @@ public class MessageService {
                     }
 
                     //Forward sms to email
-                    if(!TextUtils.isEmpty(phoneNumberDTO.getForwardEmail())){
+                    if (!TextUtils.isEmpty(phoneNumberDTO.getForwardEmail())) {
                         mEmailService.sendSimpleMessage(phoneNumberDTO.getForwardEmail(), from, body);
                     }
 
@@ -189,8 +189,8 @@ public class MessageService {
 
     @GetMapping(value = "/retrieve")
     com.ethan.morephone.http.Response<Object> retrieveMessage(@RequestParam(value = "account_sid") String accountSid,
-                                                          @RequestParam(value = "auth_token") String authToken,
-                                                          @RequestParam(value = "phone_number") String phoneNumber) {
+                                                              @RequestParam(value = "auth_token") String authToken,
+                                                              @RequestParam(value = "phone_number") String phoneNumber) {
         Twilio.init(accountSid, authToken);
 
         HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
@@ -252,7 +252,7 @@ public class MessageService {
         return mArrayMap;
     }
 
-    private static MessageItem convertMessage(com.twilio.rest.api.v2010.account.Message message){
+    private static MessageItem convertMessage(com.twilio.rest.api.v2010.account.Message message) {
         return new MessageItem(message.getSid(),
                 message.getDateCreated() == null ? "" : message.getDateCreated().toString(),
                 message.getDateUpdated() == null ? "" : message.getDateUpdated().toString(),
