@@ -111,8 +111,8 @@ final class PhoneNumberController {
 
             UsageDTO usageDTO = mUsageService.findByUserId(todoEntry.getUserId());
             if (usageDTO != null && usageDTO.getBalance() > Constants.PRICE_BUY_PHONE_NUMBER) {
-
-                if (todoEntry.getExpire() < System.currentTimeMillis()) {
+                Utils.logMessage("EXPIRE: " + todoEntry.getExpire());
+                if (todoEntry.getExpire() > System.currentTimeMillis()) {
 
                     mUsageService.updateBalance(todoEntry.getUserId(), usageDTO.getBalance() - Constants.PRICE_BUY_PHONE_NUMBER);
 
