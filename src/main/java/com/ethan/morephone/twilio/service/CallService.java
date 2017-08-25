@@ -337,10 +337,14 @@ public class CallService {
                     }
                 }
             }
-            return new com.ethan.morephone.http.Response<>(records, HTTPStatus.OK);
-        } else {
-            return new com.ethan.morephone.http.Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+
+            if (!records.isEmpty()) {
+                return new com.ethan.morephone.http.Response<>(records, HTTPStatus.OK);
+            }
+
         }
+        return new com.ethan.morephone.http.Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
+
     }
 
 
