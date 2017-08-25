@@ -204,7 +204,7 @@ public class CallService {
                             .statusCallbackMethod(Method.POST)
                             .statusCallbackEvents(Arrays.asList(Event.INITIATED, Event.RINGING, Event.ANSWERED, Event.COMPLETED))
                             .build())
-                    .timeout(10)
+                    .timeout(60)
                     .action("/api/v1/call/leave-message")
                     .build();
         }
