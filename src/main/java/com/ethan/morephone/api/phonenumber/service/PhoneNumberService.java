@@ -57,6 +57,8 @@ public interface PhoneNumberService {
 
     List<PhoneNumberDTO> findByUserId(String userId);
 
-    List<PhoneNumberDTO> findByPool(boolean pool);
+    List<PhoneNumberDTO> findPoolPhoneNumberAvailable();
+
+    List<PhoneNumberDTO> findPoolPhoneNumberUnavailable();
 
 }

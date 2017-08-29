@@ -215,7 +215,7 @@ final class PhoneNumberController {
     @RequestMapping(value = "/pool", method = RequestMethod.GET)
     Response<Object> findPhoneNumberByPool() {
 
-        List<PhoneNumberDTO> phoneNumberDTOS = service.findByPool(true);
+        List<PhoneNumberDTO> phoneNumberDTOS = service.findPoolPhoneNumberAvailable();
 
         if (phoneNumberDTOS != null && !phoneNumberDTOS.isEmpty()) {
             return new Response<>(phoneNumberDTOS, HTTPStatus.OK);

@@ -17,7 +17,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Created by truongnguyen on 7/15/17.
  */
-@Service
+@Service("phoneNumberService")
 public class PhoneNumberServiceIml implements PhoneNumberService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PhoneNumberServiceIml.class);
@@ -145,8 +145,18 @@ public class PhoneNumberServiceIml implements PhoneNumberService {
     }
 
     @Override
-    public List<PhoneNumberDTO> findByPool(boolean pool) {
-        List<PhoneNumber> phoneNumbers = repository.findByPoolAndUserId(pool, "");
+    public List<PhoneNumberDTO> findPoolPhoneNumberAvailable() {
+        List<PhoneNumber> phoneNumbers = repository.findByPoolAndUserId(true, "");
+        if (phoneNumbers != null) {
+            return convertToDTOs(phoneNumbers);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<PhoneNumberDTO> findPoolPhoneNumberUnavailable() {
+        List<PhoneNumber> phoneNumbers = repository.findByPoolAndUserIdNot(true,"");
         if (phoneNumbers != null) {
             return convertToDTOs(phoneNumbers);
         } else {
