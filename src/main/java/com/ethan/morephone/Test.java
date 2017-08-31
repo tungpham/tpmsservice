@@ -49,7 +49,8 @@ public class Test {
 
 //        getRecordData("AC1bb60516853a77bcf93ea89e4a7e3b45", "bb82a5d15eca8e8ae4171173ce150014", "+14152365339");
 //        retrieveCallLogs("AC588786f8b8b8a4ad83c5d576646ae764", "5767b6743ca34d734e1c94d694e72d03", "+15097616265");
-        countDown();
+//        countDown();
+        testTime();
     }
 
 
@@ -520,6 +521,12 @@ public class Test {
     private static void deleteAllDataPhoneNumber(String accountSid, String authToken, String phoneNumber){
         Twilio.init(accountSid, authToken);
         //Call
+    }
+
+    private static void testTime(){
+        SimpleDateFormat out = new SimpleDateFormat("MMM d, HH:mm a");
+        Date time = new Date(1503055060956L);
+        Utils.logMessage( out.format(time));
     }
 
 }

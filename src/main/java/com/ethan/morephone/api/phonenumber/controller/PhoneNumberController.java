@@ -124,11 +124,13 @@ final class PhoneNumberController {
                         PhoneNumberDTO created = service.update(phoneNumberDTO);
 
                         long diffDate = Utils.getDifferenceDays(new Date(System.currentTimeMillis()), new Date(todoEntry.getExpire()));
+                        Utils.logMessage("DIFF DATE: " + diffDate);
                         double price = (diffDate + 1) * Constants.PRICE_BUY_POOL_PHONE_NUMBER;
+                        Utils.logMessage("TOTAL PRICE: " + price);
 
                         if (usageDTO.getBalance() > price) {
 
-                            Utils.logMessage("TOTAL PRICE: " + price);
+
 
                             double balance = usageDTO.getBalance() - price;
                             mUsageService.updateBalance(todoEntry.getUserId(), balance);
