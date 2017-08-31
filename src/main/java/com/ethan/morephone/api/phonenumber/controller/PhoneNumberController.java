@@ -110,7 +110,15 @@ final class PhoneNumberController {
     Response<Object> buyPoolPhoneNumber(@RequestBody @Valid PhoneNumberDTO todoEntry) {
         try {
             UsageDTO usageDTO = mUsageService.findByUserId(todoEntry.getUserId());
-            if (usageDTO != null && usageDTO.getBalance() > Constants.PRICE_BUY_PHONE_NUMBER) {
+
+            long diffDate = Utils.getDifferenceDays(new Date(System.currentTimeMillis()), new Date(todoEntry.getExpire()));
+            double price = (diffDate + 1) * Constants.PRICE_BUY_POOL_PHONE_NUMBER;
+
+            Utils.logMessage("DIFF DATE: " + diffDate);
+
+            Utils.logMessage("TOTAL PRICE: " + price);
+
+            if (usageDTO != null && usageDTO.getBalance() > price) {
                 Utils.logMessage("EXPIRE: " + todoEntry.getExpire());
 
                 if (todoEntry.getExpire() > System.currentTimeMillis()) {
@@ -123,23 +131,12 @@ final class PhoneNumberController {
                         phoneNumberDTO.setUpdatedAt(new Date().getTime());
                         PhoneNumberDTO created = service.update(phoneNumberDTO);
 
-                        long diffDate = Utils.getDifferenceDays(new Date(System.currentTimeMillis()), new Date(todoEntry.getExpire()));
-                        Utils.logMessage("DIFF DATE: " + diffDate);
-                        double price = (diffDate + 1) * Constants.PRICE_BUY_POOL_PHONE_NUMBER;
-                        Utils.logMessage("TOTAL PRICE: " + price);
+                        double balance = usageDTO.getBalance() - price;
+                        mUsageService.updateBalance(todoEntry.getUserId(), balance);
 
-                        if (usageDTO.getBalance() > price) {
+                        Utils.logMessage("BUY POOL PHONE NUMBER: " + created);
+                        return new Response<>(created, HTTPStatus.CREATED);
 
-
-
-                            double balance = usageDTO.getBalance() - price;
-                            mUsageService.updateBalance(todoEntry.getUserId(), balance);
-
-                            Utils.logMessage("BUY POOL PHONE NUMBER: " + created);
-                            return new Response<>(created, HTTPStatus.CREATED);
-                        } else {
-                            return new Response<>(HTTPStatus.MONEY.getReasonPhrase(), HTTPStatus.MONEY);
-                        }
                     } else {
                         return new Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
                     }
