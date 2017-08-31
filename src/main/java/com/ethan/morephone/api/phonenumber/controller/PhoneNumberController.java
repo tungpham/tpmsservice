@@ -112,6 +112,7 @@ final class PhoneNumberController {
             UsageDTO usageDTO = mUsageService.findByUserId(todoEntry.getUserId());
             if (usageDTO != null && usageDTO.getBalance() > Constants.PRICE_BUY_PHONE_NUMBER) {
                 Utils.logMessage("EXPIRE: " + todoEntry.getExpire());
+
                 if (todoEntry.getExpire() > System.currentTimeMillis()) {
 
                     PhoneNumberDTO phoneNumberDTO = service.findByPhoneNumber(todoEntry.getPhoneNumber());
@@ -122,13 +123,19 @@ final class PhoneNumberController {
 
                         long diffDate = Utils.getDifferenceDays(new Date(System.currentTimeMillis()), new Date(todoEntry.getExpire()));
                         double price = (diffDate + 1) * Constants.PRICE_BUY_POOL_PHONE_NUMBER;
-                        Utils.logMessage("TOTAL PRICE: " + price);
 
-                        double balance = usageDTO.getBalance() - price;
-                        mUsageService.updateBalance(todoEntry.getUserId(), balance);
+                        if (usageDTO.getBalance() > price) {
 
-                        Utils.logMessage("BUY POOL PHONE NUMBER: " + created);
-                        return new Response<>(created, HTTPStatus.CREATED);
+                            Utils.logMessage("TOTAL PRICE: " + price);
+
+                            double balance = usageDTO.getBalance() - price;
+                            mUsageService.updateBalance(todoEntry.getUserId(), balance);
+
+                            Utils.logMessage("BUY POOL PHONE NUMBER: " + created);
+                            return new Response<>(created, HTTPStatus.CREATED);
+                        } else {
+                            return new Response<>(HTTPStatus.MONEY.getReasonPhrase(), HTTPStatus.MONEY);
+                        }
                     } else {
                         return new Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
                     }
@@ -258,6 +265,40 @@ final class PhoneNumberController {
         } else {
             return new Response<>(updated, HTTPStatus.OK);
         }
+    }
+
+    @RequestMapping(value = "{id}/expire", method = RequestMethod.PUT)
+    Response<Object> updateExpire(@PathVariable("id") String id,
+                                  @RequestParam(value = "user_id") String userId,
+                                  @RequestParam(value = "expire") long expire) {
+
+        long diffDate = Utils.getDifferenceDays(new Date(System.currentTimeMillis()), new Date(expire));
+        double price = (diffDate + 1) * Constants.PRICE_BUY_POOL_PHONE_NUMBER;
+
+        UsageDTO usageDTO = mUsageService.findByUserId(userId);
+
+        if (usageDTO != null) {
+
+            if (usageDTO.getBalance() > price) {
+
+                Utils.logMessage("TOTAL PRICE: " + price);
+
+                double balance = usageDTO.getBalance() - price;
+                mUsageService.updateBalance(userId, balance);
+
+                PhoneNumberDTO phoneNumberDTO = service.findById(id);
+                phoneNumberDTO.setExpire(expire);
+
+                service.update(phoneNumberDTO);
+
+                return new Response<>(phoneNumberDTO, HTTPStatus.CREATED);
+            } else {
+                return new Response<>(HTTPStatus.MONEY.getReasonPhrase(), HTTPStatus.MONEY);
+            }
+        } else {
+            return new Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
+        }
+
     }
 
     @ExceptionHandler

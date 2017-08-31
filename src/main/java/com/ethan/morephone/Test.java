@@ -48,8 +48,10 @@ public class Test {
 //        testTask();
 
 //        getRecordData("AC1bb60516853a77bcf93ea89e4a7e3b45", "bb82a5d15eca8e8ae4171173ce150014", "+14152365339");
-        retrieveCallLogs("AC588786f8b8b8a4ad83c5d576646ae764", "5767b6743ca34d734e1c94d694e72d03", "+15097616265");
+//        retrieveCallLogs("AC588786f8b8b8a4ad83c5d576646ae764", "5767b6743ca34d734e1c94d694e72d03", "+15097616265");
+        countDown();
     }
+
 
 
     private static void sendNotification(String title, String body) {
@@ -483,6 +485,35 @@ public class Test {
 
         );
 
+    }
+
+    public static int SECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
+    public static void countDown() {
+        //milliseconds
+        long different = SECONDS_IN_A_DAY;
+
+        System.out.println("different : " + different);
+
+        long secondsInMilli = 1000;
+        long minutesInMilli = secondsInMilli * 60;
+        long hoursInMilli = minutesInMilli * 60;
+        long daysInMilli = hoursInMilli * 24;
+
+        long elapsedDays = different / daysInMilli;
+        different = different % daysInMilli;
+
+        long elapsedHours = different / hoursInMilli;
+        different = different % hoursInMilli;
+
+        long elapsedMinutes = different / minutesInMilli;
+        different = different % minutesInMilli;
+
+        long elapsedSeconds = different / secondsInMilli;
+
+        System.out.printf(
+                "%d days, %d hours, %d minutes, %d seconds%n",
+                elapsedDays,
+                elapsedHours, elapsedMinutes, elapsedSeconds);
     }
 
 }

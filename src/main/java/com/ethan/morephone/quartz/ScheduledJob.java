@@ -2,6 +2,7 @@ package com.ethan.morephone.quartz;
 
 import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
 import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
+import com.ethan.morephone.utils.DateUtils;
 import com.ethan.morephone.utils.Utils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -28,6 +29,7 @@ public class ScheduledJob extends QuartzJobBean {
         List<PhoneNumberDTO> phoneNumbersUnavailable = phoneNumberService.findPoolPhoneNumberUnavailable();
         if (phoneNumbersUnavailable != null) {
             for (PhoneNumberDTO dto : phoneNumbersUnavailable) {
+                Utils.logMessage("DATE FORMAT: " + DateUtils.formatDate(dto.getExpire()));
                 if(dto.getExpire() < System.currentTimeMillis()){
                     dto.setExpire(0);
                     dto.setUserId("");

@@ -21,4 +21,12 @@ public class DateUtils {
         return null;
     }
 
+    public static String formatDate(long date) {
+        SimpleDateFormat out = new SimpleDateFormat("dd-MM HH:mm:ss");
+        Date time = new Date(date);
+        return out.format(time);
+    }
+
+
+
 }
