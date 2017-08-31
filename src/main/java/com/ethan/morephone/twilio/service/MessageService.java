@@ -14,6 +14,7 @@ import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.twilio.model.ConversationModel;
 import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
+import com.google.common.collect.Range;
 import com.twilio.Twilio;
 import com.twilio.base.ResourceSet;
 import com.twilio.exception.TwilioException;
@@ -209,13 +210,17 @@ public class MessageService {
 
             HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
 
-            ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesIncoming = new MessageReader(accountSid).setTo(new PhoneNumber(phoneNumber)).setDateSent(new DateTime(phoneNumberDTO.getCreatedAt())).read();
+            ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesIncoming = new MessageReader(accountSid).setTo(new PhoneNumber(phoneNumber))
+                    .setDateSent(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())))
+                    .read();
 
             if (messagesIncoming != null) {
                 mArrayMap.putAll(executeData(messagesIncoming, true));
             }
 
-            ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesOutgoing = new MessageReader(accountSid).setFrom(new PhoneNumber(phoneNumber)).setDateSent(new DateTime(phoneNumberDTO.getCreatedAt())).read();
+            ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesOutgoing = new MessageReader(accountSid).setFrom(new PhoneNumber(phoneNumber))
+                    .setDateSent(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())))
+                    .read();
 
             if (messagesOutgoing != null) {
                 mArrayMap.putAll(executeData(messagesOutgoing, false));
