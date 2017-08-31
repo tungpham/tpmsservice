@@ -516,4 +516,10 @@ public class Test {
                 elapsedHours, elapsedMinutes, elapsedSeconds);
     }
 
+    //in one account sid will lost message
+    private static void deleteAllDataPhoneNumber(String accountSid, String authToken, String phoneNumber){
+        Twilio.init(accountSid, authToken);
+        //Call
+    }
+
 }

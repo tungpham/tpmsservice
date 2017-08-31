@@ -91,6 +91,9 @@ public class PhoneNumberServiceIml implements PhoneNumberService {
         PhoneNumber updated = findPhoneNumberById(user.getId());
         updated.setUserId(user.getUserId());
         updated.setExpire(user.getExpire());
+        updated.setCreatedAt(user.getCreatedAt());
+        updated.setUpdatedAt(user.getUpdatedAt());
+
         updated = repository.save(updated);
 
         LOGGER.info("Updated user entry with information: {}", updated);

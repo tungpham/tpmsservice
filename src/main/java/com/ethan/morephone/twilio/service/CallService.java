@@ -25,6 +25,7 @@ import com.twilio.twiml.*;
 import com.twilio.twiml.Number;
 import com.twilio.type.PhoneNumber;
 import org.apache.http.util.TextUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -312,7 +313,7 @@ public class CallService {
             Twilio.init(accountSid, authToken);
             List<com.ethan.morephone.twilio.model.Record> records = new ArrayList<>();
 
-            ResourceSet<Recording> recordings = new com.twilio.rest.api.v2010.account.RecordingReader(accountSid).read();
+            ResourceSet<Recording> recordings = new com.twilio.rest.api.v2010.account.RecordingReader(accountSid).setDateCreated(new DateTime(phoneNumberDTO.getCreatedAt())).read();
             if (recordings != null) {
                 for (com.twilio.rest.api.v2010.account.Recording recording : recordings) {
                     Call call = new CallFetcher(accountSid, recording.getCallSid()).fetch();
@@ -363,7 +364,7 @@ public class CallService {
 
             List<CallDTO> calls = new ArrayList<>();
 
-            ResourceSet<Call> callsIncoming = new CallReader(accountSid).setTo(new PhoneNumber(phoneNumber)).read();
+            ResourceSet<Call> callsIncoming = new CallReader(accountSid).setTo(new PhoneNumber(phoneNumber)).setStartTime(new DateTime(phoneNumberDTO.getCreatedAt())).read();
 
             if (callsIncoming != null) {
                 for (Call call : callsIncoming) {
@@ -371,7 +372,7 @@ public class CallService {
                 }
             }
 
-            ResourceSet<Call> callsOutgoing = new CallReader(accountSid).setFrom(new PhoneNumber(phoneNumber)).read();
+            ResourceSet<Call> callsOutgoing = new CallReader(accountSid).setFrom(new PhoneNumber(phoneNumber)).setStartTime(new DateTime(phoneNumberDTO.getCreatedAt())).read();
 
             if (callsOutgoing != null) {
                 for (Call call : callsOutgoing) {

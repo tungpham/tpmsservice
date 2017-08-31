@@ -119,6 +119,8 @@ final class PhoneNumberController {
                     if (phoneNumberDTO != null) {
                         phoneNumberDTO.setUserId(todoEntry.getUserId());
                         phoneNumberDTO.setExpire(todoEntry.getExpire());
+                        phoneNumberDTO.setCreatedAt(new Date().getTime());
+                        phoneNumberDTO.setUpdatedAt(new Date().getTime());
                         PhoneNumberDTO created = service.update(phoneNumberDTO);
 
                         long diffDate = Utils.getDifferenceDays(new Date(System.currentTimeMillis()), new Date(todoEntry.getExpire()));
@@ -288,6 +290,7 @@ final class PhoneNumberController {
 
                 PhoneNumberDTO phoneNumberDTO = service.findById(id);
                 phoneNumberDTO.setExpire(expire);
+                phoneNumberDTO.setUpdatedAt(new Date().getTime());
 
                 service.update(phoneNumberDTO);
 
