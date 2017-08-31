@@ -14,6 +14,7 @@ import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.twilio.model.ConversationModel;
 import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
+import com.google.common.collect.Range;
 import com.twilio.Twilio;
 import com.twilio.base.ResourceSet;
 import com.twilio.exception.TwilioException;
@@ -24,6 +25,7 @@ import com.twilio.twiml.Body;
 import com.twilio.twiml.MessagingResponse;
 import com.twilio.twiml.TwiMLException;
 import com.twilio.type.PhoneNumber;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -209,7 +211,7 @@ public class MessageService {
             HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
 
             ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesIncoming = new MessageReader(accountSid).setTo(new PhoneNumber(phoneNumber))
-//                    .setDateSent(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())))
+                    .setDateSent(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())))
                     .read();
 
             if (messagesIncoming != null) {
@@ -217,7 +219,7 @@ public class MessageService {
             }
 
             ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesOutgoing = new MessageReader(accountSid).setFrom(new PhoneNumber(phoneNumber))
-//                    .setDateSent(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())))
+                    .setDateSent(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())))
                     .read();
 
             if (messagesOutgoing != null) {
