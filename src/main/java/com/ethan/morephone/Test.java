@@ -6,6 +6,8 @@ import com.ethan.morephone.twilio.model.CallDTO;
 import com.ethan.morephone.twilio.model.ConversationModel;
 import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import com.twilio.Twilio;
 import com.twilio.base.ResourceSet;
 import com.twilio.http.HttpMethod;
@@ -50,7 +52,8 @@ public class Test {
 //        getRecordData("AC1bb60516853a77bcf93ea89e4a7e3b45", "bb82a5d15eca8e8ae4171173ce150014", "+14152365339");
 //        retrieveCallLogs("AC588786f8b8b8a4ad83c5d576646ae764", "5767b6743ca34d734e1c94d694e72d03", "+15097616265");
 //        countDown();
-        testTime();
+//        testTime();
+        getAccessToken();
     }
 
 
@@ -527,6 +530,18 @@ public class Test {
         SimpleDateFormat out = new SimpleDateFormat("MMM d, HH:mm a");
         Date time = new Date(1503055060956L);
         Utils.logMessage( out.format(time));
+    }
+
+    private static void getAccessToken(){
+        try {
+            com.mashape.unirest.http.HttpResponse<String> response = Unirest.post("https://coderdaudat.auth0.com/oauth/token")
+                    .header("content-type", "application/json")
+                    .body("{\"grant_type\":\"authorization_code\",\"client_id\": \"g-Ta-6ukhBXUsQHjvezs5u5G_Gi6DoW5\",\"client_secret\": \"zzX9ZAHTFb0BhXyb51OhpSmowTL-M2yAuzBiBiTzWwvf91fo5GZIlIWqo0ULHhIp\",\"code\": \"YOUR_AUTHORIZATION_CODE\",\"redirect_uri\": \"https://YOUR_APP/callback\"}")
+                    .asString();
+
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
     }
 
 }
