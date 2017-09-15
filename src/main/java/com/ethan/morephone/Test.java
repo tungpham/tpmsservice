@@ -7,6 +7,7 @@ import com.ethan.morephone.twilio.model.ConversationModel;
 import com.ethan.morephone.twilio.model.ResourceCall;
 import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
+import com.google.gson.Gson;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.twilio.Twilio;
@@ -486,15 +487,19 @@ public class Test {
         Collections.sort(calls);
 
         ResourceCall resourceCall = new ResourceCall(calls,
-                callPageIncoming.getFirstPageUrl("api", null),
-                callPageIncoming.getNextPageUrl("api", null),
-                callPageIncoming.getPreviousPageUrl("api", null),
-                callPageIncoming.getUrl("api", null),
-                callPageOutgoing.getFirstPageUrl("api", null),
-                callPageOutgoing.getNextPageUrl("api", null),
-                callPageOutgoing.getPreviousPageUrl("api", null),
-                callPageOutgoing.getUrl("api", null),
+                callPageIncoming.getFirstPageUrl("api", null).contains("null") ? "" : callPageIncoming.getFirstPageUrl("api", null),
+                callPageIncoming.getNextPageUrl("api", null).contains("null") ? "" : callPageIncoming.getNextPageUrl("api", null),
+                callPageIncoming.getPreviousPageUrl("api", null).contains("null") ? "" : callPageIncoming.getPreviousPageUrl("api", null),
+                callPageIncoming.getUrl("api", null).contains("null") ? "" : callPageIncoming.getUrl("api", null),
+                callPageOutgoing.getFirstPageUrl("api", null).contains("null") ? "" : callPageIncoming.getFirstPageUrl("api", null),
+                callPageOutgoing.getNextPageUrl("api", null).contains("null") ? "" : callPageIncoming.getNextPageUrl("api", null),
+                callPageOutgoing.getPreviousPageUrl("api", null).contains("null") ? "" : callPageIncoming.getPreviousPageUrl("api", null),
+                callPageOutgoing.getUrl("api", null).contains("null") ? "" : callPageIncoming.getUrl("api", null),
                 callPageIncoming.getPageSize());
+
+        Gson gson = new Gson();
+        String json = gson.toJson(resourceCall);
+        Utils.logMessage("JSON: " + json);
 
         for (CallDTO call : calls) {
             Utils.logMessage("CALL: " + call.from + " DATE: " + call.dateCreated);

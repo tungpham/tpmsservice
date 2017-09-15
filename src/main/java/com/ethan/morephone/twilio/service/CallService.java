@@ -415,14 +415,14 @@ public class CallService {
             Collections.sort(calls);
 
             ResourceCall resourceCall = new ResourceCall(calls,
-                    callPageIncoming.getFirstPageUrl("api", null),
-                    callPageIncoming.getNextPageUrl("api", null),
-                    callPageIncoming.getPreviousPageUrl("api", null),
-                    callPageIncoming.getUrl("api", null),
-                    callPageOutgoing.getFirstPageUrl("api", null),
-                    callPageOutgoing.getNextPageUrl("api", null),
-                    callPageOutgoing.getPreviousPageUrl("api", null),
-                    callPageOutgoing.getUrl("api", null),
+                    callPageIncoming.getFirstPageUrl("api", null).contains("null") ? "" : callPageIncoming.getFirstPageUrl("api", null),
+                    callPageIncoming.getNextPageUrl("api", null).contains("null") ? "" : callPageIncoming.getNextPageUrl("api", null),
+                    callPageIncoming.getPreviousPageUrl("api", null).contains("null") ? "" : callPageIncoming.getPreviousPageUrl("api", null),
+                    callPageIncoming.getUrl("api", null).contains("null") ? "" : callPageIncoming.getUrl("api", null),
+                    callPageOutgoing.getFirstPageUrl("api", null).contains("null") ? "" : callPageIncoming.getFirstPageUrl("api", null),
+                    callPageOutgoing.getNextPageUrl("api", null).contains("null") ? "" : callPageIncoming.getNextPageUrl("api", null),
+                    callPageOutgoing.getPreviousPageUrl("api", null).contains("null") ? "" : callPageIncoming.getPreviousPageUrl("api", null),
+                    callPageOutgoing.getUrl("api", null).contains("null") ? "" : callPageIncoming.getUrl("api", null),
                     callPageIncoming.getPageSize());
 
             if (!calls.isEmpty()) {
