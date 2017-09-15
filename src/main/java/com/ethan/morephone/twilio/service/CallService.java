@@ -395,7 +395,7 @@ public class CallService {
             CallReader callReaderOutgoing = new CallReader(accountSid)
                     .setFrom(new PhoneNumber(phoneNumber));
 
-            callReaderIncoming.limit(Constants.LIMIT);
+            callReaderOutgoing.limit(Constants.LIMIT);
 
             Page<Call> callPageOutgoing;
             if (com.ethan.morephone.utils.TextUtils.isEmpty(pageOutgoing)) {

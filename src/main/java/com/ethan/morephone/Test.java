@@ -466,7 +466,7 @@ public class Test {
         CallReader callReaderOutgoing = new CallReader(accountSid)
                 .setFrom(new PhoneNumber(phoneNumber));
 
-        callReaderIncoming.limit(LIMIT);
+        callReaderOutgoing.limit(LIMIT);
 
         Page<Call> callPageOutgoing;
         if (TextUtils.isEmpty(pageOutgoing)) {
