@@ -13,15 +13,14 @@ import com.ethan.morephone.twilio.call.CallStatus;
 import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.twilio.model.CallDTO;
 import com.ethan.morephone.twilio.model.ResourceCall;
+import com.ethan.morephone.twilio.model.ResourceRecord;
 import com.ethan.morephone.utils.Utils;
 import com.google.common.collect.Range;
 import com.twilio.Twilio;
 import com.twilio.base.Page;
-import com.twilio.base.ResourceSet;
 import com.twilio.rest.api.v2010.account.Call;
 import com.twilio.rest.api.v2010.account.CallFetcher;
 import com.twilio.rest.api.v2010.account.CallReader;
-import com.twilio.rest.api.v2010.account.Recording;
 import com.twilio.sdk.CapabilityToken;
 import com.twilio.sdk.client.TwilioCapability;
 import com.twilio.twiml.*;
@@ -305,7 +304,8 @@ public class CallService {
     @GetMapping(value = "/records")
     com.ethan.morephone.http.Response<Object> retrieveRecords(@RequestParam(value = "account_sid") String accountSid,
                                                               @RequestParam(value = "auth_token") String authToken,
-                                                              @RequestParam(value = "phone_number") String phoneNumber) {
+                                                              @RequestParam(value = "phone_number") String phoneNumber,
+                                                              @RequestParam(value = "page") String page) {
         PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(phoneNumber);
         if (phoneNumberDTO != null) {
             if (phoneNumberDTO.getPool()) {
@@ -316,11 +316,20 @@ public class CallService {
             Twilio.init(accountSid, authToken);
             List<com.ethan.morephone.twilio.model.Record> records = new ArrayList<>();
 
-            ResourceSet<Recording> recordings = new com.twilio.rest.api.v2010.account.RecordingReader(accountSid)
-                    .setDateCreated(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())))
-                    .read();
-            if (recordings != null) {
-                for (com.twilio.rest.api.v2010.account.Recording recording : recordings) {
+            com.twilio.rest.api.v2010.account.RecordingReader recordingReader = new com.twilio.rest.api.v2010.account.RecordingReader(accountSid)
+                    .setDateCreated(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())));
+
+            recordingReader.limit(Constants.LIMIT);
+            Page<com.twilio.rest.api.v2010.account.Recording> callPage;
+            if (com.ethan.morephone.utils.TextUtils.isEmpty(page)) {
+                callPage = recordingReader.firstPage();
+            } else {
+                callPage = recordingReader.getPage(page);
+            }
+
+
+            if (callPage != null) {
+                for (com.twilio.rest.api.v2010.account.Recording recording : callPage.getRecords()) {
                     Call call = new CallFetcher(accountSid, recording.getCallSid()).fetch();
 
                     if (call != null && call.getTo().equals(phoneNumber)) {
@@ -344,9 +353,15 @@ public class CallService {
                 }
             }
 
-            if (!records.isEmpty()) {
-                return new com.ethan.morephone.http.Response<>(records, HTTPStatus.OK);
-            }
+
+            ResourceRecord resourceRecord = new ResourceRecord(records,
+                    callPage.getFirstPageUrl("api", null).contains("null") ? "" : callPage.getFirstPageUrl("api", null),
+                    callPage.getNextPageUrl("api", null).contains("null") ? "" : callPage.getNextPageUrl("api", null),
+                    callPage.getPreviousPageUrl("api", null).contains("null") ? "" : callPage.getPreviousPageUrl("api", null),
+                    callPage.getUrl("api", null).contains("null") ? "" : callPage.getUrl("api", null),
+                    callPage.getPageSize());
+
+            return new com.ethan.morephone.http.Response<>(resourceRecord, HTTPStatus.OK);
 
         }
         return new com.ethan.morephone.http.Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);

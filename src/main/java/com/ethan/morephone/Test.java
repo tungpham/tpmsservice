@@ -7,6 +7,7 @@ import com.ethan.morephone.twilio.model.ConversationModel;
 import com.ethan.morephone.twilio.model.ResourceCall;
 import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
+import com.google.common.collect.Range;
 import com.google.gson.Gson;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -19,6 +20,7 @@ import com.twilio.rest.api.v2010.account.call.Recording;
 import com.twilio.rest.api.v2010.account.call.RecordingReader;
 import com.twilio.twiml.*;
 import com.twilio.type.PhoneNumber;
+import org.joda.time.DateTime;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,8 +54,8 @@ public class Test {
 //        getRecord();
 //        testTask();
 
-//        getRecordData("AC1bb60516853a77bcf93ea89e4a7e3b45", "bb82a5d15eca8e8ae4171173ce150014", "+14152365339");
-        retrieveCallLogs("AC588786f8b8b8a4ad83c5d576646ae764", "5767b6743ca34d734e1c94d694e72d03", "+15097616265", "", "");
+        getRecordData("AC1bb60516853a77bcf93ea89e4a7e3b45", "bb82a5d15eca8e8ae4171173ce150014", "+14152365339", "");
+//        retrieveCallLogs("AC588786f8b8b8a4ad83c5d576646ae764", "5767b6743ca34d734e1c94d694e72d03", "+15097616265", "", "");
 //        countDown();
 //        testTime();
 //        getAccessToken();
@@ -401,22 +403,33 @@ public class Test {
         return null;
     }
 
-    private static void getRecordData(String accountSid, String authToken, String phoneNumber) {
-        List<com.ethan.morephone.twilio.model.Record> records = new ArrayList<>();
+    private static void getRecordData(String accountSid, String authToken, String phoneNumber, String page) {
         Twilio.init(accountSid, authToken);
-        ResourceSet<com.twilio.rest.api.v2010.account.Recording> recordings = new com.twilio.rest.api.v2010.account.RecordingReader(accountSid).read();
-        if (recordings != null) {
-            for (com.twilio.rest.api.v2010.account.Recording recording : recordings) {
-                Utils.logMessage("RECORD: " + recording.getDuration());
+        List<com.ethan.morephone.twilio.model.Record> records = new ArrayList<>();
+
+        com.twilio.rest.api.v2010.account.RecordingReader recordingReader = new com.twilio.rest.api.v2010.account.RecordingReader(accountSid)
+//                .setDateCreated(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())))
+                ;
+
+        recordingReader.limit(Constants.LIMIT);
+        Page<com.twilio.rest.api.v2010.account.Recording> callPage;
+        if (TextUtils.isEmpty(page)) {
+            callPage = recordingReader.firstPage();
+        } else {
+            callPage = recordingReader.getPage(page);
+        }
+
+
+        if (callPage != null) {
+            for (com.twilio.rest.api.v2010.account.Recording recording : callPage.getRecords()) {
                 Call call = new CallFetcher(accountSid, recording.getCallSid()).fetch();
 
                 if (call != null && call.getTo().equals(phoneNumber)) {
-                    Utils.logMessage("COME");
                     records.add(new com.ethan.morephone.twilio.model.Record(
                             recording.getSid(),
                             recording.getAccountSid(),
                             recording.getCallSid(),
-                            phoneNumber,
+                            call.getFrom(),
                             recording.getDuration(),
                             recording.getDateCreated().toString(Constants.FORMAT_DATE),
                             recording.getApiVersion(),
