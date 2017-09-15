@@ -4,11 +4,13 @@ import com.ethan.morephone.data.entity.message.MessageItem;
 import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.twilio.model.CallDTO;
 import com.ethan.morephone.twilio.model.ConversationModel;
+import com.ethan.morephone.twilio.model.ResourceCall;
 import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.twilio.Twilio;
+import com.twilio.base.Page;
 import com.twilio.base.ResourceSet;
 import com.twilio.http.HttpMethod;
 import com.twilio.rest.api.v2010.account.*;
@@ -50,12 +52,11 @@ public class Test {
 //        testTask();
 
 //        getRecordData("AC1bb60516853a77bcf93ea89e4a7e3b45", "bb82a5d15eca8e8ae4171173ce150014", "+14152365339");
-//        retrieveCallLogs("AC588786f8b8b8a4ad83c5d576646ae764", "5767b6743ca34d734e1c94d694e72d03", "+15097616265");
+        retrieveCallLogs("AC588786f8b8b8a4ad83c5d576646ae764", "5767b6743ca34d734e1c94d694e72d03", "+15097616265", "", "");
 //        countDown();
 //        testTime();
-        getAccessToken();
+//        getAccessToken();
     }
-
 
 
     private static void sendNotification(String title, String body) {
@@ -435,28 +436,69 @@ public class Test {
         }
     }
 
-    private static void retrieveCallLogs(String accountSid, String authToken, String phoneNumber) {
+    private static final int LIMIT = 5;
+
+    private static void retrieveCallLogs(String accountSid, String authToken, String phoneNumber, String pageIncoming, String pageOutgoing) {
         Twilio.init(accountSid, authToken);
 
         List<CallDTO> calls = new ArrayList<>();
 
-        ResourceSet<Call> callsIncoming = new CallReader(accountSid).setTo(new PhoneNumber(phoneNumber)).read();
+        CallReader callReaderIncoming = new CallReader(accountSid)
+                .setTo(new PhoneNumber(phoneNumber));
 
-        if(callsIncoming != null){
-            for(Call call : callsIncoming){
+        callReaderIncoming.limit(LIMIT);
+
+        Page<Call> callPageIncoming;
+        if (TextUtils.isEmpty(pageIncoming)) {
+            callPageIncoming = callReaderIncoming.firstPage();
+        } else {
+            callPageIncoming = callReaderIncoming.getPage(pageIncoming);
+        }
+
+        List<Call> callsIncoming = callPageIncoming.getRecords();
+
+        if (callsIncoming != null) {
+            for (Call call : callsIncoming) {
                 calls.add(convertToDTO(call));
             }
         }
 
-        ResourceSet<Call> callsOutgoing = new CallReader(accountSid).setFrom(new PhoneNumber(phoneNumber)).read();
+        CallReader callReaderOutgoing = new CallReader(accountSid)
+                .setFrom(new PhoneNumber(phoneNumber));
 
-        if(callsOutgoing != null){
-            for(Call call : callsOutgoing){
+        callReaderIncoming.limit(LIMIT);
+
+        Page<Call> callPageOutgoing;
+        if (TextUtils.isEmpty(pageOutgoing)) {
+            callPageOutgoing = callReaderOutgoing.firstPage();
+        } else {
+            callPageOutgoing = callReaderOutgoing.getPage(pageOutgoing);
+        }
+
+        List<Call> callsOutgoing = callPageOutgoing.getRecords();
+
+        if (callsOutgoing != null) {
+            for (Call call : callsOutgoing) {
                 calls.add(convertToDTO(call));
             }
         }
 
         Collections.sort(calls);
+
+        ResourceCall resourceCall = new ResourceCall(calls,
+                callPageIncoming.getFirstPageUrl("api", null),
+                callPageIncoming.getNextPageUrl("api", null),
+                callPageIncoming.getPreviousPageUrl("api", null),
+                callPageIncoming.getUrl("api", null),
+                callPageOutgoing.getFirstPageUrl("api", null),
+                callPageOutgoing.getNextPageUrl("api", null),
+                callPageOutgoing.getPreviousPageUrl("api", null),
+                callPageOutgoing.getUrl("api", null),
+                callPageIncoming.getPageSize());
+
+        for (CallDTO call : calls) {
+            Utils.logMessage("CALL: " + call.from + " DATE: " + call.dateCreated);
+        }
     }
 
 
@@ -492,6 +534,7 @@ public class Test {
     }
 
     public static int SECONDS_IN_A_DAY = 24 * 60 * 60 * 1000;
+
     public static void countDown() {
         //milliseconds
         long different = SECONDS_IN_A_DAY;
@@ -521,18 +564,18 @@ public class Test {
     }
 
     //in one account sid will lost message
-    private static void deleteAllDataPhoneNumber(String accountSid, String authToken, String phoneNumber){
+    private static void deleteAllDataPhoneNumber(String accountSid, String authToken, String phoneNumber) {
         Twilio.init(accountSid, authToken);
         //Call
     }
 
-    private static void testTime(){
+    private static void testTime() {
         SimpleDateFormat out = new SimpleDateFormat("MMM d, HH:mm a");
         Date time = new Date(1503055060956L);
-        Utils.logMessage( out.format(time));
+        Utils.logMessage(out.format(time));
     }
 
-    private static void getAccessToken(){
+    private static void getAccessToken() {
         try {
             com.mashape.unirest.http.HttpResponse<String> response = Unirest.post("https://coderdaudat.auth0.com/oauth/token")
                     .header("content-type", "application/json")

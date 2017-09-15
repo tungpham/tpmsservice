@@ -28,4 +28,6 @@ public class Constants {
     public static final String APPLICATION_ID = "AP9f42c0e2c9424f7286cc3c42d3c6c7c0";
 
     public static final String FORMAT_DATE = "E, d MMM yyyy HH:mm:ss Z";
+
+    public static final int LIMIT = 10;
 }

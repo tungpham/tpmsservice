@@ -12,9 +12,11 @@ import com.ethan.morephone.http.Response;
 import com.ethan.morephone.twilio.call.CallStatus;
 import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.twilio.model.CallDTO;
+import com.ethan.morephone.twilio.model.ResourceCall;
 import com.ethan.morephone.utils.Utils;
 import com.google.common.collect.Range;
 import com.twilio.Twilio;
+import com.twilio.base.Page;
 import com.twilio.base.ResourceSet;
 import com.twilio.rest.api.v2010.account.Call;
 import com.twilio.rest.api.v2010.account.CallFetcher;
@@ -355,7 +357,10 @@ public class CallService {
     @GetMapping(value = "/logs")
     com.ethan.morephone.http.Response<Object> retrieveCallLogs(@RequestParam(value = "account_sid") String accountSid,
                                                                @RequestParam(value = "auth_token") String authToken,
-                                                               @RequestParam(value = "phone_number") String phoneNumber) {
+                                                               @RequestParam(value = "phone_number") String phoneNumber,
+                                                               @RequestParam(value = "page_incoming") String pageIncoming,
+                                                               @RequestParam(value = "page_outgoing") String pageOutgoing) {
+
         PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(phoneNumber);
         if (phoneNumberDTO != null) {
             if (phoneNumberDTO.getPool()) {
@@ -367,9 +372,19 @@ public class CallService {
 
             List<CallDTO> calls = new ArrayList<>();
 
-            ResourceSet<Call> callsIncoming = new CallReader(accountSid).setTo(new PhoneNumber(phoneNumber))
-                    .setStartTime(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())))
-                    .read();
+            CallReader callReaderIncoming = new CallReader(accountSid)
+                    .setTo(new PhoneNumber(phoneNumber));
+
+            callReaderIncoming.limit(Constants.LIMIT);
+
+            Page<Call> callPageIncoming;
+            if (com.ethan.morephone.utils.TextUtils.isEmpty(pageIncoming)) {
+                callPageIncoming = callReaderIncoming.firstPage();
+            } else {
+                callPageIncoming = callReaderIncoming.getPage(pageIncoming);
+            }
+
+            List<Call> callsIncoming = callPageIncoming.getRecords();
 
             if (callsIncoming != null) {
                 for (Call call : callsIncoming) {
@@ -377,9 +392,19 @@ public class CallService {
                 }
             }
 
-            ResourceSet<Call> callsOutgoing = new CallReader(accountSid).setFrom(new PhoneNumber(phoneNumber))
-                    .setStartTime(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())))
-                    .read();
+            CallReader callReaderOutgoing = new CallReader(accountSid)
+                    .setFrom(new PhoneNumber(phoneNumber));
+
+            callReaderIncoming.limit(Constants.LIMIT);
+
+            Page<Call> callPageOutgoing;
+            if (com.ethan.morephone.utils.TextUtils.isEmpty(pageOutgoing)) {
+                callPageOutgoing = callReaderOutgoing.firstPage();
+            } else {
+                callPageOutgoing = callReaderOutgoing.getPage(pageOutgoing);
+            }
+
+            List<Call> callsOutgoing = callPageOutgoing.getRecords();
 
             if (callsOutgoing != null) {
                 for (Call call : callsOutgoing) {
@@ -387,9 +412,22 @@ public class CallService {
                 }
             }
 
+            Collections.sort(calls);
+
+            ResourceCall resourceCall = new ResourceCall(calls,
+                    callPageIncoming.getFirstPageUrl("api", null),
+                    callPageIncoming.getNextPageUrl("api", null),
+                    callPageIncoming.getPreviousPageUrl("api", null),
+                    callPageIncoming.getUrl("api", null),
+                    callPageOutgoing.getFirstPageUrl("api", null),
+                    callPageOutgoing.getNextPageUrl("api", null),
+                    callPageOutgoing.getPreviousPageUrl("api", null),
+                    callPageOutgoing.getUrl("api", null),
+                    callPageIncoming.getPageSize());
+
             if (!calls.isEmpty()) {
                 Collections.sort(calls);
-                return new com.ethan.morephone.http.Response<>(calls, HTTPStatus.OK);
+                return new com.ethan.morephone.http.Response<>(resourceCall, HTTPStatus.OK);
             }
         }
 
