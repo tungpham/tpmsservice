@@ -12,11 +12,12 @@ import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.twilio.email.EmailServiceImpl;
 import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.twilio.model.ConversationModel;
+import com.ethan.morephone.twilio.model.ResourceMessage;
 import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
 import com.google.common.collect.Range;
 import com.twilio.Twilio;
-import com.twilio.base.ResourceSet;
+import com.twilio.base.Page;
 import com.twilio.exception.TwilioException;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.api.v2010.account.MessageCreator;
@@ -199,7 +200,9 @@ public class MessageService {
     @GetMapping(value = "/retrieve")
     com.ethan.morephone.http.Response<Object> retrieveMessage(@RequestParam(value = "account_sid") String accountSid,
                                                               @RequestParam(value = "auth_token") String authToken,
-                                                              @RequestParam(value = "phone_number") String phoneNumber) {
+                                                              @RequestParam(value = "phone_number") String phoneNumber,
+                                                              @RequestParam(value = "page_incoming") String pageIncoming,
+                                                              @RequestParam(value = "page_outgoing") String pageOutgoing) {
         PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(phoneNumber);
         if (phoneNumberDTO != null) {
             if (phoneNumberDTO.getPool()) {
@@ -210,17 +213,37 @@ public class MessageService {
 
             HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
 
-            ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesIncoming = new MessageReader(accountSid).setTo(new PhoneNumber(phoneNumber))
-                    .setDateSent(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())))
-                    .read();
+            MessageReader messageReaderIncoming = new MessageReader(accountSid)
+                    .setTo(new PhoneNumber(phoneNumber))
+                    .setDateSent(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())));
+            messageReaderIncoming.limit(Constants.LIMIT);
+
+            Page<Message> messagePageIncoming;
+            if (com.ethan.morephone.utils.TextUtils.isEmpty(pageIncoming)) {
+                messagePageIncoming = messageReaderIncoming.firstPage();
+            } else {
+                messagePageIncoming = messageReaderIncoming.getPage(pageIncoming);
+            }
+
+            List<Message> messagesIncoming = messagePageIncoming.getRecords();
 
             if (messagesIncoming != null) {
                 mArrayMap.putAll(executeData(messagesIncoming, true));
             }
 
-            ResourceSet<com.twilio.rest.api.v2010.account.Message> messagesOutgoing = new MessageReader(accountSid).setFrom(new PhoneNumber(phoneNumber))
-                    .setDateSent(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())))
-                    .read();
+            MessageReader messageReaderOutgoing = new MessageReader(accountSid)
+                    .setFrom(new PhoneNumber(phoneNumber))
+                    .setDateSent(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())));
+            messageReaderOutgoing.limit(Constants.LIMIT);
+
+            Page<Message> messagePageOutgoing;
+            if (com.ethan.morephone.utils.TextUtils.isEmpty(pageOutgoing)) {
+                messagePageOutgoing = messageReaderOutgoing.firstPage();
+            } else {
+                messagePageOutgoing = messageReaderOutgoing.getPage(pageOutgoing);
+            }
+
+            List<Message> messagesOutgoing = messagePageOutgoing.getRecords();
 
             if (messagesOutgoing != null) {
                 mArrayMap.putAll(executeData(messagesOutgoing, false));
@@ -237,12 +260,24 @@ public class MessageService {
                 }
             }
 
-            return new com.ethan.morephone.http.Response<>(mConversationModels, HTTPStatus.OK);
+            ResourceMessage resourceMessage = new ResourceMessage(mConversationModels,
+                    messagePageIncoming.getFirstPageUrl("api", null).contains("null") ? "" : messagePageIncoming.getFirstPageUrl("api", null),
+                    messagePageIncoming.getNextPageUrl("api", null).contains("null") ? "" : messagePageIncoming.getNextPageUrl("api", null),
+                    messagePageIncoming.getPreviousPageUrl("api", null).contains("null") ? "" : messagePageIncoming.getPreviousPageUrl("api", null),
+                    messagePageIncoming.getUrl("api", null).contains("null") ? "" : messagePageIncoming.getUrl("api", null),
+                    messagePageOutgoing.getFirstPageUrl("api", null).contains("null") ? "" : messagePageOutgoing.getFirstPageUrl("api", null),
+                    messagePageOutgoing.getNextPageUrl("api", null).contains("null") ? "" : messagePageOutgoing.getNextPageUrl("api", null),
+                    messagePageOutgoing.getPreviousPageUrl("api", null).contains("null") ? "" : messagePageOutgoing.getPreviousPageUrl("api", null),
+                    messagePageOutgoing.getUrl("api", null).contains("null") ? "" : messagePageOutgoing.getUrl("api", null),
+                    messagePageIncoming.getPageSize());
+
+
+            return new com.ethan.morephone.http.Response<>(resourceMessage, HTTPStatus.OK);
         }
         return new com.ethan.morephone.http.Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
     }
 
-    private static HashMap<String, List<MessageItem>> executeData(ResourceSet<Message> messageItems,
+    private static HashMap<String, List<MessageItem>> executeData(List<Message> messageItems,
                                                                   boolean isComing) {
         HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
         if (isComing) {

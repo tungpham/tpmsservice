@@ -388,6 +388,7 @@ public class CallService {
             List<CallDTO> calls = new ArrayList<>();
 
             CallReader callReaderIncoming = new CallReader(accountSid)
+                    .setStartTime(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())))
                     .setTo(new PhoneNumber(phoneNumber));
 
             callReaderIncoming.limit(Constants.LIMIT);
@@ -434,10 +435,10 @@ public class CallService {
                     callPageIncoming.getNextPageUrl("api", null).contains("null") ? "" : callPageIncoming.getNextPageUrl("api", null),
                     callPageIncoming.getPreviousPageUrl("api", null).contains("null") ? "" : callPageIncoming.getPreviousPageUrl("api", null),
                     callPageIncoming.getUrl("api", null).contains("null") ? "" : callPageIncoming.getUrl("api", null),
-                    callPageOutgoing.getFirstPageUrl("api", null).contains("null") ? "" : callPageIncoming.getFirstPageUrl("api", null),
-                    callPageOutgoing.getNextPageUrl("api", null).contains("null") ? "" : callPageIncoming.getNextPageUrl("api", null),
-                    callPageOutgoing.getPreviousPageUrl("api", null).contains("null") ? "" : callPageIncoming.getPreviousPageUrl("api", null),
-                    callPageOutgoing.getUrl("api", null).contains("null") ? "" : callPageIncoming.getUrl("api", null),
+                    callPageOutgoing.getFirstPageUrl("api", null).contains("null") ? "" : callPageOutgoing.getFirstPageUrl("api", null),
+                    callPageOutgoing.getNextPageUrl("api", null).contains("null") ? "" : callPageOutgoing.getNextPageUrl("api", null),
+                    callPageOutgoing.getPreviousPageUrl("api", null).contains("null") ? "" : callPageOutgoing.getPreviousPageUrl("api", null),
+                    callPageOutgoing.getUrl("api", null).contains("null") ? "" : callPageOutgoing.getUrl("api", null),
                     callPageIncoming.getPageSize());
 
             if (!calls.isEmpty()) {
