@@ -320,11 +320,14 @@ public class CallService {
                     .setDateCreated(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())));
 
             recordingReader.limit(Constants.LIMIT);
-            Page<com.twilio.rest.api.v2010.account.Recording> callPage;
-            if (com.ethan.morephone.utils.TextUtils.isEmpty(page)) {
-                callPage = recordingReader.firstPage();
-            } else {
-                callPage = recordingReader.getPage(page);
+
+            Page<com.twilio.rest.api.v2010.account.Recording> callPage = null;
+            if (!com.ethan.morephone.utils.TextUtils.isEmpty(page)) {
+                if (page.equals(Constants.FIRST_PAGE)) {
+                    callPage = recordingReader.firstPage();
+                } else {
+                    callPage = recordingReader.getPage(page);
+                }
             }
 
 
@@ -354,12 +357,26 @@ public class CallService {
             }
 
 
+            String firstPageUrl = "";
+            String nextPageUrl = "";
+            String previousPageUrl = "";
+            String url = "";
+            int pageSize = 0;
+
+            if(callPage != null){
+                firstPageUrl = callPage.getFirstPageUrl("api", null).contains("null") ? "" : callPage.getFirstPageUrl("api", null);
+                nextPageUrl = callPage.getNextPageUrl("api", null).contains("null") ? "" : callPage.getNextPageUrl("api", null);
+                previousPageUrl = callPage.getPreviousPageUrl("api", null).contains("null") ? "" : callPage.getPreviousPageUrl("api", null);
+                url = callPage.getUrl("api", null).contains("null") ? "" : callPage.getUrl("api", null);
+                pageSize = callPage.getPageSize();
+            }
+
             ResourceRecord resourceRecord = new ResourceRecord(records,
-                    callPage.getFirstPageUrl("api", null).contains("null") ? "" : callPage.getFirstPageUrl("api", null),
-                    callPage.getNextPageUrl("api", null).contains("null") ? "" : callPage.getNextPageUrl("api", null),
-                    callPage.getPreviousPageUrl("api", null).contains("null") ? "" : callPage.getPreviousPageUrl("api", null),
-                    callPage.getUrl("api", null).contains("null") ? "" : callPage.getUrl("api", null),
-                    callPage.getPageSize());
+                    firstPageUrl,
+                    nextPageUrl,
+                    previousPageUrl,
+                    url,
+                    pageSize);
 
             return new com.ethan.morephone.http.Response<>(resourceRecord, HTTPStatus.OK);
 
