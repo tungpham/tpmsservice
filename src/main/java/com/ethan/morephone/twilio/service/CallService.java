@@ -454,7 +454,7 @@ public class CallService {
                 pageSize = callPageIncoming.getPageSize();
             }
 
-            if (pageOutgoing != null) {
+            if (callPageOutgoing != null) {
                 outgoingFirstPageUrl = callPageOutgoing.getFirstPageUrl("api", null).contains("null") ? "" : callPageOutgoing.getFirstPageUrl("api", null);
                 outgoingNextPageUrl = callPageOutgoing.getNextPageUrl("api", null).contains("null") ? "" : callPageOutgoing.getNextPageUrl("api", null);
                 outgoingPreviousPageUrl = callPageOutgoing.getPreviousPageUrl("api", null).contains("null") ? "" : callPageOutgoing.getPreviousPageUrl("api", null);
