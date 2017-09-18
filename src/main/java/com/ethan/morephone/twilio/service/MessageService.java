@@ -218,11 +218,13 @@ public class MessageService {
                     .setDateSent(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())));
             messageReaderIncoming.limit(Constants.LIMIT);
 
-            Page<Message> messagePageIncoming;
-            if (com.ethan.morephone.utils.TextUtils.isEmpty(pageIncoming)) {
-                messagePageIncoming = messageReaderIncoming.firstPage();
-            } else {
-                messagePageIncoming = messageReaderIncoming.getPage(pageIncoming);
+            Page<Message> messagePageIncoming = null;
+            if (!com.ethan.morephone.utils.TextUtils.isEmpty(pageIncoming)) {
+                if (pageIncoming.equals(Constants.FIRST_PAGE)) {
+                    messagePageIncoming = messageReaderIncoming.firstPage();
+                } else {
+                    messagePageIncoming = messageReaderIncoming.getPage(pageIncoming);
+                }
             }
 
             List<Message> messagesIncoming = messagePageIncoming.getRecords();
@@ -236,11 +238,13 @@ public class MessageService {
                     .setDateSent(Range.greaterThan(new DateTime(phoneNumberDTO.getCreatedAt())));
             messageReaderOutgoing.limit(Constants.LIMIT);
 
-            Page<Message> messagePageOutgoing;
-            if (com.ethan.morephone.utils.TextUtils.isEmpty(pageOutgoing)) {
-                messagePageOutgoing = messageReaderOutgoing.firstPage();
-            } else {
-                messagePageOutgoing = messageReaderOutgoing.getPage(pageOutgoing);
+            Page<Message> messagePageOutgoing = null;
+            if (!com.ethan.morephone.utils.TextUtils.isEmpty(pageOutgoing)) {
+                if (pageOutgoing.equals(Constants.FIRST_PAGE)) {
+                    messagePageOutgoing = messageReaderOutgoing.firstPage();
+                } else {
+                    messagePageOutgoing = messageReaderOutgoing.getPage(pageOutgoing);
+                }
             }
 
             List<Message> messagesOutgoing = messagePageOutgoing.getRecords();
@@ -255,21 +259,48 @@ public class MessageService {
                 if (items != null && !items.isEmpty()) {
                     Collections.sort(items);
                     String dateCreated = items.get(items.size() - 1).dateCreated;
-                    Utils.logMessage("DATE CREATED: " + dateCreated);
                     mConversationModels.add(new ConversationModel(entry.getKey().toString(), dateCreated, items));
                 }
             }
 
+
+            String incomingFirstPageUrl = "";
+            String incomingNextPageUrl = "";
+            String incomingPreviousPageUrl = "";
+            String incomingUrl = "";
+            String outgoingFirstPageUrl = "";
+            String outgoingNextPageUrl = "";
+            String outgoingPreviousPageUrl = "";
+            String outgoingUrl = "";
+            int pageSize = 0;
+
+            if (messagePageIncoming != null) {
+                incomingFirstPageUrl = messagePageIncoming.getFirstPageUrl("api", null).contains("null") ? "" : messagePageIncoming.getFirstPageUrl("api", null);
+                incomingNextPageUrl = messagePageIncoming.getNextPageUrl("api", null).contains("null") ? "" : messagePageIncoming.getNextPageUrl("api", null);
+                incomingPreviousPageUrl = messagePageIncoming.getPreviousPageUrl("api", null).contains("null") ? "" : messagePageIncoming.getPreviousPageUrl("api", null);
+                incomingUrl = messagePageIncoming.getUrl("api", null).contains("null") ? "" : messagePageIncoming.getUrl("api", null);
+                pageSize = messagePageIncoming.getPageSize();
+            }
+
+            if (messagePageOutgoing != null) {
+                outgoingFirstPageUrl = messagePageOutgoing.getFirstPageUrl("api", null).contains("null") ? "" : messagePageOutgoing.getFirstPageUrl("api", null);
+                outgoingNextPageUrl = messagePageOutgoing.getNextPageUrl("api", null).contains("null") ? "" : messagePageOutgoing.getNextPageUrl("api", null);
+                outgoingPreviousPageUrl = messagePageOutgoing.getPreviousPageUrl("api", null).contains("null") ? "" : messagePageOutgoing.getPreviousPageUrl("api", null);
+                outgoingUrl = messagePageOutgoing.getUrl("api", null).contains("null") ? "" : messagePageOutgoing.getUrl("api", null);
+                pageSize = messagePageOutgoing.getPageSize();
+            }
+
+
             ResourceMessage resourceMessage = new ResourceMessage(mConversationModels,
-                    messagePageIncoming.getFirstPageUrl("api", null).contains("null") ? "" : messagePageIncoming.getFirstPageUrl("api", null),
-                    messagePageIncoming.getNextPageUrl("api", null).contains("null") ? "" : messagePageIncoming.getNextPageUrl("api", null),
-                    messagePageIncoming.getPreviousPageUrl("api", null).contains("null") ? "" : messagePageIncoming.getPreviousPageUrl("api", null),
-                    messagePageIncoming.getUrl("api", null).contains("null") ? "" : messagePageIncoming.getUrl("api", null),
-                    messagePageOutgoing.getFirstPageUrl("api", null).contains("null") ? "" : messagePageOutgoing.getFirstPageUrl("api", null),
-                    messagePageOutgoing.getNextPageUrl("api", null).contains("null") ? "" : messagePageOutgoing.getNextPageUrl("api", null),
-                    messagePageOutgoing.getPreviousPageUrl("api", null).contains("null") ? "" : messagePageOutgoing.getPreviousPageUrl("api", null),
-                    messagePageOutgoing.getUrl("api", null).contains("null") ? "" : messagePageOutgoing.getUrl("api", null),
-                    messagePageIncoming.getPageSize());
+                    incomingFirstPageUrl,
+                    incomingNextPageUrl,
+                    incomingPreviousPageUrl,
+                    incomingUrl,
+                    outgoingFirstPageUrl,
+                    outgoingNextPageUrl,
+                    outgoingPreviousPageUrl,
+                    outgoingUrl,
+                    pageSize);
 
 
             return new com.ethan.morephone.http.Response<>(resourceMessage, HTTPStatus.OK);
