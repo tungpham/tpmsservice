@@ -225,13 +225,15 @@ public class MessageService {
                 } else {
                     messagePageIncoming = messageReaderIncoming.getPage(pageIncoming);
                 }
+
+                List<Message> messagesIncoming = messagePageIncoming.getRecords();
+
+                if (messagesIncoming != null) {
+                    mArrayMap.putAll(executeData(messagesIncoming, true));
+                }
             }
 
-            List<Message> messagesIncoming = messagePageIncoming.getRecords();
 
-            if (messagesIncoming != null) {
-                mArrayMap.putAll(executeData(messagesIncoming, true));
-            }
 
             MessageReader messageReaderOutgoing = new MessageReader(accountSid)
                     .setFrom(new PhoneNumber(phoneNumber))
@@ -245,24 +247,27 @@ public class MessageService {
                 } else {
                     messagePageOutgoing = messageReaderOutgoing.getPage(pageOutgoing);
                 }
-            }
 
-            List<Message> messagesOutgoing = messagePageOutgoing.getRecords();
+                List<Message> messagesOutgoing = messagePageOutgoing.getRecords();
 
-            if (messagesOutgoing != null) {
-                mArrayMap.putAll(executeData(messagesOutgoing, false));
-            }
-
-            List<ConversationModel> mConversationModels = new ArrayList<>();
-            for (Map.Entry entry : mArrayMap.entrySet()) {
-                List<MessageItem> items = mArrayMap.get(entry.getKey());
-                if (items != null && !items.isEmpty()) {
-                    Collections.sort(items);
-                    String dateCreated = items.get(items.size() - 1).dateCreated;
-                    mConversationModels.add(new ConversationModel(entry.getKey().toString(), dateCreated, items));
+                if (messagesOutgoing != null) {
+                    mArrayMap.putAll(executeData(messagesOutgoing, false));
                 }
             }
 
+
+            List<ConversationModel> mConversationModels = new ArrayList<>();
+
+            if(mArrayMap != null && !mArrayMap.isEmpty()) {
+                for (Map.Entry entry : mArrayMap.entrySet()) {
+                    List<MessageItem> items = mArrayMap.get(entry.getKey());
+                    if (items != null && !items.isEmpty()) {
+                        Collections.sort(items);
+                        String dateCreated = items.get(items.size() - 1).dateCreated;
+                        mConversationModels.add(new ConversationModel(entry.getKey().toString(), dateCreated, items));
+                    }
+                }
+            }
 
             String incomingFirstPageUrl = "";
             String incomingNextPageUrl = "";
@@ -290,20 +295,22 @@ public class MessageService {
                 pageSize = messagePageOutgoing.getPageSize();
             }
 
+            if(!mConversationModels.isEmpty()) {
 
-            ResourceMessage resourceMessage = new ResourceMessage(mConversationModels,
-                    incomingFirstPageUrl,
-                    incomingNextPageUrl,
-                    incomingPreviousPageUrl,
-                    incomingUrl,
-                    outgoingFirstPageUrl,
-                    outgoingNextPageUrl,
-                    outgoingPreviousPageUrl,
-                    outgoingUrl,
-                    pageSize);
+                ResourceMessage resourceMessage = new ResourceMessage(mConversationModels,
+                        incomingFirstPageUrl,
+                        incomingNextPageUrl,
+                        incomingPreviousPageUrl,
+                        incomingUrl,
+                        outgoingFirstPageUrl,
+                        outgoingNextPageUrl,
+                        outgoingPreviousPageUrl,
+                        outgoingUrl,
+                        pageSize);
 
 
-            return new com.ethan.morephone.http.Response<>(resourceMessage, HTTPStatus.OK);
+                return new com.ethan.morephone.http.Response<>(resourceMessage, HTTPStatus.OK);
+            }
         }
         return new com.ethan.morephone.http.Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
     }
