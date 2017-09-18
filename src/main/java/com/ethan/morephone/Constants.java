@@ -30,4 +30,6 @@ public class Constants {
     public static final String FORMAT_DATE = "E, d MMM yyyy HH:mm:ss Z";
 
     public static final int LIMIT = 2;
+
+    public static final String FIRST_PAGE = "first";
 }

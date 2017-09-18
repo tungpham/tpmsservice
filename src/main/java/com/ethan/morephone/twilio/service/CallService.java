@@ -393,53 +393,85 @@ public class CallService {
 
             callReaderIncoming.limit(Constants.LIMIT);
 
-            Page<Call> callPageIncoming;
-            if (com.ethan.morephone.utils.TextUtils.isEmpty(pageIncoming)) {
-                callPageIncoming = callReaderIncoming.firstPage();
-            } else {
-                callPageIncoming = callReaderIncoming.getPage(pageIncoming);
-            }
+            Page<Call> callPageIncoming = null;
+            if (!com.ethan.morephone.utils.TextUtils.isEmpty(pageIncoming)) {
+                if (pageIncoming.equals(Constants.FIRST_PAGE)) {
+                    callPageIncoming = callReaderIncoming.firstPage();
+                } else {
+                    callPageIncoming = callReaderIncoming.getPage(pageIncoming);
+                }
 
-            List<Call> callsIncoming = callPageIncoming.getRecords();
+                List<Call> callsIncoming = callPageIncoming.getRecords();
 
-            if (callsIncoming != null) {
-                for (Call call : callsIncoming) {
-                    calls.add(convertToDTO(call));
+                if (callsIncoming != null) {
+                    for (Call call : callsIncoming) {
+                        calls.add(convertToDTO(call));
+                    }
                 }
             }
+
 
             CallReader callReaderOutgoing = new CallReader(accountSid)
                     .setFrom(new PhoneNumber(phoneNumber));
 
             callReaderOutgoing.limit(Constants.LIMIT);
 
-            Page<Call> callPageOutgoing;
-            if (com.ethan.morephone.utils.TextUtils.isEmpty(pageOutgoing)) {
-                callPageOutgoing = callReaderOutgoing.firstPage();
-            } else {
-                callPageOutgoing = callReaderOutgoing.getPage(pageOutgoing);
-            }
+            Page<Call> callPageOutgoing = null;
+            if (!com.ethan.morephone.utils.TextUtils.isEmpty(pageOutgoing)) {
+                if (pageOutgoing.equals(Constants.FIRST_PAGE)) {
+                    callPageOutgoing = callReaderOutgoing.firstPage();
+                } else {
+                    callPageOutgoing = callReaderOutgoing.getPage(pageOutgoing);
+                }
 
-            List<Call> callsOutgoing = callPageOutgoing.getRecords();
+                List<Call> callsOutgoing = callPageOutgoing.getRecords();
 
-            if (callsOutgoing != null) {
-                for (Call call : callsOutgoing) {
-                    calls.add(convertToDTO(call));
+                if (callsOutgoing != null) {
+                    for (Call call : callsOutgoing) {
+                        calls.add(convertToDTO(call));
+                    }
                 }
             }
 
+
             Collections.sort(calls);
 
+            String incomingFirstPageUrl = "";
+            String incomingNextPageUrl = "";
+            String incomingPreviousPageUrl = "";
+            String incomingUrl = "";
+            String outgoingFirstPageUrl = "";
+            String outgoingNextPageUrl = "";
+            String outgoingPreviousPageUrl = "";
+            String outgoingUrl = "";
+            int pageSize = 0;
+
+            if (callPageIncoming != null) {
+                incomingFirstPageUrl = callPageIncoming.getFirstPageUrl("api", null).contains("null") ? "" : callPageIncoming.getFirstPageUrl("api", null);
+                incomingNextPageUrl = callPageIncoming.getNextPageUrl("api", null).contains("null") ? "" : callPageIncoming.getNextPageUrl("api", null);
+                incomingPreviousPageUrl = callPageIncoming.getPreviousPageUrl("api", null).contains("null") ? "" : callPageIncoming.getPreviousPageUrl("api", null);
+                incomingUrl = callPageIncoming.getUrl("api", null).contains("null") ? "" : callPageIncoming.getUrl("api", null);
+                pageSize = callPageIncoming.getPageSize();
+            }
+
+            if (pageOutgoing != null) {
+                outgoingFirstPageUrl = callPageOutgoing.getFirstPageUrl("api", null).contains("null") ? "" : callPageOutgoing.getFirstPageUrl("api", null);
+                outgoingNextPageUrl = callPageOutgoing.getNextPageUrl("api", null).contains("null") ? "" : callPageOutgoing.getNextPageUrl("api", null);
+                outgoingPreviousPageUrl = callPageOutgoing.getPreviousPageUrl("api", null).contains("null") ? "" : callPageOutgoing.getPreviousPageUrl("api", null);
+                outgoingUrl = callPageOutgoing.getUrl("api", null).contains("null") ? "" : callPageOutgoing.getUrl("api", null);
+                pageSize = callPageOutgoing.getPageSize();
+            }
+
             ResourceCall resourceCall = new ResourceCall(calls,
-                    callPageIncoming.getFirstPageUrl("api", null).contains("null") ? "" : callPageIncoming.getFirstPageUrl("api", null),
-                    callPageIncoming.getNextPageUrl("api", null).contains("null") ? "" : callPageIncoming.getNextPageUrl("api", null),
-                    callPageIncoming.getPreviousPageUrl("api", null).contains("null") ? "" : callPageIncoming.getPreviousPageUrl("api", null),
-                    callPageIncoming.getUrl("api", null).contains("null") ? "" : callPageIncoming.getUrl("api", null),
-                    callPageOutgoing.getFirstPageUrl("api", null).contains("null") ? "" : callPageOutgoing.getFirstPageUrl("api", null),
-                    callPageOutgoing.getNextPageUrl("api", null).contains("null") ? "" : callPageOutgoing.getNextPageUrl("api", null),
-                    callPageOutgoing.getPreviousPageUrl("api", null).contains("null") ? "" : callPageOutgoing.getPreviousPageUrl("api", null),
-                    callPageOutgoing.getUrl("api", null).contains("null") ? "" : callPageOutgoing.getUrl("api", null),
-                    callPageIncoming.getPageSize());
+                    incomingFirstPageUrl,
+                    incomingNextPageUrl,
+                    incomingPreviousPageUrl,
+                    incomingUrl,
+                    outgoingFirstPageUrl,
+                    outgoingNextPageUrl,
+                    outgoingPreviousPageUrl,
+                    outgoingUrl,
+                    pageSize);
 
             if (!calls.isEmpty()) {
                 Collections.sort(calls);
