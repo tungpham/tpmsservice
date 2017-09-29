@@ -26,7 +26,7 @@ final class ContactController {
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    Response<Object> loadContact(@RequestParam("phoneNumberId") String phoneNumberId) {
+    Response<Object> loadContact(@RequestParam("phone_number_id") String phoneNumberId) {
         if(TextUtils.isEmpty(phoneNumberId)){
             return new Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
         }
