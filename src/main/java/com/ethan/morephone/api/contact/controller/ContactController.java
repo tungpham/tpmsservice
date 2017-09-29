@@ -4,10 +4,12 @@ import com.ethan.morephone.api.contact.domain.ContactDTO;
 import com.ethan.morephone.api.contact.service.ContactService;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.http.Response;
+import com.ethan.morephone.utils.TextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * Created by truongnguyen on 9/28/17.
@@ -21,6 +23,20 @@ final class ContactController {
     @Autowired
     ContactController(ContactService contactService) {
         this.mContactService = contactService;
+    }
+
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    Response<Object> loadContact(@RequestParam("phoneNumberId") String phoneNumberId) {
+        if(TextUtils.isEmpty(phoneNumberId)){
+            return new Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
+        }
+
+        List<ContactDTO> contactDTO = mContactService.findByPhoneNumberId(phoneNumberId);
+        if (contactDTO != null && !contactDTO.isEmpty()) {
+            return new Response<>(contactDTO, HTTPStatus.OK);
+        } else {
+            return new Response<>(HTTPStatus.NOT_FOUND, HTTPStatus.NOT_FOUND);
+        }
     }
 
     @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
