@@ -1,6 +1,5 @@
 package com.ethan.morephone.api.contact.domain;
 
-import com.ethan.morephone.utils.Utils;
 import org.springframework.data.annotation.Id;
 
 import java.util.Date;
@@ -240,17 +239,9 @@ public final class Contact {
         }
 
         public Contact build() {
-
             Contact build = new Contact(this);
-
-            build.checkSid(build.getId());
-
             return build;
         }
     }
 
-    private void checkSid(String sid) {
-        Utils.notNull(sid, "sid cannot be null");
-        Utils.notEmpty(sid, "sid cannot be empty");
-    }
 }
