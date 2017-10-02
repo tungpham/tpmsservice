@@ -26,7 +26,6 @@ public class ContactServiceIml implements ContactService {
     @Override
     public ContactDTO create(ContactDTO contact) {
         Contact persisted = Contact.getBuilder()
-                .id(contact.getId())
                 .displayName(contact.getDisplayName())
                 .phoneNumber(contact.getPhoneNumber())
                 .userId(contact.getUserId())
