@@ -39,6 +39,20 @@ final class ContactController {
         }
     }
 
+    @RequestMapping(value = "/user", method = RequestMethod.GET, produces = "application/json")
+    Response<Object> loadContactByUser(@RequestParam("user_id") String userId) {
+        if(TextUtils.isEmpty(userId)){
+            return new Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
+        }
+
+        List<ContactDTO> contactDTO = mContactService.findByUserId(userId);
+        if (contactDTO != null && !contactDTO.isEmpty()) {
+            return new Response<>(contactDTO, HTTPStatus.OK);
+        } else {
+            return new Response<>(HTTPStatus.NOT_FOUND, HTTPStatus.NOT_FOUND);
+        }
+    }
+
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     Response<Object> delete(@PathVariable("id") String id) {
 
