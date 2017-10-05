@@ -39,7 +39,7 @@ final class ContactController {
         }
     }
 
-    @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     Response<Object> delete(@PathVariable("id") String id) {
 
         ContactDTO contactDTO = mContactService.findById(id);
