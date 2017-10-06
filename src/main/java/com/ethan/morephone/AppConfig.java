@@ -61,6 +61,10 @@ public class AppConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/v1/contact").hasAnyAuthority("read:contact")
                 .antMatchers(HttpMethod.PUT, "/api/v1/contact").hasAnyAuthority("write:contact")
                 .antMatchers(HttpMethod.DELETE, "/api/v1/contact").hasAnyAuthority("delete:contact")
+                .antMatchers(HttpMethod.POST, "/api/v1/message-group").hasAnyAuthority("write:message-group")
+                .antMatchers(HttpMethod.GET, "/api/v1/message-group").hasAnyAuthority("read:message-group")
+                .antMatchers(HttpMethod.PUT, "/api/v1/message-group").hasAnyAuthority("write:message-group")
+                .antMatchers(HttpMethod.DELETE, "/api/v1/message-group").hasAnyAuthority("delete:message-group")
                 .anyRequest().authenticated();
     }
 
