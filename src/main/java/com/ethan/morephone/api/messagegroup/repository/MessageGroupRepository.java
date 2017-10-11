@@ -48,5 +48,4 @@ public interface MessageGroupRepository extends Repository<MessageGroup, String>
 
     List<MessageGroup> findByPhoneNumberId(String phoneNumberId);
 
-    List<MessageGroup> findByPhoneNumber(String phoneNumber);
 }

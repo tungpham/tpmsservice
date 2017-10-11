@@ -51,5 +51,4 @@ public interface MessageGroupService {
 
     List<MessageGroupDTO> findByUserId(String userId);
 
-    MessageGroupDTO findByPhoneNumber(String phoneNumber);
 }
