@@ -30,6 +30,7 @@ public class MessageGroupServiceIml implements MessageGroupService {
                 .groupPhone(contact.getGroupPhone())
                 .userId(contact.getUserId())
                 .phoneNumberId(contact.getPhoneNumberId())
+                .messagesSid(contact.getMessagesSid())
                 .build();
 
         persisted = repository.save(persisted);
@@ -73,6 +74,7 @@ public class MessageGroupServiceIml implements MessageGroupService {
                     .groupPhone(contact.getGroupPhone())
                     .userId(contact.getUserId())
                     .phoneNumberId(contact.getPhoneNumberId())
+                    .messagesSid(contact.getMessagesSid())
                     .build();
             updated = repository.save(updated);
             return convertToDTO(updated);
@@ -131,6 +133,7 @@ public class MessageGroupServiceIml implements MessageGroupService {
         dto.setName(model.getName());
         dto.setUserId(model.getUserId());
         dto.setPhoneNumberId(model.getPhoneNumberId());
+        dto.setMessagesSid(model.getMessagesSid());
         dto.setCreatedAt(model.getCreatedAt());
         dto.setUpdatedAt(model.getUpdatedAt());
 

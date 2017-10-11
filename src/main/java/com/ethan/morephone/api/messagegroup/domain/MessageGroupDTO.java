@@ -1,5 +1,7 @@
 package com.ethan.morephone.api.messagegroup.domain;
 
+import java.util.List;
+
 /**
  * Created by truongnguyen on 10/6/17.
  */
@@ -9,6 +11,7 @@ public class MessageGroupDTO {
     private String name;
     private String groupPhone;
     private String phoneNumberId;
+    private List<String> messagesSid;
     private String userId;
     private long createdAt;
     private long updatedAt;
@@ -70,5 +73,13 @@ public class MessageGroupDTO {
 
     public void setUpdatedAt(long updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<String> getMessagesSid() {
+        return messagesSid;
+    }
+
+    public void setMessagesSid(List<String> messagesSid) {
+        this.messagesSid = messagesSid;
     }
 }
