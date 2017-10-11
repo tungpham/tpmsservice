@@ -74,7 +74,7 @@ public class MessageGroupServiceIml implements MessageGroupService {
                     .groupPhone(contact.getGroupPhone())
                     .userId(contact.getUserId())
                     .phoneNumberId(contact.getPhoneNumberId())
-//                    .messagesSid(contact.getMessagesSid())
+                    .messagesSid(contact.getMessagesSid())
                     .build();
             updated = repository.save(updated);
             return convertToDTO(updated);
@@ -94,6 +94,10 @@ public class MessageGroupServiceIml implements MessageGroupService {
 
     @Override
     public List<MessageGroupDTO> findByUserId(String userId) {
+        List<MessageGroup> result = repository.findByUserId(userId);
+        if(result != null && !result.isEmpty()){
+            return convertToDTOs(result);
+        }
         return null;
     }
 
