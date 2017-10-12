@@ -1,7 +1,7 @@
-package com.ethan.morephone.api.messagegroup.controller;
+package com.ethan.morephone.api.group.controller;
 
-import com.ethan.morephone.api.messagegroup.domain.MessageGroupDTO;
-import com.ethan.morephone.api.messagegroup.service.MessageGroupService;
+import com.ethan.morephone.api.group.domain.GroupDTO;
+import com.ethan.morephone.api.group.service.GroupService;
 import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.http.Response;
 import com.ethan.morephone.utils.TextUtils;
@@ -15,14 +15,14 @@ import java.util.List;
  * Created by truongnguyen on 9/28/17.
  */
 @RestController
-@RequestMapping("/api/v1/message-group")
-final class MessageGroupController {
+@RequestMapping("/api/v1/group")
+final class GroupController {
 
-    private final MessageGroupService mMessageGroupService;
+    private final GroupService mGroupService;
 
     @Autowired
-    MessageGroupController(MessageGroupService contactService) {
-        this.mMessageGroupService = contactService;
+    GroupController(GroupService contactService) {
+        this.mGroupService = contactService;
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
@@ -31,9 +31,9 @@ final class MessageGroupController {
             return new Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
         }
 
-        List<MessageGroupDTO> messageGroupDTOS = mMessageGroupService.findByPhoneNumberId(phoneNumberId);
-        if (messageGroupDTOS != null && !messageGroupDTOS.isEmpty()) {
-            return new Response<>(messageGroupDTOS, HTTPStatus.OK);
+        List<GroupDTO> groupDTOS = mGroupService.findByPhoneNumberId(phoneNumberId);
+        if (groupDTOS != null && !groupDTOS.isEmpty()) {
+            return new Response<>(groupDTOS, HTTPStatus.OK);
         } else {
             return new Response<>(HTTPStatus.NOT_FOUND, HTTPStatus.NOT_FOUND);
         }
@@ -45,9 +45,9 @@ final class MessageGroupController {
             return new Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
         }
 
-        List<MessageGroupDTO> messageGroupDTOS = mMessageGroupService.findByUserId(userId);
-        if (messageGroupDTOS != null && !messageGroupDTOS.isEmpty()) {
-            return new Response<>(messageGroupDTOS, HTTPStatus.OK);
+        List<GroupDTO> groupDTOS = mGroupService.findByUserId(userId);
+        if (groupDTOS != null && !groupDTOS.isEmpty()) {
+            return new Response<>(groupDTOS, HTTPStatus.OK);
         } else {
             return new Response<>(HTTPStatus.NOT_FOUND, HTTPStatus.NOT_FOUND);
         }
@@ -56,9 +56,9 @@ final class MessageGroupController {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     Response<Object> delete(@PathVariable("id") String id) {
 
-        MessageGroupDTO contactDTO = mMessageGroupService.findById(id);
+        GroupDTO contactDTO = mGroupService.findById(id);
         if (contactDTO != null) {
-            mMessageGroupService.delete(id);
+            mGroupService.delete(id);
             return new Response<>(HTTPStatus.OK.getReasonPhrase(), HTTPStatus.OK);
         } else {
             return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);
@@ -67,16 +67,16 @@ final class MessageGroupController {
 
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
-    Response<Object> create(@RequestBody @Valid MessageGroupDTO contactEntry) {
-        MessageGroupDTO dto = mMessageGroupService.create(contactEntry);
+    Response<Object> create(@RequestBody @Valid GroupDTO contactEntry) {
+        GroupDTO dto = mGroupService.create(contactEntry);
         return new Response<>(dto, HTTPStatus.CREATED);
     }
 
     @RequestMapping(method = RequestMethod.PUT, produces = "application/json")
-    Response<Object> update(@RequestBody @Valid MessageGroupDTO contactEntry) {
-        MessageGroupDTO messageGroupDTO = mMessageGroupService.findById(contactEntry.getId());
-        if (messageGroupDTO != null) {
-            mMessageGroupService.update(contactEntry);
+    Response<Object> update(@RequestBody @Valid GroupDTO contactEntry) {
+        GroupDTO groupDTO = mGroupService.findById(contactEntry.getId());
+        if (groupDTO != null) {
+            mGroupService.update(contactEntry);
             return new Response<>(contactEntry, HTTPStatus.OK);
         } else {
             return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);

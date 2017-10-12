@@ -1,6 +1,8 @@
 package com.ethan.morephone.twilio.service;
 
 import com.ethan.morephone.Constants;
+import com.ethan.morephone.api.group.domain.GroupDTO;
+import com.ethan.morephone.api.group.service.GroupService;
 import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
 import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
 import com.ethan.morephone.api.usage.domain.UsageDTO;
@@ -41,14 +43,16 @@ public class MessageService {
 
     private final UserService mUserService;
     private final UsageService mUsageService;
+    private final GroupService mGroupService;
     private final PhoneNumberService mPhoneNumberService;
     private final EmailServiceImpl mEmailService;
 
     @Autowired
-    MessageService(UserService userService, PhoneNumberService phoneNumberService, UsageService usageService, EmailServiceImpl emailService) {
+    MessageService(UserService userService, PhoneNumberService phoneNumberService, UsageService usageService, GroupService groupService, EmailServiceImpl emailService) {
         this.mUserService = userService;
         this.mPhoneNumberService = phoneNumberService;
         this.mUsageService = usageService;
+        this.mGroupService = groupService;
         this.mEmailService = emailService;
     }
 
@@ -201,6 +205,7 @@ public class MessageService {
     com.ethan.morephone.http.Response<Object> retrieveMessage(@RequestParam(value = "account_sid") String accountSid,
                                                               @RequestParam(value = "auth_token") String authToken,
                                                               @RequestParam(value = "phone_number") String phoneNumber,
+                                                              @RequestParam(value = "phone_number_id") String phoneNumberId,
                                                               @RequestParam(value = "page_incoming") String pageIncoming,
                                                               @RequestParam(value = "page_outgoing") String pageOutgoing) {
         PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(phoneNumber);
@@ -233,7 +238,7 @@ public class MessageService {
                 }
             }
 
-
+            List<GroupDTO> groupDTOS = mGroupService.findByPhoneNumberId(phoneNumberId);
 
             MessageReader messageReaderOutgoing = new MessageReader(accountSid)
                     .setFrom(new PhoneNumber(phoneNumber))
@@ -264,7 +269,7 @@ public class MessageService {
                     if (items != null && !items.isEmpty()) {
                         Collections.sort(items);
                         String dateCreated = items.get(items.size() - 1).dateCreated;
-                        mConversationModels.add(new ConversationModel(entry.getKey().toString(), dateCreated, items));
+                        mConversationModels.add(new ConversationModel("", entry.getKey().toString(), dateCreated, items));
                     }
                 }
             }

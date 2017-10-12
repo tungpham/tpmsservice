@@ -6,6 +6,6 @@ package com.ethan.morephone.api.messagegroup;
 public class MessageGroupNotFoundException extends RuntimeException {
 
     public MessageGroupNotFoundException(String id) {
-        super(String.format("No Message Group entry found with id: <%s>", id));
+        super(String.format("No Group entry found with id: <%s>", id));
     }
 }

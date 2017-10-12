@@ -1,6 +1,6 @@
-package com.ethan.morephone.api.messagegroup.repository;
+package com.ethan.morephone.api.group.repository;
 
-import com.ethan.morephone.api.messagegroup.domain.MessageGroup;
+import com.ethan.morephone.api.group.domain.Group;
 import org.springframework.data.repository.Repository;
 
 import java.util.List;
@@ -9,21 +9,21 @@ import java.util.Optional;
 /**
  * Created by truongnguyen on 9/28/17.
  */
-public interface MessageGroupRepository extends Repository<MessageGroup, String> {
+public interface GroupRepository extends Repository<Group, String> {
 
     /**
      * Deletes a user entry from the database.
      *
      * @param deleted The deleted user entry.
      */
-    void delete(MessageGroup deleted);
+    void delete(Group deleted);
 
     /**
      * Finds all user entries from the database.
      *
      * @return The information of all user entries that are found from the database.
      */
-    List<MessageGroup> findAll();
+    List<Group> findAll();
 
     /**
      * Finds the information of a single user entry.
@@ -32,7 +32,7 @@ public interface MessageGroupRepository extends Repository<MessageGroup, String>
      * @return The information of the found user entry. If no user entry
      * is found, this method returns an empty {@link Optional} object.
      */
-    Optional<MessageGroup> findOne(String id);
+    Optional<Group> findOne(String id);
 
     /**
      * Saves a new user entry to the database.
@@ -40,14 +40,12 @@ public interface MessageGroupRepository extends Repository<MessageGroup, String>
      * @param saved The information of the saved user entry.
      * @return The information of the saved user entry.
      */
-    MessageGroup save(MessageGroup saved);
+    Group save(Group saved);
 
-    List<MessageGroup> findBySid(String sid);
+    List<Group> findById(String id);
 
-    List<MessageGroup> findById(String id);
+    List<Group> findByUserId(String userId);
 
-    List<MessageGroup> findByUserId(String userId);
-
-    List<MessageGroup> findByPhoneNumberId(String phoneNumberId);
+    List<Group> findByPhoneNumberId(String phoneNumberId);
 
 }

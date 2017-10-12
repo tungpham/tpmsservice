@@ -1,18 +1,22 @@
-package com.ethan.morephone.api.messagegroup.domain;
+package com.ethan.morephone.api.group.domain;
+
+import java.util.List;
 
 /**
  * Created by truongnguyen on 10/6/17.
  */
-public class MessageGroupDTO {
+public class GroupDTO {
 
     private String id;
-    private String messageSid;
+    private String name;
+    private List<String> groupPhone;
     private String phoneNumberId;
     private String userId;
-    private String groupId;
-    private long dateSent;
     private long createdAt;
     private long updatedAt;
+
+    public GroupDTO() {
+    }
 
     public String getId() {
         return id;
@@ -22,12 +26,20 @@ public class MessageGroupDTO {
         this.id = id;
     }
 
-    public String getMessageSid() {
-        return messageSid;
+    public String getName() {
+        return name;
     }
 
-    public void setMessageSid(String messageSid) {
-        this.messageSid = messageSid;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<String> getGroupPhone() {
+        return groupPhone;
+    }
+
+    public void setGroupPhone(List<String> groupPhone) {
+        this.groupPhone = groupPhone;
     }
 
     public String getPhoneNumberId() {
@@ -46,14 +58,6 @@ public class MessageGroupDTO {
         this.userId = userId;
     }
 
-    public long getDateSent() {
-        return dateSent;
-    }
-
-    public void setDateSent(long dateSent) {
-        this.dateSent = dateSent;
-    }
-
     public long getCreatedAt() {
         return createdAt;
     }
@@ -70,11 +74,4 @@ public class MessageGroupDTO {
         this.updatedAt = updatedAt;
     }
 
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
 }

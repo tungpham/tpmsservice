@@ -13,6 +13,9 @@ import java.util.List;
  */
 public class ConversationModel implements Comparable<ConversationModel> {
 
+    @JsonProperty("message_group_id")
+    public String mMessageGroupId;
+
     @JsonProperty("phone_number")
     public String mPhoneNumber;
 
@@ -22,7 +25,8 @@ public class ConversationModel implements Comparable<ConversationModel> {
     @JsonProperty("message_items")
     public List<MessageItem> mMessageItems;
 
-    public ConversationModel(String phoneNumber, String dateCreated, List<MessageItem> messageItems) {
+    public ConversationModel(String messageGroupId, String phoneNumber, String dateCreated, List<MessageItem> messageItems) {
+        this.mMessageGroupId = messageGroupId;
         this.mPhoneNumber = phoneNumber;
         this.mDateCreated = dateCreated;
         this.mMessageItems = messageItems;

@@ -1,8 +1,8 @@
-package com.ethan.morephone.api.messagegroup.service;
+package com.ethan.morephone.api.group.service;
 
-import com.ethan.morephone.api.messagegroup.domain.MessageGroup;
-import com.ethan.morephone.api.messagegroup.domain.MessageGroupDTO;
-import com.ethan.morephone.api.messagegroup.repository.MessageGroupRepository;
+import com.ethan.morephone.api.group.domain.Group;
+import com.ethan.morephone.api.group.domain.GroupDTO;
+import com.ethan.morephone.api.group.repository.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,23 +13,23 @@ import static java.util.stream.Collectors.toList;
 /**
  * Created by truongnguyen on 9/28/17.
  */
-@Service("messageGroupService")
-public class MessageGroupServiceIml implements MessageGroupService {
+@Service("groupService")
+public class GroupServiceIml implements GroupService {
 
-    private final MessageGroupRepository repository;
+    private final GroupRepository repository;
 
     @Autowired
-    MessageGroupServiceIml(MessageGroupRepository repository) {
+    GroupServiceIml(GroupRepository repository) {
         this.repository = repository;
     }
 
     @Override
-    public MessageGroupDTO create(MessageGroupDTO contact) {
-        MessageGroup persisted = MessageGroup.getBuilder()
-                .messageSid(contact.getMessageSid())
+    public GroupDTO create(GroupDTO contact) {
+        Group persisted = Group.getBuilder()
+                .name(contact.getName())
+                .groupPhone(contact.getGroupPhone())
                 .userId(contact.getUserId())
                 .phoneNumberId(contact.getPhoneNumberId())
-                .dateSent(contact.getDateSent())
                 .build();
 
         persisted = repository.save(persisted);
@@ -38,8 +38,8 @@ public class MessageGroupServiceIml implements MessageGroupService {
     }
 
     @Override
-    public MessageGroupDTO delete(String id) {
-        MessageGroup deleted = findContactById(id);
+    public GroupDTO delete(String id) {
+        Group deleted = findContactById(id);
         if (deleted != null) {
             repository.delete(deleted);
             return convertToDTO(deleted);
@@ -49,13 +49,13 @@ public class MessageGroupServiceIml implements MessageGroupService {
     }
 
     @Override
-    public List<MessageGroupDTO> findAll() {
+    public List<GroupDTO> findAll() {
         return null;
     }
 
     @Override
-    public MessageGroupDTO findById(String id) {
-        MessageGroup contact = findContactById(id);
+    public GroupDTO findById(String id) {
+        Group contact = findContactById(id);
         if (contact != null) {
             return convertToDTO(contact);
         } else {
@@ -64,15 +64,15 @@ public class MessageGroupServiceIml implements MessageGroupService {
     }
 
     @Override
-    public MessageGroupDTO update(MessageGroupDTO contact) {
-        List<MessageGroup> result = repository.findById(contact.getId());
+    public GroupDTO update(GroupDTO contact) {
+        List<Group> result = repository.findById(contact.getId());
         if (result != null && !result.isEmpty()) {
-            MessageGroup updated = MessageGroup.getBuilder()
+            Group updated = Group.getBuilder()
                     .id(contact.getId())
-                    .messageSid(contact.getMessageSid())
+                    .name(contact.getName())
+                    .groupPhone(contact.getGroupPhone())
                     .userId(contact.getUserId())
                     .phoneNumberId(contact.getPhoneNumberId())
-                    .groupId(contact.getGroupId())
                     .build();
             updated = repository.save(updated);
             return convertToDTO(updated);
@@ -82,8 +82,8 @@ public class MessageGroupServiceIml implements MessageGroupService {
     }
 
     @Override
-    public List<MessageGroupDTO> findByPhoneNumberId(String phoneNumberId) {
-        List<MessageGroup> result = repository.findByPhoneNumberId(phoneNumberId);
+    public List<GroupDTO> findByPhoneNumberId(String phoneNumberId) {
+        List<Group> result = repository.findByPhoneNumberId(phoneNumberId);
         if(result != null && !result.isEmpty()){
             return convertToDTOs(result);
         }
@@ -91,8 +91,8 @@ public class MessageGroupServiceIml implements MessageGroupService {
     }
 
     @Override
-    public List<MessageGroupDTO> findByUserId(String userId) {
-        List<MessageGroup> result = repository.findByUserId(userId);
+    public List<GroupDTO> findByUserId(String userId) {
+        List<Group> result = repository.findByUserId(userId);
         if(result != null && !result.isEmpty()){
             return convertToDTOs(result);
         }
@@ -100,8 +100,8 @@ public class MessageGroupServiceIml implements MessageGroupService {
     }
 
 
-    private MessageGroup findContactById(String sid) {
-        List<MessageGroup> result = repository.findById(sid);
+    private Group findContactById(String sid) {
+        List<Group> result = repository.findById(sid);
         if (result != null && !result.isEmpty()) {
             return result.get(0);
         } else {
@@ -110,19 +110,19 @@ public class MessageGroupServiceIml implements MessageGroupService {
     }
 
 
-    private List<MessageGroupDTO> convertToDTOs(List<MessageGroup> models) {
+    private List<GroupDTO> convertToDTOs(List<Group> models) {
         return models.stream()
                 .map(this::convertToDTO)
                 .collect(toList());
     }
 
 
-    private MessageGroupDTO convertToDTO(MessageGroup model) {
-        MessageGroupDTO dto = new MessageGroupDTO();
+    private GroupDTO convertToDTO(Group model) {
+        GroupDTO dto = new GroupDTO();
 
         dto.setId(model.getId());
-        dto.setDateSent(model.getDateSent());
-        dto.setMessageSid(model.getMessageSid());
+        dto.setGroupPhone(model.getGroupPhone());
+        dto.setName(model.getName());
         dto.setUserId(model.getUserId());
         dto.setPhoneNumberId(model.getPhoneNumberId());
         dto.setCreatedAt(model.getCreatedAt());

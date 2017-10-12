@@ -1,41 +1,40 @@
-package com.ethan.morephone.api.messagegroup.domain;
+package com.ethan.morephone.api.group.domain;
 
 import org.springframework.data.annotation.Id;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by truongnguyen on 10/6/17.
  */
-public class MessageGroup {
+public class Group {
 
     @Id
     private String id;
-    private String messageSid;
+    private String name;
     private String phoneNumberId;
+    private List<String> groupPhone;
     private String userId;
-    private String groupId;
-    private long dateSent;
     private long createdAt;
     private long updatedAt;
 
-    public MessageGroup() {
+    public Group() {
     }
 
-    private MessageGroup(MessageGroup.Builder builder) {
+    private Group(Group.Builder builder) {
         this.id = builder.id;
-        this.messageSid = builder.messageSid;
-        this.dateSent = builder.dateSent;
+        this.name = builder.name;
+        this.groupPhone = builder.groupPhone;
         this.phoneNumberId = builder.phoneNumberId;
         this.userId = builder.userId;
-        this.groupId = builder.groupId;
         Date date = new Date();
         createdAt = date.getTime();
         updatedAt = date.getTime();
     }
 
-    public static MessageGroup.Builder getBuilder() {
-        return new MessageGroup.Builder();
+    public static Group.Builder getBuilder() {
+        return new Group.Builder();
     }
 
     public String getId() {
@@ -55,22 +54,21 @@ public class MessageGroup {
         this.userId = userId;
     }
 
-    public String getMessageSid() {
-        return messageSid;
+    public String getName() {
+        return name;
     }
 
-    public void setMessageSid(String messageSid) {
-        this.messageSid = messageSid;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public long getDateSent() {
-        return dateSent;
+    public List<String> getGroupPhone() {
+        return groupPhone;
     }
 
-    public void setDateSent(long dateSent) {
-        this.dateSent = dateSent;
+    public void setGroupPhone(List<String> groupPhone) {
+        this.groupPhone = groupPhone;
     }
-
 
     public String getPhoneNumberId() {
         return phoneNumberId;
@@ -96,14 +94,6 @@ public class MessageGroup {
         this.updatedAt = updatedAt;
     }
 
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
-
     @Override
     public String toString() {
         return String.format(
@@ -116,11 +106,10 @@ public class MessageGroup {
     public static class Builder {
 
         private String id;
-        private String messageSid;
-        private long dateSent;
+        private String name;
+        private List<String> groupPhone;
         private String phoneNumberId;
         private String userId;
-        private String groupId;
 
         private Builder() {
         }
@@ -131,13 +120,13 @@ public class MessageGroup {
             return this;
         }
 
-        public Builder messageSid(String messageSid) {
-            this.messageSid = messageSid;
+        public Builder name(String name) {
+            this.name = name;
             return this;
         }
 
-        public Builder dateSent(long dateSent) {
-            this.dateSent = dateSent;
+        public Builder groupPhone(List<String> groupPhone) {
+            this.groupPhone = groupPhone;
             return this;
         }
 
@@ -151,13 +140,8 @@ public class MessageGroup {
             return this;
         }
 
-        public Builder groupId(String groupId) {
-            this.groupId = groupId;
-            return this;
-        }
-
-        public MessageGroup build() {
-            MessageGroup build = new MessageGroup(this);
+        public Group build() {
+            Group build = new Group(this);
             return build;
         }
     }
