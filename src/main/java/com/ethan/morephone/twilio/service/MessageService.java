@@ -3,6 +3,8 @@ package com.ethan.morephone.twilio.service;
 import com.ethan.morephone.Constants;
 import com.ethan.morephone.api.group.domain.GroupDTO;
 import com.ethan.morephone.api.group.service.GroupService;
+import com.ethan.morephone.api.messagegroup.domain.MessageGroup;
+import com.ethan.morephone.api.messagegroup.repository.MessageGroupRepository;
 import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
 import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
 import com.ethan.morephone.api.usage.domain.UsageDTO;
@@ -44,15 +46,17 @@ public class MessageService {
     private final UserService mUserService;
     private final UsageService mUsageService;
     private final GroupService mGroupService;
+    private final MessageGroupRepository mMessageGroupRepository;
     private final PhoneNumberService mPhoneNumberService;
     private final EmailServiceImpl mEmailService;
 
     @Autowired
-    MessageService(UserService userService, PhoneNumberService phoneNumberService, UsageService usageService, GroupService groupService, EmailServiceImpl emailService) {
+    MessageService(UserService userService, PhoneNumberService phoneNumberService, UsageService usageService, GroupService groupService, MessageGroupRepository messageGroupRepository, EmailServiceImpl emailService) {
         this.mUserService = userService;
         this.mPhoneNumberService = phoneNumberService;
         this.mUsageService = usageService;
         this.mGroupService = groupService;
+        this.mMessageGroupRepository = messageGroupRepository;
         this.mEmailService = emailService;
     }
 
@@ -128,6 +132,8 @@ public class MessageService {
     com.ethan.morephone.http.Response<Object> sendMessage(@RequestParam(value = "account_sid") String accountSid,
                                                           @RequestParam(value = "auth_token") String authToken,
                                                           @RequestParam(value = "userId") String userId,
+                                                          @RequestParam(value = "group_id") String groupId,
+                                                          @RequestParam(value = "date_sent") long dateSent,
                                                           @RequestParam(value = "from") String from,
                                                           @RequestParam(value = "to") String to,
                                                           @RequestParam(value = "body") String body) {
@@ -182,6 +188,17 @@ public class MessageService {
                         message.getUri(),
                         null
                 );
+
+                if(!TextUtils.isEmpty(groupId)){
+                    MessageGroup messageGroup = MessageGroup.getBuilder()
+                            .groupId(groupId)
+                            .dateSent(dateSent)
+                            .messageSid(message.getSid())
+                            .phoneNumberId(phoneNumberDTO.getId())
+                            .userId(userId)
+                            .build();
+                    mMessageGroupRepository.save(messageGroup);
+                }
 
                 mUsageService.updateMessageOutgoing(userId);
 
