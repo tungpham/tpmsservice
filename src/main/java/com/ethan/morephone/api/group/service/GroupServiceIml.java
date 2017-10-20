@@ -84,7 +84,7 @@ public class GroupServiceIml implements GroupService {
     @Override
     public List<GroupDTO> findByPhoneNumberId(String phoneNumberId) {
         List<Group> result = repository.findByPhoneNumberId(phoneNumberId);
-        if(result != null && !result.isEmpty()){
+        if (result != null && !result.isEmpty()) {
             return convertToDTOs(result);
         }
         return null;
@@ -93,8 +93,17 @@ public class GroupServiceIml implements GroupService {
     @Override
     public List<GroupDTO> findByUserId(String userId) {
         List<Group> result = repository.findByUserId(userId);
-        if(result != null && !result.isEmpty()){
+        if (result != null && !result.isEmpty()) {
             return convertToDTOs(result);
+        }
+        return null;
+    }
+
+    @Override
+    public GroupDTO findByName(String name) {
+        List<Group> result = repository.findByName(name);
+        if (result != null && !result.isEmpty()) {
+            return convertToDTO(result.get(0));
         }
         return null;
     }

@@ -68,8 +68,14 @@ final class GroupController {
 
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     Response<Object> create(@RequestBody @Valid GroupDTO contactEntry) {
-        GroupDTO dto = mGroupService.create(contactEntry);
-        return new Response<>(dto, HTTPStatus.CREATED);
+        GroupDTO groupDTO = mGroupService.findByName(contactEntry.getName());
+        if (groupDTO == null) {
+            GroupDTO dto = mGroupService.create(contactEntry);
+            return new Response<>(dto, HTTPStatus.CREATED);
+        } else {
+            return new Response<>(groupDTO, HTTPStatus.CREATED);
+        }
+
     }
 
     @RequestMapping(method = RequestMethod.PUT, produces = "application/json")

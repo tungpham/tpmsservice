@@ -44,6 +44,8 @@ public interface GroupRepository extends Repository<Group, String> {
 
     List<Group> findById(String id);
 
+    List<Group> findByName(String name);
+
     List<Group> findByUserId(String userId);
 
     List<Group> findByPhoneNumberId(String phoneNumberId);

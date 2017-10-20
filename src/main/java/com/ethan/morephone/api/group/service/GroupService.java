@@ -51,4 +51,6 @@ public interface GroupService {
 
     List<GroupDTO> findByUserId(String userId);
 
+    GroupDTO findByName(String name);
+
 }
