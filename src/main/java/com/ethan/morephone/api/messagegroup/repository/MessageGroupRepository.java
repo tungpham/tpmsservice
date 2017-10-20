@@ -42,7 +42,7 @@ public interface MessageGroupRepository extends Repository<MessageGroup, String>
      */
     MessageGroup save(MessageGroup saved);
 
-    List<MessageGroup> findBySid(String sid);
+    List<MessageGroup> findByMessageSid(String sid);
 
     List<MessageGroup> findById(String id);
 

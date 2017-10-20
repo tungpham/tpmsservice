@@ -7,7 +7,6 @@ import com.ethan.morephone.twilio.model.ConversationModel;
 import com.ethan.morephone.twilio.model.ResourceCall;
 import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
-import com.google.common.collect.Range;
 import com.google.gson.Gson;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -20,7 +19,6 @@ import com.twilio.rest.api.v2010.account.call.Recording;
 import com.twilio.rest.api.v2010.account.call.RecordingReader;
 import com.twilio.twiml.*;
 import com.twilio.type.PhoneNumber;
-import org.joda.time.DateTime;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -317,7 +315,7 @@ public class Test {
                 Collections.sort(items);
                 String dateCreated = items.get(items.size() - 1).dateCreated;
                 Utils.logMessage("DATE CREATED: " + dateCreated);
-                mConversationModels.add(new ConversationModel(entry.getKey().toString(), dateCreated, items));
+                mConversationModels.add(new ConversationModel("", entry.getKey().toString(), dateCreated, items));
             }
         }
 

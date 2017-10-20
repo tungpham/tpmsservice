@@ -4,7 +4,8 @@ import com.ethan.morephone.Constants;
 import com.ethan.morephone.api.group.domain.GroupDTO;
 import com.ethan.morephone.api.group.service.GroupService;
 import com.ethan.morephone.api.messagegroup.domain.MessageGroup;
-import com.ethan.morephone.api.messagegroup.repository.MessageGroupRepository;
+import com.ethan.morephone.api.messagegroup.domain.MessageGroupDTO;
+import com.ethan.morephone.api.messagegroup.service.MessageGroupService;
 import com.ethan.morephone.api.phonenumber.domain.PhoneNumberDTO;
 import com.ethan.morephone.api.phonenumber.service.PhoneNumberService;
 import com.ethan.morephone.api.usage.domain.UsageDTO;
@@ -46,17 +47,17 @@ public class MessageService {
     private final UserService mUserService;
     private final UsageService mUsageService;
     private final GroupService mGroupService;
-    private final MessageGroupRepository mMessageGroupRepository;
+    private final MessageGroupService mMessageGroupService;
     private final PhoneNumberService mPhoneNumberService;
     private final EmailServiceImpl mEmailService;
 
     @Autowired
-    MessageService(UserService userService, PhoneNumberService phoneNumberService, UsageService usageService, GroupService groupService, MessageGroupRepository messageGroupRepository, EmailServiceImpl emailService) {
+    MessageService(UserService userService, PhoneNumberService phoneNumberService, UsageService usageService, GroupService groupService, MessageGroupService messageGroupService, EmailServiceImpl emailService) {
         this.mUserService = userService;
         this.mPhoneNumberService = phoneNumberService;
         this.mUsageService = usageService;
         this.mGroupService = groupService;
-        this.mMessageGroupRepository = messageGroupRepository;
+        this.mMessageGroupService = messageGroupService;
         this.mEmailService = emailService;
     }
 
@@ -197,7 +198,7 @@ public class MessageService {
                             .phoneNumberId(phoneNumberDTO.getId())
                             .userId(userId)
                             .build();
-                    mMessageGroupRepository.save(messageGroup);
+                    mMessageGroupService.create(convertToDTO(messageGroup));
                 }
 
                 mUsageService.updateMessageOutgoing(userId);
@@ -391,5 +392,19 @@ public class MessageService {
                 message.getUri(),
                 null
         );
+    }
+
+    private MessageGroupDTO convertToDTO(MessageGroup model) {
+        MessageGroupDTO dto = new MessageGroupDTO();
+
+        dto.setId(model.getId());
+        dto.setDateSent(model.getDateSent());
+        dto.setMessageSid(model.getMessageSid());
+        dto.setUserId(model.getUserId());
+        dto.setPhoneNumberId(model.getPhoneNumberId());
+        dto.setCreatedAt(model.getCreatedAt());
+        dto.setUpdatedAt(model.getUpdatedAt());
+
+        return dto;
     }
 }
