@@ -6,6 +6,7 @@ import com.ethan.morephone.api.messagegroup.repository.MessageGroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -17,10 +18,12 @@ import static java.util.stream.Collectors.toList;
 public class MessageGroupServiceIml implements MessageGroupService {
 
     private final MessageGroupRepository repository;
+    private HashMap<String, MessageGroupDTO> mMessageGroupHashMap;
 
     @Autowired
     MessageGroupServiceIml(MessageGroupRepository repository) {
         this.repository = repository;
+        mMessageGroupHashMap = new HashMap<>();
     }
 
     @Override
@@ -128,6 +131,12 @@ public class MessageGroupServiceIml implements MessageGroupService {
         dto.setCreatedAt(model.getCreatedAt());
         dto.setUpdatedAt(model.getUpdatedAt());
 
+        mMessageGroupHashMap.put(model.getMessageSid(), dto);
+
         return dto;
+    }
+
+    public HashMap<String, MessageGroupDTO> getMessageGroupHashMap(){
+        return mMessageGroupHashMap;
     }
 }

@@ -3,6 +3,7 @@ package com.ethan.morephone.api.messagegroup.service;
 
 import com.ethan.morephone.api.messagegroup.domain.MessageGroupDTO;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -50,5 +51,7 @@ public interface MessageGroupService {
     List<MessageGroupDTO> findByPhoneNumberId(String phoneNumberId);
 
     List<MessageGroupDTO> findByUserId(String userId);
+
+    HashMap<String, MessageGroupDTO> getMessageGroupHashMap();
 
 }

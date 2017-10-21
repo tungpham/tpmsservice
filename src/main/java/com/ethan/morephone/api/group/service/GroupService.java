@@ -3,6 +3,7 @@ package com.ethan.morephone.api.group.service;
 
 import com.ethan.morephone.api.group.domain.GroupDTO;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -52,5 +53,7 @@ public interface GroupService {
     List<GroupDTO> findByUserId(String userId);
 
     GroupDTO findByName(String name);
+
+    HashMap<String, GroupDTO> getGroupHashMap();
 
 }

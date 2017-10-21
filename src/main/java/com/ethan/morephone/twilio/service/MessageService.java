@@ -190,7 +190,7 @@ public class MessageService {
                         null
                 );
 
-                if(!TextUtils.isEmpty(groupId)){
+                if (!TextUtils.isEmpty(groupId)) {
                     MessageGroup messageGroup = MessageGroup.getBuilder()
                             .groupId(groupId)
                             .dateSent(dateSent)
@@ -234,6 +234,12 @@ public class MessageService {
             }
             Twilio.init(accountSid, authToken);
 
+            List<GroupDTO> groupDTOS = mGroupService.findByPhoneNumberId(phoneNumberId);
+            HashMap<String, GroupDTO> groupDTOHashMap = mGroupService.getGroupHashMap();
+            List<MessageGroupDTO> messageGroups = mMessageGroupService.findByPhoneNumberId(phoneNumberId);
+            HashMap<String, MessageGroupDTO> messageGroupDTOHashMap = mMessageGroupService.getMessageGroupHashMap();
+
+
             HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
 
             MessageReader messageReaderIncoming = new MessageReader(accountSid)
@@ -252,11 +258,9 @@ public class MessageService {
                 List<Message> messagesIncoming = messagePageIncoming.getRecords();
 
                 if (messagesIncoming != null) {
-                    mArrayMap.putAll(executeData(messagesIncoming, true));
+                    mArrayMap.putAll(executeData(messagesIncoming, true, messageGroupDTOHashMap));
                 }
             }
-
-            List<GroupDTO> groupDTOS = mGroupService.findByPhoneNumberId(phoneNumberId);
 
             MessageReader messageReaderOutgoing = new MessageReader(accountSid)
                     .setFrom(new PhoneNumber(phoneNumber))
@@ -272,22 +276,46 @@ public class MessageService {
                 }
 
                 List<Message> messagesOutgoing = messagePageOutgoing.getRecords();
+                List<Message> messagesGroup = new ArrayList<>();
+                HashMap<String, List<MessageItem>> messageHashMap = new HashMap<>();
+
+                for (Message message : messagesOutgoing) {
+                    if (messageGroupDTOHashMap.containsKey(message.getSid())) {
+                        messagesGroup.add(message);
+                        String groupId = messageGroupDTOHashMap.get(message.getSid()).getGroupId();
+                        if (messageHashMap.containsKey(groupId)) {
+                            List<MessageItem> items = messageHashMap.get(groupId);
+                            items.add(convertMessage(message));
+                            messageHashMap.put(messageGroupDTOHashMap.get(message.getSid()).getGroupId(), items);
+                        } else {
+                            List<MessageItem> items = new ArrayList<>();
+                            items.add(convertMessage(message));
+                            messageHashMap.put(messageGroupDTOHashMap.get(message.getSid()).getGroupId(), items);
+                        }
+                    }
+                }
+
+                messagesOutgoing.removeAll(messagesGroup);
 
                 if (messagesOutgoing != null) {
-                    mArrayMap.putAll(executeData(messagesOutgoing, false));
+                    mArrayMap.putAll(executeData(messagesOutgoing, false, messageGroupDTOHashMap));
                 }
             }
 
 
             List<ConversationModel> mConversationModels = new ArrayList<>();
 
-            if(mArrayMap != null && !mArrayMap.isEmpty()) {
+            if (mArrayMap != null && !mArrayMap.isEmpty()) {
                 for (Map.Entry entry : mArrayMap.entrySet()) {
                     List<MessageItem> items = mArrayMap.get(entry.getKey());
                     if (items != null && !items.isEmpty()) {
                         Collections.sort(items);
                         String dateCreated = items.get(items.size() - 1).dateCreated;
-                        mConversationModels.add(new ConversationModel("", entry.getKey().toString(), dateCreated, items));
+                        if (groupDTOHashMap.containsKey(entry.getKey().toString())) {
+                            mConversationModels.add(new ConversationModel(entry.getKey().toString(), groupDTOHashMap.get(entry.getKey().toString()).getName(), dateCreated, items));
+                        } else {
+                            mConversationModels.add(new ConversationModel("", entry.getKey().toString(), dateCreated, items));
+                        }
                     }
                 }
             }
@@ -318,7 +346,7 @@ public class MessageService {
                 pageSize = messagePageOutgoing.getPageSize();
             }
 
-            if(!mConversationModels.isEmpty()) {
+            if (!mConversationModels.isEmpty()) {
 
                 ResourceMessage resourceMessage = new ResourceMessage(mConversationModels,
                         incomingFirstPageUrl,
@@ -339,7 +367,7 @@ public class MessageService {
     }
 
     private static HashMap<String, List<MessageItem>> executeData(List<Message> messageItems,
-                                                                  boolean isComing) {
+                                                                  boolean isComing, HashMap<String, MessageGroupDTO> messageGroupDTOHashMap) {
         HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
         if (isComing) {
             for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
@@ -357,6 +385,18 @@ public class MessageService {
         } else {
             for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
                 if (messageItem.getStatus() != null && messageItem.getStatus() == com.twilio.rest.api.v2010.account.Message.Status.DELIVERED) {
+
+                    String groupId = messageGroupDTOHashMap.get(messageItem.getSid()).getGroupId();
+                    if (mArrayMap.containsKey(groupId)) {
+                        List<MessageItem> items = mArrayMap.get(groupId);
+                        items.add(convertMessage(messageItem));
+                        mArrayMap.put(groupId, items);
+                    } else {
+                        List<MessageItem> items = new ArrayList<>();
+                        items.add(convertMessage(messageItem));
+                        mArrayMap.put(groupId, items);
+                    }
+
                     if (mArrayMap.containsKey(messageItem.getTo())) {
                         mArrayMap.get(messageItem.getTo()).add(convertMessage(messageItem));
                     } else {

@@ -6,6 +6,7 @@ import com.ethan.morephone.api.group.repository.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -18,9 +19,12 @@ public class GroupServiceIml implements GroupService {
 
     private final GroupRepository repository;
 
+    private HashMap<String, GroupDTO> mGroupDTOHashMap;
+
     @Autowired
     GroupServiceIml(GroupRepository repository) {
         this.repository = repository;
+        this.mGroupDTOHashMap = new HashMap<>();
     }
 
     @Override
@@ -108,6 +112,11 @@ public class GroupServiceIml implements GroupService {
         return null;
     }
 
+    @Override
+    public HashMap<String, GroupDTO> getGroupHashMap() {
+        return mGroupDTOHashMap;
+    }
+
 
     private Group findContactById(String sid) {
         List<Group> result = repository.findById(sid);
@@ -117,7 +126,6 @@ public class GroupServiceIml implements GroupService {
             return null;
         }
     }
-
 
     private List<GroupDTO> convertToDTOs(List<Group> models) {
         return models.stream()
@@ -137,6 +145,10 @@ public class GroupServiceIml implements GroupService {
         dto.setCreatedAt(model.getCreatedAt());
         dto.setUpdatedAt(model.getUpdatedAt());
 
+        mGroupDTOHashMap.put(model.getId(), dto);
+
         return dto;
     }
+
+
 }
