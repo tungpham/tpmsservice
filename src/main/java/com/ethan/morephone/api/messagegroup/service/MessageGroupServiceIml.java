@@ -18,12 +18,11 @@ import static java.util.stream.Collectors.toList;
 public class MessageGroupServiceIml implements MessageGroupService {
 
     private final MessageGroupRepository repository;
-    private HashMap<String, MessageGroupDTO> mMessageGroupHashMap;
+    private HashMap<String, MessageGroupDTO> mMessageGroupHashMap = new HashMap<>();
 
     @Autowired
     MessageGroupServiceIml(MessageGroupRepository repository) {
         this.repository = repository;
-        mMessageGroupHashMap = new HashMap<>();
     }
 
     @Override

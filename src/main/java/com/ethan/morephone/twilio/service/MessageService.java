@@ -238,7 +238,7 @@ public class MessageService {
             HashMap<String, GroupDTO> groupDTOHashMap = mGroupService.getGroupHashMap();
             List<MessageGroupDTO> messageGroups = mMessageGroupService.findByPhoneNumberId(phoneNumberId);
             HashMap<String, MessageGroupDTO> messageGroupDTOHashMap = mMessageGroupService.getMessageGroupHashMap();
-
+            Utils.logMessage("SIZE ABC: " + messageGroupDTOHashMap.size());
 
             HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
 
@@ -371,6 +371,7 @@ public class MessageService {
         HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
         if (isComing) {
             for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
+                Utils.logMessage("MESSAGE SID COMING: " + messageItem.getSid());
                 if (messageItem.getStatus() != null && messageItem.getStatus() == com.twilio.rest.api.v2010.account.Message.Status.RECEIVED) {
                     if (mArrayMap.containsKey(messageItem.getFrom().toString())) {
                         mArrayMap.get(messageItem.getFrom().toString()).add(convertMessage(messageItem));
@@ -385,24 +386,27 @@ public class MessageService {
         } else {
             for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
                 if (messageItem.getStatus() != null && messageItem.getStatus() == com.twilio.rest.api.v2010.account.Message.Status.DELIVERED) {
-
-                    String groupId = messageGroupDTOHashMap.get(messageItem.getSid()).getGroupId();
-                    if (mArrayMap.containsKey(groupId)) {
-                        List<MessageItem> items = mArrayMap.get(groupId);
-                        items.add(convertMessage(messageItem));
-                        mArrayMap.put(groupId, items);
+                    Utils.logMessage("MESSAGE SID : " + messageItem.getSid());
+                    if (messageGroupDTOHashMap.containsKey(messageItem.getSid())) {
+                        String groupId = messageGroupDTOHashMap.get(messageItem.getSid()).getGroupId();
+                        if (mArrayMap.containsKey(groupId)) {
+                            List<MessageItem> items = mArrayMap.get(groupId);
+                            items.add(convertMessage(messageItem));
+                            mArrayMap.put(groupId, items);
+                        } else {
+                            List<MessageItem> items = new ArrayList<>();
+                            items.add(convertMessage(messageItem));
+                            mArrayMap.put(groupId, items);
+                        }
                     } else {
-                        List<MessageItem> items = new ArrayList<>();
-                        items.add(convertMessage(messageItem));
-                        mArrayMap.put(groupId, items);
-                    }
 
-                    if (mArrayMap.containsKey(messageItem.getTo())) {
-                        mArrayMap.get(messageItem.getTo()).add(convertMessage(messageItem));
-                    } else {
-                        List<MessageItem> items = new ArrayList<>();
-                        items.add(convertMessage(messageItem));
-                        mArrayMap.put(messageItem.getTo(), items);
+                        if (mArrayMap.containsKey(messageItem.getTo())) {
+                            mArrayMap.get(messageItem.getTo()).add(convertMessage(messageItem));
+                        } else {
+                            List<MessageItem> items = new ArrayList<>();
+                            items.add(convertMessage(messageItem));
+                            mArrayMap.put(messageItem.getTo(), items);
+                        }
                     }
                 }
             }
