@@ -173,7 +173,7 @@ public class MessageService {
                         new PhoneNumber(to),
                         new PhoneNumber(from),
                         body)
-                        .setStatusCallback("/api/v1/message/send-message-callback")
+                        .setStatusCallback(Constants.MESSAGE_CALLBACK_URL)
                         .create();
 
                 MessageItem messageItem = new MessageItem(message.getSid(),
