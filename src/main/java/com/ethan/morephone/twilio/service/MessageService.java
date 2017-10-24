@@ -174,7 +174,7 @@ public class MessageService {
                         new PhoneNumber(to),
                         new PhoneNumber(from),
                         body)
-                        .setStatusCallback(Constants.MESSAGE_CALLBACK_URL)
+                        .setStatusCallback(Constants.EVENT_URL)
                         .create();
 
                 MessageItem messageItem = new MessageItem(message.getSid(),
