@@ -191,6 +191,7 @@ public class MessageService {
                 );
 
                 Utils.logMessage("MESSAGE ID: " + message.getSid() + "     GROUPDID: " + groupId);
+                Utils.logMessage("MESSAGE URI: " + message.getUri());
 
                 if (!TextUtils.isEmpty(groupId)) {
                     MessageGroup messageGroup = MessageGroup.getBuilder()
@@ -374,47 +375,47 @@ public class MessageService {
         if (isComing) {
             for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
                 Utils.logMessage("MESSAGE SID COMING: " + messageItem.getSid());
-                Utils.logMessage("MESSAGE BODY : " + messageItem.getBody());
-                Utils.logMessage("--");
-                if (messageItem.getStatus() != null && messageItem.getStatus() == com.twilio.rest.api.v2010.account.Message.Status.RECEIVED) {
-                    if (mArrayMap.containsKey(messageItem.getFrom().toString())) {
-                        mArrayMap.get(messageItem.getFrom().toString()).add(convertMessage(messageItem));
-                    } else {
-                        List<MessageItem> items = new ArrayList<>();
-                        items.add(convertMessage(messageItem));
-                        mArrayMap.put(messageItem.getFrom().toString(), items);
-                    }
+                Utils.logMessage("MESSAGE BODY COMING : " + messageItem.getBody());
+                Utils.logMessage("-- COMING : " + messageItem.getStatus());
+//                if (messageItem.getStatus() != null && messageItem.getStatus() == com.twilio.rest.api.v2010.account.Message.Status.RECEIVED) {
+                if (mArrayMap.containsKey(messageItem.getFrom().toString())) {
+                    mArrayMap.get(messageItem.getFrom().toString()).add(convertMessage(messageItem));
+                } else {
+                    List<MessageItem> items = new ArrayList<>();
+                    items.add(convertMessage(messageItem));
+                    mArrayMap.put(messageItem.getFrom().toString(), items);
                 }
+//                }
             }
         } else {
             for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
                 Utils.logMessage("MESSAGE SID : " + messageItem.getSid());
                 Utils.logMessage("MESSAGE BODY : " + messageItem.getBody());
-                Utils.logMessage("--");
-                if (messageItem.getStatus() != null && messageItem.getStatus() == com.twilio.rest.api.v2010.account.Message.Status.DELIVERED) {
+                Utils.logMessage("--: " + messageItem.getStatus());
+//                if (messageItem.getStatus() != null && messageItem.getStatus() == com.twilio.rest.api.v2010.account.Message.Status.DELIVERED) {
 
-                    if (messageGroupDTOHashMap.containsKey(messageItem.getSid())) {
-                        String groupId = messageGroupDTOHashMap.get(messageItem.getSid()).getGroupId();
-                        if (mArrayMap.containsKey(groupId)) {
-                            List<MessageItem> items = mArrayMap.get(groupId);
-                            items.add(convertMessage(messageItem));
-                            mArrayMap.put(groupId, items);
-                        } else {
-                            List<MessageItem> items = new ArrayList<>();
-                            items.add(convertMessage(messageItem));
-                            mArrayMap.put(groupId, items);
-                        }
+                if (messageGroupDTOHashMap.containsKey(messageItem.getSid())) {
+                    String groupId = messageGroupDTOHashMap.get(messageItem.getSid()).getGroupId();
+                    if (mArrayMap.containsKey(groupId)) {
+                        List<MessageItem> items = mArrayMap.get(groupId);
+                        items.add(convertMessage(messageItem));
+                        mArrayMap.put(groupId, items);
                     } else {
+                        List<MessageItem> items = new ArrayList<>();
+                        items.add(convertMessage(messageItem));
+                        mArrayMap.put(groupId, items);
+                    }
+                } else {
 
-                        if (mArrayMap.containsKey(messageItem.getTo())) {
-                            mArrayMap.get(messageItem.getTo()).add(convertMessage(messageItem));
-                        } else {
-                            List<MessageItem> items = new ArrayList<>();
-                            items.add(convertMessage(messageItem));
-                            mArrayMap.put(messageItem.getTo(), items);
-                        }
+                    if (mArrayMap.containsKey(messageItem.getTo())) {
+                        mArrayMap.get(messageItem.getTo()).add(convertMessage(messageItem));
+                    } else {
+                        List<MessageItem> items = new ArrayList<>();
+                        items.add(convertMessage(messageItem));
+                        mArrayMap.put(messageItem.getTo(), items);
                     }
                 }
+//                }
             }
         }
         return mArrayMap;
