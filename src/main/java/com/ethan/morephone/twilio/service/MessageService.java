@@ -129,10 +129,9 @@ public class MessageService {
 
     }
 
-    @RequestMapping(value = "/send-message-callback", method = RequestMethod.POST, produces = {"application/xml"})
-    public String sendMessageCallback(@RequestParam Map<String, String> allRequestParams) {
-        Utils.logMessage("Receive MESSAGE  MultiValueMap: " + allRequestParams.toString());
-//        Utils.logMessage("Receive MESSAGE  MultiValueMap groupId: " + groupId);
+    @RequestMapping(value = "/callback", method = RequestMethod.POST, produces = {"application/xml"})
+    public String messageCallback(@RequestParam Map<String, String> allRequestParams) {
+        Utils.logMessage("MultiValueMap MESSAGE EVENTS: " + allRequestParams.toString());
         return "";
     }
 
@@ -174,7 +173,7 @@ public class MessageService {
                         new PhoneNumber(to),
                         new PhoneNumber(from),
                         body)
-                        .setStatusCallback(Constants.EVENT_URL)
+                        .setStatusCallback(Constants.MESSAGE_CALLBACK_URL)
                         .create();
 
                 MessageItem messageItem = new MessageItem(message.getSid(),
