@@ -40,6 +40,7 @@ public class AppConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/v1/call/handle-recording").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/call/record-event").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/message/receive-message").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/message/callback").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/phone-number").hasAnyAuthority("write:phone-number")
                 .antMatchers(HttpMethod.GET, "/api/v1/phone-number").hasAnyAuthority("read:phone-numbers")
                 .antMatchers(HttpMethod.DELETE, "/api/v1/phone-number/**").hasAnyAuthority("delete:phone-number")
