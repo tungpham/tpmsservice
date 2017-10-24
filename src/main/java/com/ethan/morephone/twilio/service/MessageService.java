@@ -129,6 +129,13 @@ public class MessageService {
 
     }
 
+    @RequestMapping(value = "/send-message-callback", method = RequestMethod.POST, produces = {"application/xml"})
+    public void sendMessageCallback(@RequestParam Map<String, String> allRequestParams,
+                                    @RequestParam(value = "group_id") String groupId) {
+        Utils.logMessage("Receive MESSAGE  MultiValueMap: " + allRequestParams.toString());
+        Utils.logMessage("Receive MESSAGE  MultiValueMap groupId: " + groupId);
+    }
+
     @PostMapping(value = "/send-message")
     com.ethan.morephone.http.Response<Object> sendMessage(@RequestParam(value = "account_sid") String accountSid,
                                                           @RequestParam(value = "auth_token") String authToken,
@@ -167,7 +174,7 @@ public class MessageService {
                         new PhoneNumber(to),
                         new PhoneNumber(from),
                         body)
-                        .setMessagingServiceSid(String.valueOf(dateSent))
+                        .setStatusCallback(Constants.MESSAGE_CALLBACK_URL+"?group_id="+groupId)
                         .create();
 
                 MessageItem messageItem = new MessageItem(message.getSid(),

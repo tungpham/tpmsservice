@@ -19,6 +19,7 @@ public class Constants {
     public static final String VOICE_URL = "https://tpmsservice.herokuapp.com/api/v1/call/dial";
     public static final String MESSAGE_URL = "https://tpmsservice.herokuapp.com/api/v1/message/receive-message";
     public static final String EVENT_URL = "https://tpmsservice.herokuapp.com/api/v1/call/events";
+    public static final String MESSAGE_CALLBACK_URL = "https://tpmsservice.herokuapp.com/api/v1/message/send-message-callback";
 
     public static final String FCM_SERVER_KEY = "AAAANaqlCmY:APA91bGdQKmQNlZhqLTq31yXx36auQvc9I2xA0RB-VIgGhnN4haVdXllvWgFiRkzwJ8B_qVZ8eaJbqCTr-pqlKxbq0O4hWAcUpVga655rByPKOVSB0YnoA5t08DpiNG6uj-iAArs2bCv";
 
