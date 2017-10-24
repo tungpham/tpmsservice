@@ -166,7 +166,9 @@ public class MessageService {
                 Message message = new MessageCreator(
                         new PhoneNumber(to),
                         new PhoneNumber(from),
-                        body).create();
+                        body)
+                        .setMessagingServiceSid(String.valueOf(dateSent))
+                        .create();
 
                 MessageItem messageItem = new MessageItem(message.getSid(),
                         message.getDateCreated() == null ? "" : message.getDateCreated().toString(),
