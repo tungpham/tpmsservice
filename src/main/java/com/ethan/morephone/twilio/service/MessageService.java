@@ -130,10 +130,9 @@ public class MessageService {
     }
 
     @RequestMapping(value = "/send-message-callback", method = RequestMethod.POST, produces = {"application/xml"})
-    public void sendMessageCallback(@RequestParam Map<String, String> allRequestParams,
-                                    @RequestParam(value = "group_id") String groupId) {
+    public void sendMessageCallback(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("Receive MESSAGE  MultiValueMap: " + allRequestParams.toString());
-        Utils.logMessage("Receive MESSAGE  MultiValueMap groupId: " + groupId);
+//        Utils.logMessage("Receive MESSAGE  MultiValueMap groupId: " + groupId);
     }
 
     @PostMapping(value = "/send-message")
@@ -174,7 +173,7 @@ public class MessageService {
                         new PhoneNumber(to),
                         new PhoneNumber(from),
                         body)
-                        .setStatusCallback(Constants.MESSAGE_CALLBACK_URL+"?group_id="+groupId)
+                        .setStatusCallback("/api/v1/message/send-message-callback")
                         .create();
 
                 MessageItem messageItem = new MessageItem(message.getSid(),
