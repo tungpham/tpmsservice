@@ -130,9 +130,10 @@ public class MessageService {
     }
 
     @RequestMapping(value = "/send-message-callback", method = RequestMethod.POST, produces = {"application/xml"})
-    public void sendMessageCallback(@RequestParam Map<String, String> allRequestParams) {
+    public String sendMessageCallback(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("Receive MESSAGE  MultiValueMap: " + allRequestParams.toString());
 //        Utils.logMessage("Receive MESSAGE  MultiValueMap groupId: " + groupId);
+        return "";
     }
 
     @PostMapping(value = "/send-message")
