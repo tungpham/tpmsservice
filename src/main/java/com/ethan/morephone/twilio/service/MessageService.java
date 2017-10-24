@@ -191,7 +191,7 @@ public class MessageService {
                 );
 
                 Utils.logMessage("MESSAGE ID: " + message.getSid() + "     GROUPDID: " + groupId);
-                Utils.logMessage("MESSAGE URI: " + message.getUri());
+                Utils.logMessage("MESSAGE : " + message.toString());
 
                 if (!TextUtils.isEmpty(groupId)) {
                     MessageGroup messageGroup = MessageGroup.getBuilder()
