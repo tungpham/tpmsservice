@@ -165,75 +165,101 @@ public class MessageService {
             return new com.ethan.morephone.http.Response<>(HTTPStatus.BAD_REQUEST.getReasonPhrase(), HTTPStatus.BAD_REQUEST);
         }
 
-//        usageDTO.getBalance()
-        if (usageDTO.getBalance() > Constants.PRICE_MESSAGE_OUTGOING) {
+        List<String> tos = null;
+        double priceCondition = Constants.PRICE_MESSAGE_OUTGOING;
 
-            try {
-                Message message = new MessageCreator(
-                        new PhoneNumber(to),
-                        new PhoneNumber(from),
-                        body)
-                        .create();
+        if (!TextUtils.isEmpty(groupId)) {
+            GroupDTO groupDTO = mGroupService.findById(groupId);
+            tos = groupDTO.getGroupPhone();
+            priceCondition = tos.size() * Constants.PRICE_MESSAGE_OUTGOING;
+        }
 
-                Utils.logMessage("SID: " + message.getSid() + "     GROUPDID: " + groupId);
-                Utils.logMessage("MESSAGE : " + message.toString());
+        if (usageDTO.getBalance() > priceCondition) {
 
-                MessageItem messageItem = new MessageItem(
-                        message.getSid(),
-                        message.getDateCreated() == null ? "" : message.getDateCreated().toString(),
-                        message.getDateUpdated() == null ? "" : message.getDateUpdated().toString(),
-                        message.getDateSent() == null ? "" : message.getDateSent().toString(),
-                        message.getAccountSid(),
-                        message.getTo(),
-                        message.getFrom() == null ? "" : message.getFrom().toString(),
-                        message.getMessagingServiceSid(),
-                        message.getBody(),
-                        message.getStatus() == null ? "" : message.getStatus().name(),
-                        message.getNumSegments(),
-                        message.getNumMedia(),
-                        message.getDirection() == null ? "" : message.getDirection().toString(),
-                        message.getApiVersion(),
-                        message.getPrice() == null ? "" : message.getPrice().toString(),
-                        message.getPriceUnit() == null ? "" : message.getPriceUnit().toString(),
-                        String.valueOf(message.getErrorCode()),
-                        message.getErrorMessage(),
-                        message.getUri(),
-                        null
-                );
+            List<MessageItem> messageItems = new ArrayList<>();
 
+            if (tos != null && !tos.isEmpty()) {
+                for (String toPhoneNumber : tos) {
+                    messageItems = sendMessage(userId, toPhoneNumber, from, body);
+                }
 
-
-                if (!TextUtils.isEmpty(groupId)) {
+                for (MessageItem messageItem : messageItems) {
                     MessageGroup messageGroup = MessageGroup.getBuilder()
                             .groupId(groupId)
                             .dateSent(dateSent)
-                            .messageSid(message.getSid())
+                            .messageSid(messageItem.sid)
                             .phoneNumberId(phoneNumberDTO.getId())
                             .userId(userId)
                             .build();
                     mMessageGroupService.create(convertToDTO(messageGroup));
                 }
 
-                mUsageService.updateMessageOutgoing(userId);
-
-                return new com.ethan.morephone.http.Response<>(messageItem, HTTPStatus.CREATED);
-            } catch (TwilioException e) {
-                Utils.logMessage("An exception occurred trying to send a message to {}, exception: {} " + to + " ||| " + e.getMessage());
+            } else {
+                messageItems = sendMessage(userId, to, from, body);
             }
+
+            return new com.ethan.morephone.http.Response<>(messageItems, HTTPStatus.CREATED);
+
         } else {
             UserDTO userDTO = mUserService.findById(usageDTO.getUserId());
             if (userDTO != null) {
                 FCM.sendNotification(userDTO.getToken(), Constants.FCM_SERVER_KEY, HTTPStatus.MONEY.getReasonPhrase(), "");
-                Utils.logMessage("SEND NOTIFCATION SMS");
             }
             return new com.ethan.morephone.http.Response<>(HTTPStatus.MONEY.getReasonPhrase(), HTTPStatus.MONEY);
         }
-        return new com.ethan.morephone.http.Response<>(HTTPStatus.NOT_ACCEPTABLE.getReasonPhrase(), HTTPStatus.NOT_ACCEPTABLE);
     }
 
+    private List<MessageItem> sendMessage(String userId, String to, String from, String body) {
+
+        List<MessageItem> messageItems = new ArrayList<>();
+
+        try {
+            Message message = new MessageCreator(
+                    new PhoneNumber(to),
+                    new PhoneNumber(from),
+                    body)
+                    .create();
+
+            Utils.logMessage("SID: " + message.getSid() + "     BODY   " + body);
+            Utils.logMessage("MESSAGE : " + message.toString());
+
+            MessageItem messageItem = new MessageItem(
+                    message.getSid(),
+                    message.getDateCreated() == null ? "" : message.getDateCreated().toString(),
+                    message.getDateUpdated() == null ? "" : message.getDateUpdated().toString(),
+                    message.getDateSent() == null ? "" : message.getDateSent().toString(),
+                    message.getAccountSid(),
+                    message.getTo(),
+                    message.getFrom() == null ? "" : message.getFrom().toString(),
+                    message.getMessagingServiceSid(),
+                    message.getBody(),
+                    message.getStatus() == null ? "" : message.getStatus().name(),
+                    message.getNumSegments(),
+                    message.getNumMedia(),
+                    message.getDirection() == null ? "" : message.getDirection().toString(),
+                    message.getApiVersion(),
+                    message.getPrice() == null ? "" : message.getPrice().toString(),
+                    message.getPriceUnit() == null ? "" : message.getPriceUnit().toString(),
+                    String.valueOf(message.getErrorCode()),
+                    message.getErrorMessage(),
+                    message.getUri(),
+                    null
+            );
+
+            mUsageService.updateMessageOutgoing(userId);
+
+            messageItems.add(messageItem);
+
+        } catch (TwilioException e) {
+            Utils.logMessage("An exception occurred trying to send a message to {}, exception: {} " + to + " ||| " + e.getMessage());
+        }
+
+        return messageItems;
+    }
 
     @GetMapping(value = "/retrieve")
-    com.ethan.morephone.http.Response<Object> retrieveMessage(@RequestParam(value = "account_sid") String accountSid,
+    com.ethan.morephone.http.Response<Object> retrieveMessage(@RequestParam(value = "account_sid") String
+                                                                      accountSid,
                                                               @RequestParam(value = "auth_token") String authToken,
                                                               @RequestParam(value = "phone_number") String phoneNumber,
                                                               @RequestParam(value = "phone_number_id") String phoneNumberId,
@@ -372,7 +398,6 @@ public class MessageService {
                         outgoingUrl,
                         pageSize);
 
-
                 return new com.ethan.morephone.http.Response<>(resourceMessage, HTTPStatus.OK);
             }
         }
@@ -387,45 +412,45 @@ public class MessageService {
                 Utils.logMessage("MESSAGE SID COMING: " + messageItem.getSid());
                 Utils.logMessage("MESSAGE BODY COMING : " + messageItem.getBody());
                 Utils.logMessage("-- COMING : " + messageItem.getStatus());
-//                if (messageItem.getStatus() != null && messageItem.getStatus() == com.twilio.rest.api.v2010.account.Message.Status.RECEIVED) {
-                if (mArrayMap.containsKey(messageItem.getFrom().toString())) {
-                    mArrayMap.get(messageItem.getFrom().toString()).add(convertMessage(messageItem));
-                } else {
-                    List<MessageItem> items = new ArrayList<>();
-                    items.add(convertMessage(messageItem));
-                    mArrayMap.put(messageItem.getFrom().toString(), items);
+                if (messageItem.getDirection() != null && messageItem.getDirection() == Message.Direction.INBOUND) {
+                    if (mArrayMap.containsKey(messageItem.getFrom().toString())) {
+                        mArrayMap.get(messageItem.getFrom().toString()).add(convertMessage(messageItem));
+                    } else {
+                        List<MessageItem> items = new ArrayList<>();
+                        items.add(convertMessage(messageItem));
+                        mArrayMap.put(messageItem.getFrom().toString(), items);
+                    }
                 }
-//                }
             }
         } else {
             for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
                 Utils.logMessage("MESSAGE SID : " + messageItem.getSid());
                 Utils.logMessage("MESSAGE BODY : " + messageItem.getBody());
                 Utils.logMessage("--: " + messageItem.getStatus());
-//                if (messageItem.getStatus() != null && messageItem.getStatus() == com.twilio.rest.api.v2010.account.Message.Status.DELIVERED) {
+                if (messageItem.getDirection() != null && messageItem.getDirection() == Message.Direction.OUTBOUND_API) {
 
-                if (messageGroupDTOHashMap.containsKey(messageItem.getSid())) {
-                    String groupId = messageGroupDTOHashMap.get(messageItem.getSid()).getGroupId();
-                    if (mArrayMap.containsKey(groupId)) {
-                        List<MessageItem> items = mArrayMap.get(groupId);
-                        items.add(convertMessage(messageItem));
-                        mArrayMap.put(groupId, items);
+                    if (messageGroupDTOHashMap.containsKey(messageItem.getSid())) {
+                        String groupId = messageGroupDTOHashMap.get(messageItem.getSid()).getGroupId();
+                        if (mArrayMap.containsKey(groupId)) {
+                            List<MessageItem> items = mArrayMap.get(groupId);
+                            items.add(convertMessage(messageItem));
+                            mArrayMap.put(groupId, items);
+                        } else {
+                            List<MessageItem> items = new ArrayList<>();
+                            items.add(convertMessage(messageItem));
+                            mArrayMap.put(groupId, items);
+                        }
                     } else {
-                        List<MessageItem> items = new ArrayList<>();
-                        items.add(convertMessage(messageItem));
-                        mArrayMap.put(groupId, items);
-                    }
-                } else {
 
-                    if (mArrayMap.containsKey(messageItem.getTo())) {
-                        mArrayMap.get(messageItem.getTo()).add(convertMessage(messageItem));
-                    } else {
-                        List<MessageItem> items = new ArrayList<>();
-                        items.add(convertMessage(messageItem));
-                        mArrayMap.put(messageItem.getTo(), items);
+                        if (mArrayMap.containsKey(messageItem.getTo())) {
+                            mArrayMap.get(messageItem.getTo()).add(convertMessage(messageItem));
+                        } else {
+                            List<MessageItem> items = new ArrayList<>();
+                            items.add(convertMessage(messageItem));
+                            mArrayMap.put(messageItem.getTo(), items);
+                        }
                     }
                 }
-//                }
             }
         }
         return mArrayMap;

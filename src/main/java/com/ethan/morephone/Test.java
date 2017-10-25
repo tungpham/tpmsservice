@@ -86,12 +86,17 @@ public class Test {
 
     private static void createMsg(String accountSid, String authToken){
         Twilio.init(accountSid, authToken);
-        Message message = new MessageCreator(
-                new PhoneNumber("+84974878244"),
-                new PhoneNumber("+15136555551"),
-                "Lavie")
-                .create();
-        Utils.logMessage("SID: " + message.getSid());
+        String[] tos = new String[2];
+        tos[0] = "+84974878244";
+        tos[1] = "+16193322905";
+        for(String s : tos) {
+            Message message = new MessageCreator(
+                    new PhoneNumber(s),
+                    new PhoneNumber("+15136555551"),
+                    "IntelliJ")
+                    .create();
+            Utils.logMessage("SID: " + message.getSid());
+        }
     }
 
     private static void createMessage(String accountSid, String authToken) {
