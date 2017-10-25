@@ -176,7 +176,8 @@ public class MessageService {
                         .setStatusCallback(Constants.MESSAGE_CALLBACK_URL)
                         .create();
 
-                MessageItem messageItem = new MessageItem(message.getSid(),
+                MessageItem messageItem = new MessageItem(
+                        message.getSid(),
                         message.getDateCreated() == null ? "" : message.getDateCreated().toString(),
                         message.getDateUpdated() == null ? "" : message.getDateUpdated().toString(),
                         message.getDateSent() == null ? "" : message.getDateSent().toString(),
@@ -200,6 +201,7 @@ public class MessageService {
 
                 Utils.logMessage("MESSAGE ID: " + message.getSid() + "     GROUPDID: " + groupId);
                 Utils.logMessage("MESSAGE : " + message.toString());
+                Utils.logMessage("MESSAGE CREATED: " + message.getDateCreated());
 
                 if (!TextUtils.isEmpty(groupId)) {
                     MessageGroup messageGroup = MessageGroup.getBuilder()
