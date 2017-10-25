@@ -173,8 +173,10 @@ public class MessageService {
                         new PhoneNumber(to),
                         new PhoneNumber(from),
                         body)
-                        .setStatusCallback(Constants.MESSAGE_CALLBACK_URL)
                         .create();
+
+                Utils.logMessage("SID: " + message.getSid() + "     GROUPDID: " + groupId);
+                Utils.logMessage("MESSAGE : " + message.toString());
 
                 MessageItem messageItem = new MessageItem(
                         message.getSid(),
@@ -199,9 +201,7 @@ public class MessageService {
                         null
                 );
 
-                Utils.logMessage("MESSAGE ID: " + message.getSid() + "     GROUPDID: " + groupId);
-                Utils.logMessage("MESSAGE : " + message.toString());
-                Utils.logMessage("MESSAGE CREATED: " + message.getDateCreated());
+
 
                 if (!TextUtils.isEmpty(groupId)) {
                     MessageGroup messageGroup = MessageGroup.getBuilder()

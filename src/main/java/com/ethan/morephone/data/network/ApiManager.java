@@ -2,6 +2,8 @@ package com.ethan.morephone.data.network;
 
 import com.ethan.morephone.data.entity.application.Application;
 import com.ethan.morephone.data.entity.application.Applications;
+import com.ethan.morephone.data.entity.message.MessageItem;
+import com.ethan.morephone.data.entity.message.MessageListResourceResponse;
 import com.ethan.morephone.data.entity.phonenumbers.IncomingPhoneNumber;
 import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -69,11 +71,11 @@ public class ApiManager {
     //Singleton for ApiPath
     private static ApiPath getApiPath(String accountSid, String authToken) {
         if (mApiPath == null) {
-            synchronized (ApiManager.class) {
-                if (mApiPath == null) {
-                    mApiPath = getRetrofit(accountSid, authToken).create(ApiPath.class);
-                }
-            }
+//            synchronized (ApiManager.class) {
+//                if (mApiPath == null) {
+            mApiPath = getRetrofit(accountSid, authToken).create(ApiPath.class);
+//                }
+//            }
         }
         return mApiPath;
     }
@@ -142,5 +144,25 @@ public class ApiManager {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static void createMessage(String accountSid,
+                                     String authToken,
+                                     String to,
+                                     String from,
+                                     String body,
+                                     retrofit2.Callback<MessageItem> callback) {
+        Call<MessageItem> call = getApiPath(accountSid, authToken).createMessage(accountSid, from, to, body);
+        call.enqueue(callback);
+    }
+
+
+    public static void getMessages(String accountSid,
+                                   String authToken,
+                                   String phoneNumberIncoming,
+                                   String phoneNumberOutgoing,
+                                   retrofit2.Callback<MessageListResourceResponse> callback) {
+        Call<MessageListResourceResponse> call = getApiPath(accountSid, authToken).getMessages(accountSid, phoneNumberIncoming, phoneNumberOutgoing);
+        call.enqueue(callback);
     }
 }

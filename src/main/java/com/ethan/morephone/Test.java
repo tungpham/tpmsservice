@@ -1,6 +1,8 @@
 package com.ethan.morephone;
 
 import com.ethan.morephone.data.entity.message.MessageItem;
+import com.ethan.morephone.data.entity.message.MessageListResourceResponse;
+import com.ethan.morephone.data.network.ApiManager;
 import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.twilio.model.CallDTO;
 import com.ethan.morephone.twilio.model.ConversationModel;
@@ -15,6 +17,7 @@ import com.twilio.base.Page;
 import com.twilio.base.ResourceSet;
 import com.twilio.http.HttpMethod;
 import com.twilio.rest.api.v2010.account.*;
+import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.api.v2010.account.call.Recording;
 import com.twilio.rest.api.v2010.account.call.RecordingReader;
 import com.twilio.twiml.*;
@@ -22,6 +25,8 @@ import com.twilio.type.PhoneNumber;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,12 +56,58 @@ public class Test {
 //        messageForward();
 //        getRecord();
 //        testTask();
-
-        getRecordData("AC1bb60516853a77bcf93ea89e4a7e3b45", "bb82a5d15eca8e8ae4171173ce150014", "+14152365339", "");
+//        createMessage("AC1bb60516853a77bcf93ea89e4a7e3b45","bb82a5d15eca8e8ae4171173ce150014");
+        createMsg("AC1bb60516853a77bcf93ea89e4a7e3b45","bb82a5d15eca8e8ae4171173ce150014");
+//        showMessage("ACdd510b09cfb9af9f1c2dd9d45e9ce1e5","18b65f8d69b4982f6a34a59704df83f4");
+//        getRecordData("AC1bb60516853a77bcf93ea89e4a7e3b45", "bb82a5d15eca8e8ae4171173ce150014", "+14152365339", "");
 //        retrieveCallLogs("AC588786f8b8b8a4ad83c5d576646ae764", "5767b6743ca34d734e1c94d694e72d03", "+15097616265", "", "");
 //        countDown();
 //        testTime();
 //        getAccessToken();
+    }
+
+    private static void showMessage(String accountSid, String authToken){
+        ApiManager.getMessages(accountSid, authToken, "+84974878244", "+17632517401", new Callback<MessageListResourceResponse>() {
+            @Override
+            public void onResponse(retrofit2.Call<MessageListResourceResponse> call, Response<MessageListResourceResponse> response) {
+                if(response.isSuccessful()){
+                    for(MessageItem messageItem : response.body().messages){
+                        Utils.logMessage(messageItem.sid + "    " + messageItem.body);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<MessageListResourceResponse> call, Throwable throwable) {
+
+            }
+        });
+    }
+
+    private static void createMsg(String accountSid, String authToken){
+        Twilio.init(accountSid, authToken);
+        Message message = new MessageCreator(
+                new PhoneNumber("+84974878244"),
+                new PhoneNumber("+15136555551"),
+                "Lavie")
+                .create();
+        Utils.logMessage("SID: " + message.getSid());
+    }
+
+    private static void createMessage(String accountSid, String authToken) {
+        ApiManager.createMessage(accountSid, authToken, "+84974878244", "+15136555551", "bitbucket", new Callback<MessageItem>() {
+            @Override
+            public void onResponse(retrofit2.Call<MessageItem> call, Response<MessageItem> response) {
+                if(response.isSuccessful()){
+                    Utils.logMessage(response.body().sid + "        " + response.body().body);
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<MessageItem> call, Throwable throwable) {
+
+            }
+        });
     }
 
 

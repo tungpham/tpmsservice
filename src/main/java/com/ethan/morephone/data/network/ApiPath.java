@@ -2,6 +2,8 @@ package com.ethan.morephone.data.network;
 
 import com.ethan.morephone.data.entity.application.Application;
 import com.ethan.morephone.data.entity.application.Applications;
+import com.ethan.morephone.data.entity.message.MessageItem;
+import com.ethan.morephone.data.entity.message.MessageListResourceResponse;
 import com.ethan.morephone.data.entity.phonenumbers.IncomingPhoneNumber;
 import retrofit2.Call;
 import retrofit2.http.*;
@@ -47,4 +49,18 @@ public interface ApiPath {
                                                         @Field("SmsMethod") String smsMethod,
                                                         @Field("VoiceApplicationSid") String voiceApplicationSid,
                                                         @Field("VoiceMethod") String voiceMethod);
+
+    @FormUrlEncoded
+    @POST("Accounts/{accountsid}/Messages.json")
+    Call<MessageItem> createMessage(@Path("accountsid") String accountsid,
+                                    @Field("From") String from,
+                                    @Field("To") String to,
+                                    @Field("Body") String body);
+
+    @GET("Accounts/{accountsid}/Messages.json")
+    Call<MessageListResourceResponse> getAllMessageListResource(@Path("accountsid") String accountsid);
+
+    @GET("Accounts/{accountsid}/Messages.json")
+    Call<MessageListResourceResponse> getMessages(@Path("accountsid") String accountsid, @Query("To") String phoneNumberIncoming, @Query("From") String phoneNumberOutgoing);
+
 }
