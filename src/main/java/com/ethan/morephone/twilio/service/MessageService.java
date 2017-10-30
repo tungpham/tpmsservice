@@ -407,10 +407,13 @@ public class MessageService {
     private static HashMap<String, List<MessageItem>> executeData(List<Message> messageItems,
                                                                   boolean isComing, HashMap<String, MessageGroupDTO> messageGroupDTOHashMap) {
         HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
+
         if (isComing) {
+
             for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
                 Utils.logMessage("MESSAGE SID COMING: " + messageItem.getSid());
                 Utils.logMessage("MESSAGE BODY COMING : " + messageItem.getBody());
+                Utils.logMessage("MESSAGE PHONE COMING: " + messageItem.getFrom());
                 Utils.logMessage("-- COMING : " + messageItem.getStatus());
                 if (messageItem.getDirection() != null && messageItem.getDirection() == Message.Direction.INBOUND) {
                     if (mArrayMap.containsKey(messageItem.getFrom().toString())) {
@@ -422,11 +425,16 @@ public class MessageService {
                     }
                 }
             }
+
         } else {
             for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
+
                 Utils.logMessage("MESSAGE SID : " + messageItem.getSid());
                 Utils.logMessage("MESSAGE BODY : " + messageItem.getBody());
-                Utils.logMessage("--: " + messageItem.getStatus());
+                Utils.logMessage("MESSAGE PHONE : " + messageItem.getTo());
+                Utils.logMessage("--: " + messageItem.getStatus() + " DIRECT: " + messageItem.getDirection().name() );
+                Utils.logMessage("--: " + messageItem.toString());
+
                 if (messageItem.getDirection() != null && messageItem.getDirection() == Message.Direction.OUTBOUND_API) {
 
                     if (messageGroupDTOHashMap.containsKey(messageItem.getSid())) {
