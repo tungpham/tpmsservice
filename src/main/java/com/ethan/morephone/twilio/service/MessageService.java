@@ -273,11 +273,11 @@ public class MessageService {
             }
             Twilio.init(accountSid, authToken);
 
-            List<GroupDTO> groupDTOS = mGroupService.findByPhoneNumberId(phoneNumberId);
-            HashMap<String, GroupDTO> groupDTOHashMap = mGroupService.getGroupHashMap();
-            List<MessageGroupDTO> messageGroups = mMessageGroupService.findByPhoneNumberId(phoneNumberId);
-            HashMap<String, MessageGroupDTO> messageGroupDTOHashMap = mMessageGroupService.getMessageGroupHashMap();
-            Utils.logMessage("SIZE ABC: " + messageGroupDTOHashMap.size());
+//            List<GroupDTO> groupDTOS = mGroupService.findByPhoneNumberId(phoneNumberId);
+//            HashMap<String, GroupDTO> groupDTOHashMap = mGroupService.getGroupHashMap();
+//            List<MessageGroupDTO> messageGroups = mMessageGroupService.findByPhoneNumberId(phoneNumberId);
+//            HashMap<String, MessageGroupDTO> messageGroupDTOHashMap = mMessageGroupService.getMessageGroupHashMap();
+//            Utils.logMessage("SIZE ABC: " + messageGroupDTOHashMap.size());
 
             HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
 
@@ -297,7 +297,7 @@ public class MessageService {
                 List<Message> messagesIncoming = messagePageIncoming.getRecords();
 
                 if (messagesIncoming != null) {
-                    mArrayMap.putAll(executeData(messagesIncoming, true, messageGroupDTOHashMap));
+                    mArrayMap.putAll(executeData(messagesIncoming, true));
                 }
             }
 
@@ -315,29 +315,29 @@ public class MessageService {
                 }
 
                 List<Message> messagesOutgoing = messagePageOutgoing.getRecords();
-                List<Message> messagesGroup = new ArrayList<>();
-                HashMap<String, List<MessageItem>> messageHashMap = new HashMap<>();
+//                List<Message> messagesGroup = new ArrayList<>();
+//                HashMap<String, List<MessageItem>> messageHashMap = new HashMap<>();
 
-                for (Message message : messagesOutgoing) {
-                    if (messageGroupDTOHashMap.containsKey(message.getSid())) {
-                        messagesGroup.add(message);
-                        String groupId = messageGroupDTOHashMap.get(message.getSid()).getGroupId();
-                        if (messageHashMap.containsKey(groupId)) {
-                            List<MessageItem> items = messageHashMap.get(groupId);
-                            items.add(convertMessage(message));
-                            messageHashMap.put(messageGroupDTOHashMap.get(message.getSid()).getGroupId(), items);
-                        } else {
-                            List<MessageItem> items = new ArrayList<>();
-                            items.add(convertMessage(message));
-                            messageHashMap.put(messageGroupDTOHashMap.get(message.getSid()).getGroupId(), items);
-                        }
-                    }
-                }
+//                for (Message message : messagesOutgoing) {
+//                    if (messageGroupDTOHashMap.containsKey(message.getSid())) {
+//                        messagesGroup.add(message);
+//                        String groupId = messageGroupDTOHashMap.get(message.getSid()).getGroupId();
+//                        if (messageHashMap.containsKey(groupId)) {
+//                            List<MessageItem> items = messageHashMap.get(groupId);
+//                            items.add(convertMessage(message));
+//                            messageHashMap.put(messageGroupDTOHashMap.get(message.getSid()).getGroupId(), items);
+//                        } else {
+//                            List<MessageItem> items = new ArrayList<>();
+//                            items.add(convertMessage(message));
+//                            messageHashMap.put(messageGroupDTOHashMap.get(message.getSid()).getGroupId(), items);
+//                        }
+//                    }
+//                }
 
-                messagesOutgoing.removeAll(messagesGroup);
+//                messagesOutgoing.removeAll(messagesGroup);
 
                 if (messagesOutgoing != null) {
-                    mArrayMap.putAll(executeData(messagesOutgoing, false, messageGroupDTOHashMap));
+                    mArrayMap.putAll(executeData(messagesOutgoing, false));
                 }
             }
 
@@ -350,11 +350,11 @@ public class MessageService {
                     if (items != null && !items.isEmpty()) {
                         Collections.sort(items);
                         String dateCreated = items.get(items.size() - 1).dateCreated;
-                        if (groupDTOHashMap.containsKey(entry.getKey().toString())) {
-                            mConversationModels.add(new ConversationModel(entry.getKey().toString(), groupDTOHashMap.get(entry.getKey().toString()).getName(), dateCreated, items));
-                        } else {
+//                        if (groupDTOHashMap.containsKey(entry.getKey().toString())) {
+//                            mConversationModels.add(new ConversationModel(entry.getKey().toString(), groupDTOHashMap.get(entry.getKey().toString()).getName(), dateCreated, items));
+//                        } else {
                             mConversationModels.add(new ConversationModel("", entry.getKey().toString(), dateCreated, items));
-                        }
+//                        }
                     }
                 }
             }
@@ -405,7 +405,7 @@ public class MessageService {
     }
 
     private static HashMap<String, List<MessageItem>> executeData(List<Message> messageItems,
-                                                                  boolean isComing, HashMap<String, MessageGroupDTO> messageGroupDTOHashMap) {
+                                                                  boolean isComing) {
         HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
 
         if (isComing) {
@@ -437,18 +437,18 @@ public class MessageService {
 
                 if (messageItem.getDirection() != null && messageItem.getDirection() == Message.Direction.OUTBOUND_API) {
 
-                    if (messageGroupDTOHashMap.containsKey(messageItem.getSid())) {
-                        String groupId = messageGroupDTOHashMap.get(messageItem.getSid()).getGroupId();
-                        if (mArrayMap.containsKey(groupId)) {
-                            List<MessageItem> items = mArrayMap.get(groupId);
-                            items.add(convertMessage(messageItem));
-                            mArrayMap.put(groupId, items);
-                        } else {
-                            List<MessageItem> items = new ArrayList<>();
-                            items.add(convertMessage(messageItem));
-                            mArrayMap.put(groupId, items);
-                        }
-                    } else {
+//                    if (messageGroupDTOHashMap.containsKey(messageItem.getSid())) {
+//                        String groupId = messageGroupDTOHashMap.get(messageItem.getSid()).getGroupId();
+//                        if (mArrayMap.containsKey(groupId)) {
+//                            List<MessageItem> items = mArrayMap.get(groupId);
+//                            items.add(convertMessage(messageItem));
+//                            mArrayMap.put(groupId, items);
+//                        } else {
+//                            List<MessageItem> items = new ArrayList<>();
+//                            items.add(convertMessage(messageItem));
+//                            mArrayMap.put(groupId, items);
+//                        }
+//                    } else {
 
                         if (mArrayMap.containsKey(messageItem.getTo())) {
                             mArrayMap.get(messageItem.getTo()).add(convertMessage(messageItem));
@@ -457,7 +457,7 @@ public class MessageService {
                             items.add(convertMessage(messageItem));
                             mArrayMap.put(messageItem.getTo(), items);
                         }
-                    }
+//                    }
                 }
             }
         }
