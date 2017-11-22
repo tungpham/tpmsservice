@@ -279,6 +279,7 @@ public class MessageService {
 //            Utils.logMessage("SIZE ABC: " + messageGroupDTOHashMap.size());
 
             HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
+            HashMap<String, List<MessageItem>> mArrayMapOutgoing = new HashMap<>();
 
             MessageReader messageReaderIncoming = new MessageReader(accountSid)
                     .setTo(new PhoneNumber(phoneNumber))
@@ -297,6 +298,11 @@ public class MessageService {
 
                 if (messagesIncoming != null) {
                     mArrayMap.putAll(executeData(messagesIncoming, true));
+                }
+
+
+                for (Map.Entry entry : mArrayMap.entrySet()) {
+                    List<MessageItem> items = mArrayMap.get(entry.getKey());
                 }
             }
 
@@ -336,7 +342,18 @@ public class MessageService {
 //                messagesOutgoing.removeAll(messagesGroup);
 
                 if (messagesOutgoing != null) {
-                    mArrayMap.putAll(executeData(messagesOutgoing, false));
+                    mArrayMapOutgoing.putAll(executeData(messagesOutgoing, false));
+                }
+            }
+            for (Map.Entry entry : mArrayMap.entrySet()) {
+                for (Map.Entry entryOutgoing : mArrayMapOutgoing.entrySet()) {
+                    if (entry.getKey().equals(entryOutgoing.getKey())) {
+                        mArrayMap.get(entry.getKey()).addAll(mArrayMapOutgoing.get(entryOutgoing.getKey()));
+                    } else {
+                        if(!mArrayMap.containsKey((String) entryOutgoing.getKey())){
+                            mArrayMap.put((String) entryOutgoing.getKey(), mArrayMapOutgoing.get(entryOutgoing.getKey()));
+                        }
+                    }
                 }
             }
 
@@ -352,7 +369,7 @@ public class MessageService {
 //                        if (groupDTOHashMap.containsKey(entry.getKey().toString())) {
 //                            mConversationModels.add(new ConversationModel(entry.getKey().toString(), groupDTOHashMap.get(entry.getKey().toString()).getName(), dateCreated, items));
 //                        } else {
-                            mConversationModels.add(new ConversationModel("", entry.getKey().toString(), dateCreated, items));
+                        mConversationModels.add(new ConversationModel("", entry.getKey().toString(), dateCreated, items));
 //                        }
                     }
                 }
@@ -410,12 +427,7 @@ public class MessageService {
         if (isComing) {
 
             for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
-                Utils.logMessage("MESSAGE SID COMING: " + messageItem.getSid());
-                Utils.logMessage("MESSAGE BODY COMING : " + messageItem.getBody());
-                Utils.logMessage("MESSAGE PHONE COMING: " + messageItem.getFrom());
-                Utils.logMessage("MESSAGE DIRECT COMING : " + messageItem.getDirection().name());
                 if (messageItem.getDirection() != null && messageItem.getDirection() == Message.Direction.INBOUND) {
-                    Utils.logMessage("INBOUND COMING : " + messageItem.getStatus());
                     if (mArrayMap.containsKey(messageItem.getFrom().toString())) {
                         mArrayMap.get(messageItem.getFrom().toString()).add(convertMessage(messageItem));
                     } else {
@@ -424,17 +436,11 @@ public class MessageService {
                         mArrayMap.put(messageItem.getFrom().toString(), items);
                     }
                 }
+
             }
 
         } else {
             for (com.twilio.rest.api.v2010.account.Message messageItem : messageItems) {
-
-                Utils.logMessage("MESSAGE SID : " + messageItem.getSid());
-                Utils.logMessage("MESSAGE BODY : " + messageItem.getBody());
-                Utils.logMessage("MESSAGE PHONE : " + messageItem.getTo());
-                Utils.logMessage("--: " + messageItem.getStatus() + " DIRECT: " + messageItem.getDirection().name() );
-                Utils.logMessage("--: " + messageItem.toString());
-
                 if (messageItem.getDirection() != null && messageItem.getDirection() == Message.Direction.OUTBOUND_API) {
 
 //                    if (messageGroupDTOHashMap.containsKey(messageItem.getSid())) {
@@ -450,13 +456,13 @@ public class MessageService {
 //                        }
 //                    } else {
 
-                        if (mArrayMap.containsKey(messageItem.getTo())) {
-                            mArrayMap.get(messageItem.getTo()).add(convertMessage(messageItem));
-                        } else {
-                            List<MessageItem> items = new ArrayList<>();
-                            items.add(convertMessage(messageItem));
-                            mArrayMap.put(messageItem.getTo(), items);
-                        }
+                    if (mArrayMap.containsKey(messageItem.getTo())) {
+                        mArrayMap.get(messageItem.getTo()).add(convertMessage(messageItem));
+                    } else {
+                        List<MessageItem> items = new ArrayList<>();
+                        items.add(convertMessage(messageItem));
+                        mArrayMap.put(messageItem.getTo(), items);
+                    }
 //                    }
                 }
             }
@@ -479,7 +485,7 @@ public class MessageService {
                 message.getNumMedia(),
                 message.getDirection() == null ? "" : message.getDirection().toString(),
                 message.getApiVersion(),
-                message.getPrice() == null ? "" : message.getPrice().toString(),
+                "none",
                 message.getPriceUnit() == null ? "" : message.getPriceUnit().toString(),
                 String.valueOf(message.getErrorCode()),
                 message.getErrorMessage(),
