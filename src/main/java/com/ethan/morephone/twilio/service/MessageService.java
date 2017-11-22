@@ -258,8 +258,7 @@ public class MessageService {
     }
 
     @GetMapping(value = "/retrieve")
-    com.ethan.morephone.http.Response<Object> retrieveMessage(@RequestParam(value = "account_sid") String
-                                                                      accountSid,
+    com.ethan.morephone.http.Response<Object> retrieveMessage(@RequestParam(value = "account_sid") String accountSid,
                                                               @RequestParam(value = "auth_token") String authToken,
                                                               @RequestParam(value = "phone_number") String phoneNumber,
                                                               @RequestParam(value = "phone_number_id") String phoneNumberId,
@@ -414,8 +413,9 @@ public class MessageService {
                 Utils.logMessage("MESSAGE SID COMING: " + messageItem.getSid());
                 Utils.logMessage("MESSAGE BODY COMING : " + messageItem.getBody());
                 Utils.logMessage("MESSAGE PHONE COMING: " + messageItem.getFrom());
-                Utils.logMessage("-- COMING : " + messageItem.getStatus());
+                Utils.logMessage("-- DIRECT : " + messageItem.getDirection().name());
                 if (messageItem.getDirection() != null && messageItem.getDirection() == Message.Direction.INBOUND) {
+                    Utils.logMessage("-- COMING : " + messageItem.getStatus());
                     if (mArrayMap.containsKey(messageItem.getFrom().toString())) {
                         mArrayMap.get(messageItem.getFrom().toString()).add(convertMessage(messageItem));
                     } else {

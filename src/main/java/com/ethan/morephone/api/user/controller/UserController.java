@@ -177,8 +177,6 @@ final class UserController {
         }
     }
 
-
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public void handleTodoNotFound(UserNotFoundException ex) {
