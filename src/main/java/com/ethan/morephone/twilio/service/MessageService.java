@@ -17,10 +17,12 @@ import com.ethan.morephone.http.HTTPStatus;
 import com.ethan.morephone.twilio.email.EmailServiceImpl;
 import com.ethan.morephone.twilio.fcm.FCM;
 import com.ethan.morephone.twilio.model.ConversationModel;
+import com.ethan.morephone.twilio.model.MessageReceive;
 import com.ethan.morephone.twilio.model.ResourceMessage;
 import com.ethan.morephone.utils.TextUtils;
 import com.ethan.morephone.utils.Utils;
 import com.google.common.collect.Range;
+import com.google.gson.Gson;
 import com.twilio.Twilio;
 import com.twilio.base.Page;
 import com.twilio.exception.TwilioException;
@@ -51,6 +53,8 @@ public class MessageService {
     private final PhoneNumberService mPhoneNumberService;
     private final EmailServiceImpl mEmailService;
 
+    private static Gson sGson = new Gson();
+
     @Autowired
     MessageService(UserService userService, PhoneNumberService phoneNumberService, UsageService usageService, GroupService groupService, MessageGroupService messageGroupService, EmailServiceImpl emailService) {
         this.mUserService = userService;
@@ -65,13 +69,20 @@ public class MessageService {
     public String receiveMessage(@RequestParam Map<String, String> allRequestParams) {
         Utils.logMessage("Receive MultiValueMap: " + allRequestParams.toString());
 
+        MessageReceive messageReceive = new MessageReceive(
+                allRequestParams.get("SmsMessageSid"),
+                allRequestParams.get("SmsSid"),
+                allRequestParams.get("SmsStatus"),
+                allRequestParams.get("MessageSid"),
+                allRequestParams.get("AccountSid"),
+                allRequestParams.get("Body"),
+                allRequestParams.get("From"),
+                allRequestParams.get("To")
+        );
+
         String response = "";
 
-        String to = allRequestParams.get("To");
-        String from = allRequestParams.get("From");
-        String body = allRequestParams.get("Body");
-
-        PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(to);
+        PhoneNumberDTO phoneNumberDTO = mPhoneNumberService.findByPhoneNumber(messageReceive.getTo());
 
         if (phoneNumberDTO != null) {
 
@@ -88,7 +99,8 @@ public class MessageService {
 //                sendNotification("High", allRequestParams.get("To"), allRequestParams.get("From"), allRequestParams.get("Body"), identities);
 //                sendNotification(token, allRequestParams.get("From") + "-" + allRequestParams.get("To"), allRequestParams.get("Body"));
 //                FCM.sendNotification(token, Constants.FCM_SERVER_KEY, from + "-" + to, body);
-                FCM.pushMessages(user.getTokenFcms(), from, body);
+                Utils.logMessage("");
+                FCM.pushMessages(user.getTokenFcms(), messageReceive.getFrom(), sGson.toJson(messageReceive));
             }
 
             if (phoneNumberDTO.isForward()) {
@@ -101,7 +113,7 @@ public class MessageService {
 
                         com.twilio.twiml.Message message = new com.twilio.twiml.Message.Builder()
                                 .to(phoneNumberDTO.getForwardPhoneNumber())
-                                .body(new Body(body))
+                                .body(new Body(messageReceive.getBody()))
                                 .build();
 
                         MessagingResponse twiml = new MessagingResponse.Builder()
@@ -118,7 +130,7 @@ public class MessageService {
 
                     //Forward sms to email
                     if (!TextUtils.isEmpty(phoneNumberDTO.getForwardEmail())) {
-                        mEmailService.sendSimpleMessage(phoneNumberDTO.getForwardEmail(), from, body);
+                        mEmailService.sendSimpleMessage(phoneNumberDTO.getForwardEmail(), messageReceive.getFrom(), messageReceive.getBody());
                     }
 
                 } else {
@@ -380,8 +392,6 @@ public class MessageService {
                     }
                 }
             }
-
-
 
 
             List<ConversationModel> mConversationModels = new ArrayList<>();

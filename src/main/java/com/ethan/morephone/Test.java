@@ -45,7 +45,7 @@ public class Test {
 
     public static void main(String[] args) {
 //        modifyApplication();
-//        sendNotification("", "WHY");
+        sendNotification("ok", "WHY");
 //        getApplication();
 //        token();
 //        binding();
@@ -57,7 +57,7 @@ public class Test {
 //        getRecord();
 //        testTask();
 //        createMessage("AC1bb60516853a77bcf93ea89e4a7e3b45","bb82a5d15eca8e8ae4171173ce150014");
-        createMsg("AC1bb60516853a77bcf93ea89e4a7e3b45","bb82a5d15eca8e8ae4171173ce150014");
+//        createMsg("AC1bb60516853a77bcf93ea89e4a7e3b45","bb82a5d15eca8e8ae4171173ce150014");
 //        showMessage("ACdd510b09cfb9af9f1c2dd9d45e9ce1e5","18b65f8d69b4982f6a34a59704df83f4");
 //        getRecordData("AC1bb60516853a77bcf93ea89e4a7e3b45", "bb82a5d15eca8e8ae4171173ce150014", "+14152365339", "");
 //        retrieveCallLogs("AC588786f8b8b8a4ad83c5d576646ae764", "5767b6743ca34d734e1c94d694e72d03", "+15097616265", "", "");
@@ -118,12 +118,12 @@ public class Test {
 
     private static void sendNotification(String title, String body) {
         //Just I am passed dummy information
-        String tokenId = "ehO-dAIUbKY:APA91bGYpNmSqfUMidnnx4SxBcFNoa-80r_1-URTZDaudnUvv_kXLDkQl9MYgDCNkgFnukeKdug2rcOj_LmT_-gqDT6S3ztg73HOC9F-aQW07AwfzbNdj6Ddn2g_wUqg9TXsqg_yl_Aa";
+        String tokenId = "f7hKvimLgio:APA91bE7igbG2xjxbSqfJr75sEeAZtBrrLS4729gjCzWs-d8d_ocjkjnsgyfVkhYfzY8DjmUsA56TGt-CsRLA_cye5pYq7RgqOqS6-3XtuiegCAe0aLImTDwWVkce9qevkbPAgimoZ0X";
 
-        String server_key = "AAAANaqlCmY:APA91bGdQKmQNlZhqLTq31yXx36auQvc9I2xA0RB-VIgGhnN4haVdXllvWgFiRkzwJ8B_qVZ8eaJbqCTr-pqlKxbq0O4hWAcUpVga655rByPKOVSB0YnoA5t08DpiNG6uj-iAArs2bCv";
+//        String server_key = "AAAANaqlCmY:APA91bGdQKmQNlZhqLTq31yXx36auQvc9I2xA0RB-VIgGhnN4haVdXllvWgFiRkzwJ8B_qVZ8eaJbqCTr-pqlKxbq0O4hWAcUpVga655rByPKOVSB0YnoA5t08DpiNG6uj-iAArs2bCv";
 
 //Method to send Push Notification
-        FCM.sendNotification(tokenId, server_key, title, body);
+        FCM.sendNotification(tokenId, Constants.FCM_SERVER_KEY, title, body);
     }
 
 
