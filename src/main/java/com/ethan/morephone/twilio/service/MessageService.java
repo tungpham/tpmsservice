@@ -301,10 +301,6 @@ public class MessageService {
                     mArrayMap.putAll(executeData(messagesIncoming, true));
                 }
 
-
-                for (Map.Entry entry : mArrayMap.entrySet()) {
-                    List<MessageItem> items = mArrayMap.get(entry.getKey());
-                }
             }
 
             MessageReader messageReaderOutgoing = new MessageReader(accountSid)
@@ -347,16 +343,24 @@ public class MessageService {
                 }
             }
 
-            if (mArrayMap != null && !mArrayMap.isEmpty()) {
+            if (mArrayMap != null && !mArrayMap.isEmpty() && mArrayMap.entrySet() != null && !mArrayMap.entrySet().isEmpty()) {
                 for (Map.Entry entry : mArrayMap.entrySet()) {
-                    for (Map.Entry entryOutgoing : mArrayMapOutgoing.entrySet()) {
-                        if (entry.getKey().equals(entryOutgoing.getKey())) {
-                            mArrayMap.get(entry.getKey()).addAll(mArrayMapOutgoing.get(entryOutgoing.getKey()));
-                        } else {
-                            if (!mArrayMap.containsKey((String) entryOutgoing.getKey())) {
-                                mArrayMap.put((String) entryOutgoing.getKey(), mArrayMapOutgoing.get(entryOutgoing.getKey()));
+                    if (mArrayMapOutgoing != null && !mArrayMapOutgoing.isEmpty() && mArrayMapOutgoing.entrySet() != null && !mArrayMapOutgoing.entrySet().isEmpty()) {
+                        for (Map.Entry entryOutgoing : mArrayMapOutgoing.entrySet()) {
+                            if (entry.getKey().equals(entryOutgoing.getKey())) {
+                                mArrayMap.get(entry.getKey()).addAll(mArrayMapOutgoing.get(entryOutgoing.getKey()));
+                            } else {
+                                if (!mArrayMap.containsKey((String) entryOutgoing.getKey())) {
+                                    mArrayMap.put((String) entryOutgoing.getKey(), mArrayMapOutgoing.get(entryOutgoing.getKey()));
+                                }
                             }
                         }
+                    }
+                }
+            } else if (mArrayMapOutgoing != null && !mArrayMapOutgoing.isEmpty() && mArrayMapOutgoing.entrySet() != null && !mArrayMapOutgoing.entrySet().isEmpty()) {
+                for (Map.Entry entryOutgoing : mArrayMapOutgoing.entrySet()) {
+                    if (!mArrayMap.containsKey((String) entryOutgoing.getKey())) {
+                        mArrayMap.put((String) entryOutgoing.getKey(), mArrayMapOutgoing.get(entryOutgoing.getKey()));
                     }
                 }
             }
