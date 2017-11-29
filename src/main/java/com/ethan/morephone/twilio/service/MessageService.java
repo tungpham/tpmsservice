@@ -281,6 +281,7 @@ public class MessageService {
 
             HashMap<String, List<MessageItem>> mArrayMap = new HashMap<>();
             HashMap<String, List<MessageItem>> mArrayMapOutgoing = new HashMap<>();
+            HashMap<String, List<MessageItem>> mArrayMapTemple = new HashMap<>();
 
             MessageReader messageReaderIncoming = new MessageReader(accountSid)
                     .setTo(new PhoneNumber(phoneNumber))
@@ -343,27 +344,44 @@ public class MessageService {
                 }
             }
 
-            if (mArrayMap != null && !mArrayMap.isEmpty() && mArrayMap.entrySet() != null && !mArrayMap.entrySet().isEmpty()) {
-                for (Map.Entry entry : mArrayMap.entrySet()) {
-                    if (mArrayMapOutgoing != null && !mArrayMapOutgoing.isEmpty() && mArrayMapOutgoing.entrySet() != null && !mArrayMapOutgoing.entrySet().isEmpty()) {
-                        for (Map.Entry entryOutgoing : mArrayMapOutgoing.entrySet()) {
-                            if (entry.getKey().equals(entryOutgoing.getKey())) {
-                                mArrayMap.get(entry.getKey()).addAll(mArrayMapOutgoing.get(entryOutgoing.getKey()));
+            if (mArrayMap != null && !mArrayMap.isEmpty()) {
+                Iterator<Map.Entry<String, List<MessageItem>>> entryIterator = mArrayMap.entrySet().iterator();
+
+                while (entryIterator.hasNext()) {
+                    Map.Entry item = entryIterator.next();
+
+                    if (mArrayMapOutgoing != null && !mArrayMapOutgoing.isEmpty()) {
+
+                        Iterator<Map.Entry<String, List<MessageItem>>> entryIteratorOutgoing = mArrayMapOutgoing.entrySet().iterator();
+
+                        while (entryIteratorOutgoing.hasNext()) {
+                            Map.Entry itemOutgoing = entryIteratorOutgoing.next();
+                            if (item.getKey().equals(itemOutgoing.getKey())) {
+                                mArrayMap.get(item.getKey()).addAll(mArrayMapOutgoing.get(itemOutgoing.getKey()));
                             } else {
-                                if (!mArrayMap.containsKey((String) entryOutgoing.getKey())) {
-                                    mArrayMap.put((String) entryOutgoing.getKey(), mArrayMapOutgoing.get(entryOutgoing.getKey()));
+                                if (!mArrayMap.containsKey((String) itemOutgoing.getKey())) {
+                                    mArrayMapTemple.put((String) itemOutgoing.getKey(), mArrayMapOutgoing.get(itemOutgoing.getKey()));
                                 }
                             }
                         }
                     }
                 }
-            } else if (mArrayMapOutgoing != null && !mArrayMapOutgoing.isEmpty() && mArrayMapOutgoing.entrySet() != null && !mArrayMapOutgoing.entrySet().isEmpty()) {
-                for (Map.Entry entryOutgoing : mArrayMapOutgoing.entrySet()) {
-                    if (!mArrayMap.containsKey((String) entryOutgoing.getKey())) {
-                        mArrayMap.put((String) entryOutgoing.getKey(), mArrayMapOutgoing.get(entryOutgoing.getKey()));
+
+                mArrayMap.putAll(mArrayMapTemple);
+                mArrayMapTemple.clear();
+            } else if (mArrayMapOutgoing != null && !mArrayMapOutgoing.isEmpty()) {
+
+                Iterator<Map.Entry<String, List<MessageItem>>> entryIteratorOutgoing = mArrayMapOutgoing.entrySet().iterator();
+
+                while (entryIteratorOutgoing.hasNext()) {
+                    Map.Entry itemOutgoing = entryIteratorOutgoing.next();
+                    if (!mArrayMap.containsKey((String) itemOutgoing.getKey())) {
+                        mArrayMap.put((String) itemOutgoing.getKey(), mArrayMapOutgoing.get(itemOutgoing.getKey()));
                     }
                 }
             }
+
+
 
 
             List<ConversationModel> mConversationModels = new ArrayList<>();
