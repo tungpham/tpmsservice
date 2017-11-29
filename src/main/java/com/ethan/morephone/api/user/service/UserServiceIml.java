@@ -44,7 +44,7 @@ public class UserServiceIml implements UserService {
                 .lastName(user.getLastName())
                 .languageCode(user.getLanguageCode())
                 .device(user.getDevice())
-                .token(user.getTokenFcms())
+//                .token(user.getTokenFcms())
                 .platform(user.getPlatform())
                 .build();
 
