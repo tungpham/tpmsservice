@@ -1,6 +1,7 @@
 package com.ethan.morephone.api.user.service;
 
 import com.ethan.morephone.api.user.UserNotFoundException;
+import com.ethan.morephone.api.user.domain.TokenFcm;
 import com.ethan.morephone.api.user.domain.User;
 import com.ethan.morephone.api.user.domain.UserDTO;
 import com.ethan.morephone.api.user.repository.UserRepository;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +44,7 @@ public class UserServiceIml implements UserService {
                 .lastName(user.getLastName())
                 .languageCode(user.getLanguageCode())
                 .device(user.getDevice())
-                .token(user.getToken())
+                .token(user.getTokenFcms())
                 .platform(user.getPlatform())
                 .build();
 
@@ -92,7 +94,7 @@ public class UserServiceIml implements UserService {
         LOGGER.info("Updating user entry with information: {}", user);
 
         User updated = findTodoById(user.getId());
-        updated.update(user.getToken());
+        updated.update(user.getTokenFcms());
         updated = repository.save(updated);
 
         LOGGER.info("Updated user entry with information: {}", updated);
@@ -121,12 +123,28 @@ public class UserServiceIml implements UserService {
     }
 
     @Override
-    public UserDTO updateToken(String id, String token) {
+    public UserDTO updateToken(String id, int platform, String token) {
         User updated = findTodoById(id);
-        if (!updated.getToken().equals(token)) {
-            updated.update(token);
-            updated = repository.save(updated);
+        if (updated.getTokenFcms() != null && !updated.getTokenFcms().isEmpty()) {
+            boolean exists = false;
+            for (TokenFcm tokenFcm : updated.getTokenFcms()) {
+                if (tokenFcm.getPlatform() == platform) {
+                    tokenFcm.setToken(token);
+                    exists = true;
+                    break;
+                }
+            }
+            if(!exists){
+                updated.getTokenFcms().add(new TokenFcm(platform, token));
+            }
+
+        } else {
+            List<TokenFcm> tokenFcms = new ArrayList<>();
+            tokenFcms.add(new TokenFcm(platform, token));
+            updated.setTokenFcms(tokenFcms);
         }
+
+        updated = repository.save(updated);
         return convertToDTO(updated);
     }
 
@@ -171,7 +189,7 @@ public class UserServiceIml implements UserService {
         dto.setCountry(model.getCountry());
         dto.setFirstName(model.getFirstName());
         dto.setLastName(model.getLastName());
-        dto.setToken(model.getToken());
+        dto.setTokenFcms(model.getTokenFcms());
         dto.setCreatedAt(model.getCreatedAt());
         dto.setUpdatedAt(model.getUpdatedAt());
         dto.setPlatform(model.getPlatform());

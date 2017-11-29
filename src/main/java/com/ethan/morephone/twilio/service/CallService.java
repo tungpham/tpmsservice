@@ -169,7 +169,7 @@ public class CallService {
                     if (usage.getBalance() < Constants.PRICE_CALL_MIN) {
                         UserDTO userDTO = mUserService.findById(usage.getUserId());
                         if (userDTO != null) {
-                            FCM.sendNotification(userDTO.getToken(), Constants.FCM_SERVER_KEY, HTTPStatus.MONEY.getReasonPhrase(), "");
+                            FCM.pushMessages(userDTO.getTokenFcms(), HTTPStatus.MONEY.getReasonPhrase(), "");
                         }
                         try {
                             twiml = new VoiceResponse.Builder()

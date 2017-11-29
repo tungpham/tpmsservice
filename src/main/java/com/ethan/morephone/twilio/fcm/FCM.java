@@ -1,6 +1,8 @@
 package com.ethan.morephone.twilio.fcm;
 
 
+import com.ethan.morephone.Constants;
+import com.ethan.morephone.api.user.domain.TokenFcm;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
@@ -10,6 +12,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 
 /**
@@ -90,6 +93,13 @@ public class FCM {
 
         }
 
+    }
+
+
+    public static void pushMessages(List<TokenFcm> tokenFcms, String title, String message){
+        for(TokenFcm tokenFcm : tokenFcms){
+            FCM.sendNotification(tokenFcm.getToken(), Constants.FCM_SERVER_KEY, title, message);
+        }
     }
 
 }

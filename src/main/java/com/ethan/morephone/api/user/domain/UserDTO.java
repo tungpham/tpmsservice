@@ -1,5 +1,7 @@
 package com.ethan.morephone.api.user.domain;
 
+import java.util.List;
+
 /**
  * Created by truongnguyen on 7/14/17.
  */
@@ -12,7 +14,7 @@ public final class UserDTO {
     private String country;
     private String languageCode;
     private String device;
-    private String token;
+    private List<TokenFcm> tokenFcms;
     private String platform;
     private String accountSid;
     private String authToken;
@@ -103,12 +105,12 @@ public final class UserDTO {
         this.updatedAt = updatedAt;
     }
 
-    public String getToken() {
-        return token;
+    public List<TokenFcm> getTokenFcms() {
+        return tokenFcms;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setTokenFcms(List<TokenFcm> token) {
+        this.tokenFcms = token;
     }
 
     public String getAccountSid() {

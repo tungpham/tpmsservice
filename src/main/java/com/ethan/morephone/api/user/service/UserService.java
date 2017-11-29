@@ -51,6 +51,6 @@ public interface UserService {
 
     UserDTO findByAccountSid(String accountSid);
 
-    UserDTO updateToken(String id, String token);
+    UserDTO updateToken(String id, int device, String token);
 
 }

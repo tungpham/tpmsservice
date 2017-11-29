@@ -79,15 +79,16 @@ public class MessageService {
 
             UserDTO user = mUserService.findById(phoneNumberDTO.getUserId());
             if (user != null) {
-                String token = user.getToken();
-                Utils.logMessage("TOKEN RECEIVE SMS: " + token);
+//                String token = user.getToken();
+//                Utils.logMessage("TOKEN RECEIVE SMS: " + token);
                 List<String> identities = new ArrayList<>();
                 identities.add(user.getEmail());
                 mUsageService.updateMessageIncoming(user.getId());
 
 //                sendNotification("High", allRequestParams.get("To"), allRequestParams.get("From"), allRequestParams.get("Body"), identities);
 //                sendNotification(token, allRequestParams.get("From") + "-" + allRequestParams.get("To"), allRequestParams.get("Body"));
-                FCM.sendNotification(token, Constants.FCM_SERVER_KEY, from + "-" + to, body);
+//                FCM.sendNotification(token, Constants.FCM_SERVER_KEY, from + "-" + to, body);
+                FCM.pushMessages(user.getTokenFcms(), from, body);
             }
 
             if (phoneNumberDTO.isForward()) {
@@ -121,7 +122,7 @@ public class MessageService {
                     }
 
                 } else {
-                    FCM.sendNotification(user.getToken(), Constants.FCM_SERVER_KEY, HTTPStatus.MONEY.getReasonPhrase(), "");
+                    FCM.pushMessages(user.getTokenFcms(), HTTPStatus.MONEY.getReasonPhrase(), "");
                 }
             }
         }
@@ -203,7 +204,7 @@ public class MessageService {
         } else {
             UserDTO userDTO = mUserService.findById(usageDTO.getUserId());
             if (userDTO != null) {
-                FCM.sendNotification(userDTO.getToken(), Constants.FCM_SERVER_KEY, HTTPStatus.MONEY.getReasonPhrase(), "");
+                FCM.pushMessages(userDTO.getTokenFcms(), HTTPStatus.MONEY.getReasonPhrase(), "");
             }
             return new com.ethan.morephone.http.Response<>(HTTPStatus.MONEY.getReasonPhrase(), HTTPStatus.MONEY);
         }

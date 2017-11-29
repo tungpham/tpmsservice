@@ -166,9 +166,10 @@ final class UserController {
 
     @RequestMapping(value = "/{id}/token", method = RequestMethod.PUT)
     Response<Object> updateToken(@PathVariable("id") String id,
+                                 @RequestParam(value = "platform") int platform,
                                  @RequestParam(value = "token") String token) {
 
-        UserDTO updated = service.updateToken(id, token);
+        UserDTO updated = service.updateToken(id, platform, token);
 
         if (updated == null) {
             return new Response<>(HTTPStatus.NOT_FOUND.getReasonPhrase(), HTTPStatus.NOT_FOUND);

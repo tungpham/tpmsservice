@@ -95,7 +95,7 @@ final class PhoneNumberController {
 
             } else {
                 UserDTO userDTO = mUserService.findById(todoEntry.getUserId());
-                FCM.sendNotification(userDTO.getToken(), Constants.FCM_SERVER_KEY, HTTPStatus.MONEY.getReasonPhrase(), "");
+                FCM.pushMessages(userDTO.getTokenFcms(), HTTPStatus.MONEY.getReasonPhrase(), "");
                 return new Response<>(HTTPStatus.MONEY.getReasonPhrase(), HTTPStatus.MONEY);
             }
 
@@ -146,7 +146,7 @@ final class PhoneNumberController {
 
             } else {
                 UserDTO userDTO = mUserService.findById(todoEntry.getUserId());
-                FCM.sendNotification(userDTO.getToken(), Constants.FCM_SERVER_KEY, HTTPStatus.MONEY.getReasonPhrase(), "");
+                FCM.pushMessages(userDTO.getTokenFcms(), HTTPStatus.MONEY.getReasonPhrase(), "");
                 return new Response<>(HTTPStatus.MONEY.getReasonPhrase(), HTTPStatus.MONEY);
             }
 

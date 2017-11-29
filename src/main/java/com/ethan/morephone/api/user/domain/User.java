@@ -4,6 +4,7 @@ import com.ethan.morephone.utils.Utils;
 import org.springframework.data.annotation.Id;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by truongnguyen on 7/14/17.
@@ -19,7 +20,7 @@ public final class User {
     private String country;
     private String languageCode;
     private String device;
-    private String token;
+    private List<TokenFcm> tokenFcms;
     private String platform;
     private long createdAt;
     private long updatedAt;
@@ -34,7 +35,7 @@ public final class User {
         this.lastName = builder.lastName;
         this.country = builder.country;
         this.languageCode = builder.languageCode;
-        this.token = builder.token;
+        this.tokenFcms = builder.tokenFcms;
         this.device = builder.device;
         this.platform = builder.platform;
         Date date = new Date();
@@ -110,12 +111,12 @@ public final class User {
         return platform;
     }
 
-    public String getToken() {
-        return token;
+    public List<TokenFcm> getTokenFcms() {
+        return tokenFcms;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setTokenFcms(List<TokenFcm> token) {
+        this.tokenFcms = token;
     }
 
     public String getAccountSid() {
@@ -139,8 +140,8 @@ public final class User {
         updatedAt = date.getTime();
     }
 
-    public void update(String token) {
-        this.token = token;
+    public void update(List<TokenFcm> token) {
+        this.tokenFcms = token;
         Date date = new Date();
         updatedAt = date.getTime();
     }
@@ -153,7 +154,7 @@ public final class User {
                 "User[id=%s, email=%s, token=%s]",
                 this.id,
                 this.email,
-                this.token
+                this.tokenFcms
         );
     }
 
@@ -166,7 +167,7 @@ public final class User {
         private String lastName;
         private String country;
         private String languageCode;
-        private String token;
+        private List<TokenFcm> tokenFcms;
         private String device;
         private String platform;
 
@@ -204,8 +205,8 @@ public final class User {
             return this;
         }
 
-        public Builder token(String token) {
-            this.token = token;
+        public Builder token(List<TokenFcm> tokenFcms) {
+            this.tokenFcms = tokenFcms;
             return this;
         }
 
