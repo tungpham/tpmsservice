@@ -346,13 +346,16 @@ public class MessageService {
                     mArrayMapOutgoing.putAll(executeData(messagesOutgoing, false));
                 }
             }
-            for (Map.Entry entry : mArrayMap.entrySet()) {
-                for (Map.Entry entryOutgoing : mArrayMapOutgoing.entrySet()) {
-                    if (entry.getKey().equals(entryOutgoing.getKey())) {
-                        mArrayMap.get(entry.getKey()).addAll(mArrayMapOutgoing.get(entryOutgoing.getKey()));
-                    } else {
-                        if(!mArrayMap.containsKey((String) entryOutgoing.getKey())){
-                            mArrayMap.put((String) entryOutgoing.getKey(), mArrayMapOutgoing.get(entryOutgoing.getKey()));
+
+            if (mArrayMap != null && !mArrayMap.isEmpty()) {
+                for (Map.Entry entry : mArrayMap.entrySet()) {
+                    for (Map.Entry entryOutgoing : mArrayMapOutgoing.entrySet()) {
+                        if (entry.getKey().equals(entryOutgoing.getKey())) {
+                            mArrayMap.get(entry.getKey()).addAll(mArrayMapOutgoing.get(entryOutgoing.getKey()));
+                        } else {
+                            if (!mArrayMap.containsKey((String) entryOutgoing.getKey())) {
+                                mArrayMap.put((String) entryOutgoing.getKey(), mArrayMapOutgoing.get(entryOutgoing.getKey()));
+                            }
                         }
                     }
                 }
