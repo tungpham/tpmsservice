@@ -22,7 +22,6 @@ public class CountryPhoneNumber {
 
     @Autowired
     CountryPhoneNumber() {
-
     }
 
 
