@@ -45,7 +45,7 @@ public class Test {
 
     public static void main(String[] args) {
 //        modifyApplication();
-        sendNotification("ok", "WHY");
+//        sendNotification("ok", "WHY");
 //        getApplication();
 //        token();
 //        binding();
@@ -64,6 +64,20 @@ public class Test {
 //        countDown();
 //        testTime();
 //        getAccessToken();
+        testDateTime();
+    }
+
+    private static void testDateTime(){
+        String date = "Wed, 29 Nov 2017 06:35:22 +0000";
+        SimpleDateFormat in = new SimpleDateFormat("E, d MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
+        SimpleDateFormat out = new SimpleDateFormat("MMM d, HH:mm a", Locale.ENGLISH);
+
+        try {
+            Date time = in.parse(date);
+            Utils.logMessage(out.format(time));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void showMessage(String accountSid, String authToken){
