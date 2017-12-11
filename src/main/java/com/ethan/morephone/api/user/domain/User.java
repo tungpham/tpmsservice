@@ -14,6 +14,7 @@ public final class User {
     @Id
     private String id;
     private String accountSid;
+    private String applicationSid;
     private String email;
     private String firstName;
     private String lastName;
@@ -31,6 +32,7 @@ public final class User {
     private User(Builder builder) {
         this.email = builder.email;
         this.accountSid = builder.accountSid;
+        this.applicationSid = builder.applicationSid;
         this.firstName = builder.firstName;
         this.lastName = builder.lastName;
         this.country = builder.country;
@@ -131,7 +133,25 @@ public final class User {
         this.platform = platform;
     }
 
+    public String getApplicationSid() {
+        return applicationSid;
+    }
 
+    public void setApplicationSid(String applicationSid) {
+        this.applicationSid = applicationSid;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
     public void update(String country, String languageCode) {
         this.country = country;
@@ -162,6 +182,7 @@ public final class User {
     public static class Builder {
         private String email;
         private String accountSid;
+        private String applicationSid;
 
         private String firstName;
         private String lastName;
@@ -182,6 +203,11 @@ public final class User {
 
         public Builder accountSid(String accountSid) {
             this.accountSid = accountSid;
+            return this;
+        }
+
+        public Builder applicationSid(String applicationSid) {
+            this.applicationSid = applicationSid;
             return this;
         }
 

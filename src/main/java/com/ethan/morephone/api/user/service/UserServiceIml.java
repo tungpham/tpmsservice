@@ -39,6 +39,7 @@ public class UserServiceIml implements UserService {
         User persisted = User.getBuilder()
                 .email(user.getEmail())
                 .accountSid(user.getAccountSid())
+                .applicationSid(user.getApplicationSid())
                 .country(user.getCountry())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
@@ -185,6 +186,7 @@ public class UserServiceIml implements UserService {
 
         dto.setId(model.getId());
         dto.setAccountSid(model.getAccountSid());
+        dto.setApplicationSid(model.getApplicationSid());
         dto.setEmail(model.getEmail());
         dto.setCountry(model.getCountry());
         dto.setFirstName(model.getFirstName());

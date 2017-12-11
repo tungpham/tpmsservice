@@ -98,8 +98,8 @@ final class UserController {
             if (application != null) {
 
                  /*----------------------CREATE USER -----------------------*/
+                todoEntry.setApplicationSid(application.getSid());
                 UserDTO created = service.create(todoEntry);
-                created.setApplicationSid(application.getSid());
 
                 /*----------------------CREATE USAGE -----------------------*/
                 UsageDTO usageDTO = new UsageDTO(created.getId(), created.getAccountSid(), 0, 0, 0, 0, 0);
